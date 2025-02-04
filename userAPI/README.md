@@ -1,5 +1,9 @@
 # testAPI for users database
-Not available to all IPs right now. Let me know (noah) and I can add your laptop's IP to the EC2 instance.
+
+# endpoint
+http://ec2-13-216-202-113.compute-1.amazonaws.com:3000
 
 # postman link
+
+log into postman using email: cpsc4910.team13@gmail.com and password: cpsc4910!
 [Here](https://team-13-2131.postman.co/workspace/Team13_CPSC4910~3a130bab-ddff-456d-b898-968aa010a2a5)
