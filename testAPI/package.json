@@ -1,7 +1,7 @@
 {
   "name": "ubuntu",
   "version": "1.0.0",
-  "description": "",
+  "description": "Not available to all IPs right now. Let me know (noah) and I can add your laptop's IP to the EC2 instance.",
   "main": "testAPI.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

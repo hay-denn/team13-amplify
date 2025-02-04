@@ -4,7 +4,6 @@ const PORT = 3000;
 const db = require('./db'); 
 
 app.use(express.json())
-var userArray = [];
 const user_types = ["driver","sponsor","admin"]
 
 app.listen(PORT, '0.0.0.0', () => {
@@ -22,23 +21,23 @@ app.get("/status", (request, response) => {
  *  Add user
  */
 app.post("/user", (request, response) => {
-  const { name, email, acc_type } = request.body;
+  const { UserEmail, UserType, UserFName, UserLName} = request.body;
 
-  if (!name || !email || !acc_type) {
+  if (!UserFName || !UserLName || !UserEmail || !UserType) {
     return response.status(400).json({
-      error: 'Name, email, and acc_type (account type) are required',
+      error: 'UserFName, UserLName, UserEmail, and UserType (account type) are required',
       account_types: user_types
     });
   }
 
-  if (!user_types.includes(acc_type)) {
+  if (!user_types.includes(UserType)) {
     return response.status(400).json({
       error: 'account type not valid',
       account_types: user_types
     });
   }
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+  db.query("SELECT * FROM users WHERE UserEmail = ?", [UserEmail], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -49,8 +48,8 @@ app.post("/user", (request, response) => {
     }
 
     db.query(
-      "INSERT INTO users (name, email, acc_type) VALUES (?, ?, ?)",
-      [name, email, acc_type],
+      "INSERT INTO users (UserFName, UserLName, UserEmail, UserType) VALUES (?, ?, ?, ?)",
+      [UserFName, UserLName, UserEmail, UserType],
       (err, insertResults) => {
         if (err) {
           console.error("Database insert error:", err);
@@ -59,7 +58,7 @@ app.post("/user", (request, response) => {
 
         response.status(201).json({
           message: 'User created',
-          user: { name, email, acc_type }
+          user: { UserFName, UserLName, UserEmail, UserType }
         });
       }
     );
@@ -70,13 +69,13 @@ app.post("/user", (request, response) => {
  * get specific user
  */
 app.get("/user", (request, response) => {
-  const { email } = request.body;
+  const { UserEmail } = request.body;
 
-  if (!email) {
-    return response.status(400).json({ error: 'email required' });
+  if (!UserEmail) {
+    return response.status(400).json({ error: 'UserEmail required' });
   }
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+  db.query("SELECT * FROM users WHERE UserEmail = ?", [UserEmail], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -95,10 +94,10 @@ app.get("/user", (request, response) => {
  * also get all users of a specific account type
  */
 app.get("/users", (request, response) => {
-  const { acc_type } = request.query;
+  const { UserType } = request.query;
 
-  if (acc_type) {
-    if (!user_types.includes(acc_type)) {
+  if (UserType) {
+    if (!user_types.includes(UserType)) {
       return response.status(400).json({
         error: "account type not valid",
         account_types: user_types,
@@ -106,8 +105,8 @@ app.get("/users", (request, response) => {
     }
 
     db.query(
-      "SELECT * FROM users WHERE acc_type = ?",
-      [acc_type],
+      "SELECT * FROM users WHERE UserType = ?",
+      [UserType],
       (err, results) => {
         if (err) {
           console.error("Database error:", err);
@@ -132,13 +131,13 @@ app.get("/users", (request, response) => {
  * update user
  */
 app.put("/user", (request, response) => {
-  const { email, name, acc_type } = request.body;
+  const { UserEmail, UserFName, UserLName, UserType } = request.body;
 
-  if (!email) {
-    return response.status(400).json({ error: 'email required' });
+  if (!UserEmail) {
+    return response.status(400).json({ error: 'UserEmail required' });
   }
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+  db.query("SELECT * FROM users WHERE UserEmail = ?", [UserEmail], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -151,28 +150,34 @@ app.put("/user", (request, response) => {
     const updates = [];
     const values = [];
 
-    if (name) {
-      updates.push("name = ?");
-      values.push(name);
+    if (UserFName) {
+      updates.push("UserFName = ?");
+      values.push(UserFName);
     }
 
-    if (acc_type) {
-      if (!user_types.includes(acc_type)) {
+    if (UserLName) {
+      updates.push("UserLName = ?");
+      values.push(UserLName);
+    }
+
+
+    if (UserType) {
+      if (!user_types.includes(UserType)) {
         return response.status(400).json({
           error: 'account type not valid',
           account_types: user_types
         });
       }
-      updates.push("acc_type = ?");
-      values.push(acc_type);
+      updates.push("UserType = ?");
+      values.push(UserType);
     }
 
     if (updates.length === 0) {
       return response.json({ message: 'No changes provided' });
     }
 
-    const updateQuery = `UPDATE users SET ${updates.join(", ")} WHERE email = ?`;
-    values.push(email); 
+    const updateQuery = `UPDATE users SET ${updates.join(", ")} WHERE UserEmail = ?`;
+    values.push(UserEmail); 
 
     db.query(updateQuery, values, (updateErr, updateResults) => {
       if (updateErr) {
@@ -180,7 +185,7 @@ app.put("/user", (request, response) => {
         return response.status(500).json({ error: 'Database update error' });
       }
 
-      db.query("SELECT * FROM users WHERE email = ?", [email], (selErr, selResults) => {
+      db.query("SELECT * FROM users WHERE UserEmail = ?", [UserEmail], (selErr, selResults) => {
         if (selErr) {
           console.error("Database select error:", selErr);
           return response.status(500).json({ error: 'Database select error after update' });
@@ -199,12 +204,12 @@ app.put("/user", (request, response) => {
  * delete a user
  */
 app.delete("/user", (request, response) => {
-  const { email } = request.body;
-  if (!email) {
-    return response.status(400).json({ error: 'email required' });
+  const { UserEmail } = request.body;
+  if (!UserEmail) {
+    return response.status(400).json({ error: 'UserEmail required' });
   }
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+  db.query("SELECT * FROM users WHERE UserEmail = ?", [UserEmail], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -216,7 +221,7 @@ app.delete("/user", (request, response) => {
 
     const userToDelete = results[0];
 
-    db.query("DELETE FROM users WHERE email = ?", [email], (deleteErr, deleteResults) => {
+    db.query("DELETE FROM users WHERE UserEmail = ?", [UserEmail], (deleteErr, deleteResults) => {
       if (deleteErr) {
         console.error("Database delete error:", deleteErr);
         return response.status(500).json({ error: 'Database delete error' });
@@ -234,10 +239,10 @@ app.delete("/user", (request, response) => {
  * get user count
  */
 app.get("/user_count", (request, response) => {
-  const { acc_type } = request.query;
+  const { UserType } = request.query;
 
-  if (acc_type) {
-    if (!user_types.includes(acc_type)) {
+  if (UserType) {
+    if (!user_types.includes(UserType)) {
       return response.status(400).json({
         error: "account type not valid",
         account_types: user_types
@@ -245,8 +250,8 @@ app.get("/user_count", (request, response) => {
     }
 
     db.query(
-      "SELECT COUNT(*) AS count FROM users WHERE acc_type = ?",
-      [acc_type],
+      "SELECT COUNT(*) AS count FROM users WHERE UserType = ?",
+      [UserType],
       (err, results) => {
         if (err) {
           console.error("Database error:", err);
