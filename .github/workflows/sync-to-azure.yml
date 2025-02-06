@@ -1,0 +1,23 @@
+name: Sync GitHub to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures all history is fetched
+
+      - name: Push to Azure DevOps
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote add azure https://S25-Team13:${{ secrets.AZURE_PAT }}@dev.azure.com/S25-Team13/S25-Team13/_git/S25-Team13
+          git push --mirror azure
