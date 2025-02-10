@@ -1,18 +1,35 @@
+# Pipeline to automatically mirror
+# an Azure DevOps repository in a private GitHub repository
+
+# Trigger on all branches
 trigger:
-  - main  # Runs when changes are made to the 'main' branch. Add other branches if needed.
+- '*'
 
+# Use latest Ubuntu image
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
+# Pipeline
 steps:
-  - checkout: self  # Checkout the Azure DevOps repo
-    persistCredentials: true
+- checkout: none
+- script: |
+      
+      # Install urlencode function to encode reserved characters in passwords
+      sudo apt-get install gridsite-clients
 
-  - script: |
-      git config --global user.email "azure-pipelines@dev.azure.com"
-      git config --global user.name "Azure Pipelines"
-      git remote add github https://github.com/hay-denn/team13-amplify.git
-      git fetch github
-      git pull github main --allow-unrelated-histories
-      git push origin main
-    displayName: 'Sync from GitHub to Azure'
+      # Create local mirror of Azure DevOps repository
+      git clone --mirror https://${AZURE_GIT_USERNAME}:$(urlencode ${AZURE_GIT_PASSWORD})@${AZURE_REPO_URL} repo-mirror
+      
+      # Sync GitHub repository
+      cd repo-mirror
+      
+      git push --mirror "https://${GITHUB_USERNAME}:$(urlencode ${GITHUB_TOKEN})@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git"
+      
+  displayName: 'Sync repository with GitHub'
+  env:
+    AZURE_REPO_URL: $(AZURE_REPO_URL)
+    AZURE_GIT_USERNAME: $(AZURE_GIT_USERNAME)
+    AZURE_GIT_PASSWORD: $(AZURE_GIT_PASSWORD)
+    GITHUB_USERNAME: $(GITHUB_USERNAME)
+    GITHUB_TOKEN: $(GITHUB_TOKEN)
+    GITHUB_REPO: $(GITHUB_REPO)
