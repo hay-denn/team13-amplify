@@ -1,0 +1,18 @@
+trigger:
+  - main  # Runs when changes are made to the 'main' branch. Add other branches if needed.
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self  # Checkout the Azure DevOps repo
+    persistCredentials: true
+
+  - script: |
+      git config --global user.email "azure-pipelines@dev.azure.com"
+      git config --global user.name "Azure Pipelines"
+      git remote add github https://github.com/hay-denn/team13-amplify.git
+      git fetch github
+      git pull github main --allow-unrelated-histories
+      git push origin main
+    displayName: 'Sync from GitHub to Azure'
