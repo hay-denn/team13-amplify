@@ -1,5 +1,6 @@
 import { useAuth } from "react-oidc-context";
 import { useState } from "react";
+import { useEffect } from "react";
 import Home from './pages/Home';
 import About from './pages/About';
 import DriverDashboard from './dashboards/DriverDashboard';
@@ -10,6 +11,21 @@ import { signUpRedirect } from "./main";
 function App() {
   const auth = useAuth();
   const [currentPage, setCurrentPage] = useState("home"); // Track active page
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("code")) {
+      auth.signinSilent().then(() => {
+        const state = params.get("state");
+        if (state) {
+          const decodedState = JSON.parse(atob(decodeURIComponent(state)));
+          if (decodedState.redirect === "dashboard") {
+            window.location.href = "/dashboard"; 
+          }
+        }
+      });
+    }
+  }, [auth]);
 
   if (auth.isLoading) {
     return <div>Loading...</div>;

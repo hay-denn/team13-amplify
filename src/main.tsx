@@ -17,12 +17,14 @@ const cognitoAuthConfig = {
 };
 
 export const signUpRedirect = () => {
-  const clientId = "r7oq53d98cg6a8l4cj6o8l7tm";
   const cognitoDomain = "https://us-east-1jnojoftl2.auth.us-east-1.amazoncognito.com";
+  const clientId = "r7oq53d98cg6a8l4cj6o8l7tm";
   const redirectUri = "https://main.d1zgxgaa1s4k42.amplifyapp.com/";
 
-  window.location.href = `${cognitoDomain}/signup?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-}
+  const state = encodeURIComponent(btoa(JSON.stringify({ redirect: "dashboard" })));
+
+  window.location.href = `${cognitoDomain}/signup?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+};
 
 export const signOutRedirect = () => {
   const clientId = "r7oq53d98cg6a8l4cj6o8l7tm";
