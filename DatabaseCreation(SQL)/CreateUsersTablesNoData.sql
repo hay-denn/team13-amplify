@@ -76,3 +76,42 @@ begin
 end$$
 
 delimiter ;
+
+create table driversponsorapplications(
+	ApplicationID int auto_increment Primary Key,
+    ApplicationDriver varchar(50) NOT NULL,
+    ApplicationOrganization int NOT NULL,
+    ApplicationSponsorUser varchar(50),
+    ApplicationStatus varchar(15) NOT NULL,
+    foreign key (ApplicationDriver) references drivers(DriverEmail),
+    foreign key (ApplicationOrganization) references sponsororganizations(OrganizationID),
+    foreign key (ApplicationSponsorUser) references sponsorusers(UserEmail));
+    
+create table catalog(
+	CatalogID int auto_increment Primary Key,
+    CatalogOrganization int NOT NULL,
+    foreign key (CatalogOrganization) references sponsororganizations(OrganizationID));
+    
+create table product(
+	ProductID int auto_increment Primary Key,
+    ProductCatalog int NOT NULL,
+    ProductName varchar(50),
+    ProductDescription varchar(100),
+    ProductPrice decimal(6,2) NOT NULL,
+    ProductInventory int NOT NULL,
+    foreign key (ProductCatalog) references catalog(CatalogID));
+    
+create table purchases(
+	PurchaseID int auto_increment Primary Key,
+    PurchaseDriver varchar(50) NOT NULL,
+    PurchaseDate date NOT NULL,
+    PurchaseStatus varchar(20) NOT NULL,
+    foreign key (PurchaseDriver) references drivers(DriverEmail));
+    
+create table productspurchased(
+	ProductPurchasedID int,
+    PuchaseAssociatedID int,
+    ProductPurchaseQuantity int,
+    primary key(ProductPurchasedID, PuchaseAssociatedID),
+    foreign key (ProductPurchasedID) references product(ProductID),
+    foreign key (PuchaseAssociatedID) references purchases(PurchaseID));
