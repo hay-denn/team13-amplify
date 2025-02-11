@@ -5,38 +5,33 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Navbar container */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* Puts nav links on the left, buttons on the right */
+  align-items: center; /* Centers items vertically */
+  padding: 1rem;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #242424; /* Adjust color if needed */
+  z-index: 1000; /* Ensure navbar is above other content */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Navigation links (left side) */
+.nav-links {
+  display: flex;
+  gap: 1rem; /* Adds spacing between links */
 }
 
-.card {
-  padding: 2em;
+/* Auth buttons (right side) */
+.auth-buttons {
+  display: flex;
+  gap: 0.5rem; /* Adds spacing between buttons */
 }
 
-.read-the-docs {
-  color: #888;
+/* Fix body spacing to prevent content from being covered by navbar */
+body {
+  padding-top: 70px; /* Adjust based on navbar height */
 }

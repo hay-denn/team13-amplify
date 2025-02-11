@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-amplify/api": "^6.2.3",
+    "@aws-amplify/api-rest": "^4.0.68",
     "@aws-amplify/ui-react": "^6.9.1",
     "aws-amplify": "^6.12.3",
     "oidc-client-ts": "^3.1.0",
