@@ -1,5 +1,4 @@
 import { useAuth } from "react-oidc-context";
-import { signOutRedirect } from "../main";
 
 const DriverDashboard = () => {
   const auth = useAuth();
@@ -16,7 +15,7 @@ const DriverDashboard = () => {
       <pre> Refresh Token: {auth.user?.refresh_token} </pre>
       <pre> Group: {cognitoGroups[0]} </pre>
 
-      <button onClick={signOutRedirect}>Sign out</button>
+      <button onClick = {() => auth.removeUser()}>Sign Out</button>
     </div>
   );
 };
