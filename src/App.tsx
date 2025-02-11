@@ -8,6 +8,7 @@ import Admin from './pages/Admin';
 import DriverDashboard from './dashboards/DriverDashboard';
 import SponsorDashboard from './dashboards/SponsorDashboard';
 import AdminDashboard from './dashboards/AdminDashboard';
+import { signUpRedirect } from "./main";
 
 function App() {
   const auth = useAuth();
@@ -59,7 +60,7 @@ function App() {
         <div className="auth-buttons">
           <button className="auth-button" onClick={() => auth.signinRedirect()}>Sign in</button>
           <span className="divider">|</span>
-          <button className="auth-button" onClick={() => auth.signinRedirect({ extraQueryParams: { prompt: "signup" } })}>Sign up</button>
+          <button className="auth-button" onClick={signUpRedirect}>Sign up</button>
         </div>
       </header>
 
