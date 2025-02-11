@@ -2,9 +2,6 @@ import { useAuth } from "react-oidc-context";
 import { useState } from "react";
 import Home from './pages/Home';
 import About from './pages/About';
-import Driver from './pages/Driver';
-import Sponsor from './pages/Sponsor';
-import Admin from './pages/Admin';
 import DriverDashboard from './dashboards/DriverDashboard';
 import SponsorDashboard from './dashboards/SponsorDashboard';
 import AdminDashboard from './dashboards/AdminDashboard';
@@ -68,9 +65,6 @@ function App() {
       <main>
         {currentPage === "home" && <Home />}
         {currentPage === "about" && <About />}
-        {currentPage === "driver" && <Driver />}
-        {currentPage === "sponsor" && <Sponsor />}
-        {currentPage === "admin" && <Admin />}
       </main>
     </div>
   );

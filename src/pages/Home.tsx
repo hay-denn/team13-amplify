@@ -1,4 +1,5 @@
 import { useAuth } from "react-oidc-context"; 
+import { signUpRedirect } from "../main";
 
 export default function Home() {
   const auth = useAuth();
@@ -11,7 +12,7 @@ export default function Home() {
       <p>
         <a href="#" className="auth-link" onClick={(e) => { 
           e.preventDefault();
-          auth.signinRedirect({ extraQueryParams: { prompt: "signup" } });
+          signUpRedirect();
         }}>
           Create your account
         </a> 
