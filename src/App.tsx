@@ -4,7 +4,7 @@ function App() {
   const auth = useAuth();
 
   const signOutRedirect = () => {
-    const clientId = "498pq3e96gn73adno4tb4glshi";
+    const clientId = "7lcfj0p5cbutnvhvsae9o7qclo";
     const logoutUri = "<logout uri>";
     const cognitoDomain = "https://us-east-18eom51kmh.auth.us-east-1.amazoncognito.com";
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
