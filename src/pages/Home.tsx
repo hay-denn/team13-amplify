@@ -1,8 +1,6 @@
-import { useAuth } from "react-oidc-context"; 
 import { signUpRedirect } from "../main";
 
 export default function Home() {
-  const auth = useAuth();
 
   return (
     <div>
