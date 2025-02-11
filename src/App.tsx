@@ -13,13 +13,6 @@ function App() {
   const auth = useAuth();
   const [currentPage, setCurrentPage] = useState("home"); // Track active page
 
-  const signOutRedirect = () => {
-    const clientId = "r7oq53d98cg6a8l4cj6o8l7tm";
-    const logoutUri = "https://main.d1zgxgaa1s4k42.amplifyapp.com/";
-    const cognitoDomain = "https://us-east-1jnojoftl2.auth.us-east-1.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
-};
-
   if (auth.isLoading) {
     return <div>Loading...</div>;
   }
@@ -48,16 +41,6 @@ function App() {
 
   return (
     <div>
-      {/* Navbar with buttons for navigation
-      <header className="navbar">
-        <nav className="nav-links">
-          <button onClick={() => setCurrentPage("home")}>Home</button> |{" "}
-          <button onClick={() => setCurrentPage("about")}>About</button> |{" "}
-          <button onClick={() => auth.signinRedirect()}>Sign in</button> |{" "}
-          <button onClick={() => auth.signinRedirect({ extraQueryParams: { prompt: "signup" } })}>Sign up</button>
-        </nav>
-      </header> */}
-
       {/* Left Side - Info Links */}
       <header className="navbar">
         {/* Navbar with buttons for navigation */}
