@@ -36,7 +36,7 @@ const AdminDashboard = () => {
       {showForm && (
         <form onSubmit={handleChangePassword}>
           <div>
-            <label>Current Password:</label>
+            <label>Current Password: </label>
             <input
               type="password"
               value={currentPassword}
@@ -45,7 +45,7 @@ const AdminDashboard = () => {
             />
           </div>
           <div>
-            <label>New Password:</label>
+            <label>New Password: </label>
             <input
               type="password"
               value={newPassword}
@@ -54,6 +54,8 @@ const AdminDashboard = () => {
             />
           </div>
           <button type="submit">Update Password</button>
+          <span className="divider">|</span>
+          <button type="button" onClick={() => setShowForm(false)}>Cancel</button>
           {message && <p>{message}</p>}
         </form>
       )}
