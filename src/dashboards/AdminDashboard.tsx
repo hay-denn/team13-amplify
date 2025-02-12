@@ -11,6 +11,8 @@ const AdminDashboard = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,22 +44,42 @@ const AdminDashboard = () => {
         <form onSubmit={handleChangePassword} className="dashboard-form">
           <div className="form-group">
             <label>Current Password:</label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-            />
+            <div className="password-wrapper">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              >
+                {showCurrentPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
+
           <div className="form-group">
             <label>New Password:</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
+            <div className="password-wrapper">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+              >
+                {showNewPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
+
           <div className="form-actions">
             <button type="submit" className="dashboard-button success-button">
               Update Password
