@@ -1,14 +1,24 @@
+//react or amplify components
 import { useAuth } from "react-oidc-context";
-import { useState } from "react";
-import Home from './pages/Home';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+//import { useState } from "react";
+
+//our components
+import { Navbar } from './components/Navbar'
+
+//pages
 import About from './pages/About';
-import DriverDashboard from './dashboards/DriverDashboard';
-import SponsorDashboard from './dashboards/SponsorDashboard';
-import AdminDashboard from './dashboards/AdminDashboard';
+import Home from './pages/Home' //this is the 'home' page for non-signed in users
+import { DriverDashboard } from './pages/DriverDashboard';
+import { SponsorDashboard } from './pages/SponsorDashboard';
+import { AdminDashboard } from './pages/AdminDashboard';
+
 
 function App() {
   const auth = useAuth();
-  const [currentPage, setCurrentPage] = useState("home"); // Track active page
+  const cognitoGroups: string[] = auth.user?.profile?.["cognito:groups"] as string[] || [];
+  const userGroup = cognitoGroups[0];
+
 
   if (auth.isLoading) {
     return <div>Loading...</div>;
@@ -19,50 +29,57 @@ function App() {
   }
 
   if (auth.isAuthenticated) {
-
     /* Obtain the group the user is assigned to in Cognito */
-    const cognitoGroups: string[] = auth.user?.profile?.["cognito:groups"] as string[] || [];
-    const userGroup = cognitoGroups[0];
-
     switch (userGroup) {
       case "Driver":
-        return <DriverDashboard />;
+        return (
+          <div>
+            <Router>
+              <Routes>
+                <Route path="/" element={<DriverDashboard />} />
+                <Route path="/about" element={<About />} />
+              </Routes>
+            </Router>
+          </div>
+        );
       case "Sponsor":
-        return <SponsorDashboard />;
+        return (
+          <div>
+            <Router>
+              <Routes>
+                <Route path="/" element={<SponsorDashboard />} />
+                <Route path="/about" element={<About />} />
+              </Routes>
+            </Router>
+          </div>
+        );
       case "Admin":
-        return <AdminDashboard />;
+        return (
+          <div>
+            <Router>
+              <Routes>
+                <Route path="/" element={<AdminDashboard />} />
+                <Route path="/about" element={<About />} />
+              </Routes>
+            </Router>
+          </div>
+        );
       default:
         return <div>Access Denied</div>;
     }
   }
 
   return (
+    //this is what is returned if a user is not signed in
+    //routes should only go to pages that don't require authentication
     <div>
-      {/* Left Side - Info Links */}
-      <header className="navbar">
-        {/* Navbar with buttons for navigation */}
-        <nav className="nav-links">
-          <button className="nav-button" onClick={() => setCurrentPage("home")}>Home</button>
-          <span className="divider">|</span>
-          <button className="nav-button" onClick={() => setCurrentPage("about")}>About</button>
-        </nav>
-
-        {/* Middle - Home Redirect */}
-        <div className="home-button">
-          <a href="/" className="home-link">Drive Rewards</a>
-        </div>
-
-        {/* Right Side - Authentication Links */}
-        <div className="auth-buttons">
-          <button className="auth-button" onClick={() => auth.signinRedirect()}>Sign in</button>
-        </div>
-      </header>
-
-      {/* Render the selected page */}
-      <main>
-        {currentPage === "home" && <Home />}
-        {currentPage === "about" && <About />}
-      </main>
+    <Router>
+    <Navbar userType="Guest"></Navbar>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
     </div>
   );
 }

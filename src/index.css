@@ -4,7 +4,11 @@
   text-align: center;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #1c1c1c; 
+  background-color: #ffffff; 
+}
+
+.home-page, .about-page {
+  padding-top: 50px;
 }
 
 body {
