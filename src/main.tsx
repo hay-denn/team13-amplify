@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 import { AuthProvider } from "react-oidc-context";
+import { Amplify } from 'aws-amplify';
 
 const deployment = "sprint-3";
 
@@ -31,3 +32,30 @@ createRoot(document.getElementById('root')!).render(
     </AuthProvider>
   </StrictMode>
 );
+
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      userPoolId: "us-east-1_jnOjoFtl2",
+      userPoolClientId: "r7oq53d98cg6a8l4cj6o8l7tm",
+      identityPoolId: "us-east-1:98af04f7-0a31-4366-b06a-cfeb190f64a3",
+      loginWith: {
+        email: true,
+      },
+      signUpVerificationMethod: "code",
+      userAttributes: {
+        email: {
+          required: true,
+        },
+      },
+      allowGuestAccess: true,
+      passwordFormat: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireNumbers: true,
+        requireSpecialCharacters: true,
+      },
+    },
+  },
+})
