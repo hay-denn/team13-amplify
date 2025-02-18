@@ -11,7 +11,7 @@ export const DriverDashboard = () => {
     <>
       <Navbar companyName={companyName} userType="Driver"></Navbar>
       <DashBoardHome
-        userFName= {auth.user?.profile?.name || "No Name"}
+        userFName= {auth.user?.profile.email || "No Name"}
         companyName={companyName}
       ></DashBoardHome>
     </>
