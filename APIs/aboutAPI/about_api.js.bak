@@ -1,0 +1,62 @@
+const express = require('express');
+const app = express();
+const PORT = 3001;
+
+app.use(express.json())
+const user_types = ["driver",
+					"sponsor",
+					"admin"]
+
+app.listen(PORT, '0.0.0.0', () => {
+	console.log('Server listening on port 3001');
+});						  
+
+app.get("/status", (request, response) => {
+	const status = {
+		"Status": "Running"
+	};
+	response.send(status);
+});
+
+/*
+*  Add about information to the about database
+*/
+app.post("/about", (request, response) => {
+	const { sprint_num, team_member1,
+		team_member2, team_member3, team_member4, team_member5} = request.body;
+
+    if (!sprint_num || !team_member1 || !team_member2 !team_member3 !team_member4 !team_member5) {
+        return response.status(400).json({ error: "Sprint number and at least one team member are required" });
+    }
+
+    try {
+        const query = `
+            INSERT INTO about (sprint_num, team_member1, team_member2, team_member3, team_member4, team_member5)
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+        `;
+
+        const values = [sprint_num, team_member1, team_member2 team_member3, team_member4, team_member5];
+
+        const result = await db.query(query, values);
+
+        response.status(201).json({ message: "About information added", entry: result.rows[0] });
+    } catch (error) {
+        console.error("Database insert error:", error);
+        response.status(500).json({ error: "Internal server error" });
+    }
+});	
+	
+/*
+ * Get all about information
+ */
+app.get("/about", async (request, response) => {
+    try {
+        const result = await db.query("SELECT * FROM about;");
+        response.json(result.rows);
+    } catch (error) {
+        console.error("Database query error:", error);
+        response.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
