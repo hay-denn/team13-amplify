@@ -1,0 +1,14 @@
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.275);
+    padding: 10px; 
+    border-radius: 8px;
+    display: inline-block; 
+  }
+  
+  .carousel-caption h5,
+  .carousel-caption p {
+    color: #b2e7ffea !important;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  

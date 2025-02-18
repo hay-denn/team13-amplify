@@ -1,95 +1,57 @@
 import { useState, useEffect } from "react";
 
-type TeamMember = {
-    MemeberID: number;
-    FirstName: string;
-    LastName: string;
-};
-
-type AboutTeam = {
-    TeamNumber: number;
-    SprintNumber: number;
-    ReleaseDate: string;  // or Date if you want to parse it
-    ProductName: string;
-    ProductDescription: string;
+type AboutInfo = {
+    id: number;
+    sprint_num: number;
+    team_member1: string;
+    team_member2: string;
+    team_member3: string;
+    team_member4: string;
+    team_member5: string;
+    created_at: string;
 };
 
 export default function About() {
-    // State for the team members
-    const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-    // State for the about team info (assuming your endpoint returns an array, we’ll just store the first item)
-    const [aboutTeam, setAboutTeam] = useState<AboutTeam | null>(null);
-    // Loading & error states
+    const [aboutData, setAboutData] = useState<AboutInfo[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-    // We can fetch both endpoints in parallel or sequentially. 
-    // Here, we do them in parallel using Promise.all.
-
-    const fetchTeamMembers = fetch("https://8xjqp87715.execute-api.us-east-1.amazonaws.com/dev1/teammembers")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Team members fetch error! Status: ${response.status}`);
-            }
-            return response.json() as Promise<TeamMember[]>;
-    });
-
-    const fetchAboutTeam = fetch("https://8xjqp87715.execute-api.us-east-1.amazonaws.com/dev1/aboutteam")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`About team fetch error! Status: ${response.status}`);
-            }
-        return response.json() as Promise<AboutTeam[]>;
-    });
-
-    Promise.all([fetchTeamMembers, fetchAboutTeam])
-        .then(([membersData, aboutTeamData]) => {
-            setTeamMembers(membersData);
-            // aboutTeamData is an array, so we’ll assume it has at least one object
-            setAboutTeam(aboutTeamData[0] || null);
-            setLoading(false);
-    })
-        .catch(err => {
-        console.error("Fetch error:", err);
-        setError("Failed to load team information.");
-        setLoading(false);
-    });
+        fetch("https://f80ht57pud.execute-api.us-east-1.amazonaws.com/about") // Ensure this is the correct API URL
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data: AboutInfo[]) => {
+                setAboutData(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                setError("Failed to load about information.");
+                setLoading(false);
+            });
     }, []);
 
     if (loading) return <h1>Loading...</h1>;
     if (error) return <h1>{error}</h1>;
 
     return (
-    <div>
-        <h1>About Our Team</h1>
-
-        {/* About Team Info */}
-        {aboutTeam ? (
-        <div>
-            <p><strong>Team Number:</strong> {aboutTeam.TeamNumber}</p>
-            <p><strong>Sprint Number:</strong> {aboutTeam.SprintNumber}</p>
-            <p><strong>Release Date:</strong> {aboutTeam.ReleaseDate}</p>
-            <p><strong>Product Name:</strong> {aboutTeam.ProductName}</p>
-            <p><strong>Product Description:</strong> {aboutTeam.ProductDescription}</p>
+        <div className="about-page">
+            <h1>About Us</h1>
+            {aboutData.length === 0 ? (
+                <p>No about information available.</p>
+            ) : (
+                <ul>
+                    {aboutData.map((item) => (
+                        <li key={item.id}>
+                            <strong>Sprint {item.sprint_num}</strong>: {item.team_member1}, {item.team_member2}, {item.team_member3}, {item.team_member4}, {item.team_member5}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
-        ) : (
-    <p>No "About Team" info available.</p>
-    )}
-
-    {/* Team Members */}
-    <h2>Team Members</h2>
-    {teamMembers.length === 0 ? (
-        <p>No team members found.</p>
-    ) : (
-    <ul>
-        {teamMembers.map(member => (
-        <li key={member.MemeberID}>
-        {member.FirstName} {member.LastName}
-        </li>
-        ))}
-    </ul>
-    )}
-    </div>
     );
 }

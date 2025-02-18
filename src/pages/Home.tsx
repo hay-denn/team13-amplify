@@ -4,9 +4,8 @@ export default function Home() {
   const auth = useAuth();
 
   return (
-    <div>
+    <div className ="home-page">
       <h1>Welcome to Drive Rewards!</h1>
-
       {/* Displays the welcome text with a button to sign in */}
       <p>
         <a
