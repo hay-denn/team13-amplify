@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-// Not using "Auth" from AWS Amplify at all
 import { useAuth } from "react-oidc-context";
 import EditableInput from "../components/EditableInput";
 
-const REGION = "us-east-1"; // or your region
+const REGION = "us-east-1"; 
 const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
 
 export const AccountSettings: React.FC = () => {
@@ -33,6 +32,7 @@ export const AccountSettings: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Whenever newPassword changes, update the requirement flags
   useEffect(() => {
     setHasNumber(/\d/.test(newPassword));
     setHasSpecialChar(/[!@#$%^&*(),.?":{}|<>]/.test(newPassword));
@@ -72,9 +72,7 @@ export const AccountSettings: React.FC = () => {
       return;
     }
 
-    // You need the Cognito "access_token" from your OIDC library
-    // For example, with react-oidc-context, it might be something like:
-    // auth.user?.access_token or auth.user?.access_token?
+    // Example: grabbing the access token from your OIDC library
     const userAccessToken = auth.user?.access_token; // Adjust to match your setup
     if (!userAccessToken) {
       setErrorMessage("Cannot change password: no access token is available.");
@@ -96,7 +94,6 @@ export const AccountSettings: React.FC = () => {
         }),
       });
 
-      // Parse response
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Error changing password");
@@ -106,9 +103,9 @@ export const AccountSettings: React.FC = () => {
       setShowChangePasswordForm(false);
       window.alert("✅ Password changed successfully.");
 
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Optional sign-out/redirect logic
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await auth.signoutRedirect();
-
     } catch (err: any) {
       console.error("Error changing password:", err);
       setErrorMessage(err.message || "Error changing password");
@@ -186,6 +183,7 @@ export const AccountSettings: React.FC = () => {
                   {showNewPassword ? "Hide" : "Show"}
                 </button>
               </div>
+
               {/* Live password feedback */}
               <ul className="mt-1 text-sm">
                 <li className={hasNumber ? "text-green-600" : "text-red-600"}>
@@ -227,6 +225,7 @@ export const AccountSettings: React.FC = () => {
               </div>
             </div>
 
+            {/* Error/Success Messages */}
             {errorMessage && <p className="text-red-600">{errorMessage}</p>}
             {successMessage && <p className="text-green-600">{successMessage}</p>}
 
