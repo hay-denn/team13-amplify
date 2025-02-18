@@ -11,17 +11,20 @@ const EditableInput: React.FC<EditableInputProps> = ({ attributeName, attributeV
   const [tempValue, setTempValue] = useState(attributeValue);
 
   const handleEditClick = () => {
-    setTempValue(attributeValue);
+    setTempValue(attributeValue); 
     setIsEditing(true);
   };
 
   const handleSaveClick = () => {
-    onChange(tempValue);
+    if (tempValue !== attributeValue) {
+      onChange(tempValue); 
+      alert(`✅ ${attributeName} updated successfully!`); 
+    }
     setIsEditing(false);
   };
 
   const handleCancelClick = () => {
-    setTempValue(attributeValue);
+    setTempValue(attributeValue); 
     setIsEditing(false);
   };
 

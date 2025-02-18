@@ -200,6 +200,7 @@ export const AccountSettings: React.FC = () => {
         onChange={(value) => setLastName(value)}
       />
 
+
       {/* Button to update attributes */}
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded"
