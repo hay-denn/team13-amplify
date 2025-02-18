@@ -3,7 +3,6 @@ import EditableInput from "../components/EditableInput";
 
 //add a link to password reset page
 //make it look better
-//fix the navbar so it's applied in App and not individual pages
 export const AccountSettings = () => {
   const auth = useAuth();
   return (

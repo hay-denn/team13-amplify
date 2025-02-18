@@ -35,8 +35,8 @@ function App() {
       case "Driver":
         return (
           <div>
-            <Navbar companyName="Placeholder"userType="Driver"></Navbar>
             <Router>
+            <Navbar companyName="Placeholder"userType="Driver"></Navbar>
               <Routes>
                 <Route path="/" element={<DriverDashboard />} />
                 <Route path="/about" element={<About />} />
@@ -48,8 +48,8 @@ function App() {
       case "Sponsor":
         return (
           <div>
-            <Navbar companyName="Placeholder" userType="Sponsor"></Navbar>
             <Router>
+            <Navbar companyName="Placeholder" userType="Sponsor"></Navbar>
               <Routes>
                 <Route path="/" element={<SponsorDashboard />} />
                 <Route path="/about" element={<About />} />
@@ -61,8 +61,8 @@ function App() {
       case "Admin":
         return (
           <div>
-            <Navbar userType="Admin"></Navbar>
             <Router>
+            <Navbar userType="Admin"></Navbar>
               <Routes>
                 <Route path="/" element={<AdminDashboard />} />
                 <Route path="/about" element={<About />} />
