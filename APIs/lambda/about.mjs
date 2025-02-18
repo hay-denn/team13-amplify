@@ -1,9 +1,10 @@
 import express from "express";
 import serverlessExpress from "@vendia/serverless-express";
 import mysql from "mysql2/promise";
-
+const cors = require("cors");
 const app = express();
 
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // not sure why but env vars arent working
