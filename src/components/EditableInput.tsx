@@ -1,49 +1,54 @@
-import React, { useState } from 'react';
-
+import React, { useState } from "react";
 
 interface EditableInputProps {
-  attributeValue: string;
   attributeName: string;
+  attributeValue: string;
+  onChange: (value: string) => void;
 }
 
-const EditableInput: React.FC<EditableInputProps> = ({ attributeValue, attributeName }) => {
-
+const EditableInput: React.FC<EditableInputProps> = ({ attributeName, attributeValue, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(attributeValue);
   const [tempValue, setTempValue] = useState(attributeValue);
 
   const handleEditClick = () => {
-    setTempValue(inputValue);
+    setTempValue(attributeValue);
     setIsEditing(true);
   };
 
   const handleSaveClick = () => {
-    setInputValue(tempValue);
+    onChange(tempValue);
     setIsEditing(false);
   };
 
   const handleCancelClick = () => {
+    setTempValue(attributeValue);
     setIsEditing(false);
   };
 
   return (
-    <div>
+    <div className="flex flex-col space-y-2">
+      <label className="text-sm font-semibold">{attributeName}</label>
       {isEditing ? (
-        <div>
-            <label>{attributeName}</label>
+        <div className="flex space-x-2">
           <input
             type="text"
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
+            className="border px-2 py-1 rounded"
           />
-          <button onClick={handleSaveClick}>Save</button>
-          <button onClick={handleCancelClick}>Cancel</button>
+          <button onClick={handleSaveClick} className="bg-green-500 text-white px-2 py-1 rounded">
+            Save
+          </button>
+          <button onClick={handleCancelClick} className="bg-gray-500 text-white px-2 py-1 rounded">
+            Cancel
+          </button>
         </div>
       ) : (
-        <div>
-            <label>{attributeName}</label>
-          <input type="text" value={inputValue} readOnly />
-          <button onClick={handleEditClick}>Edit</button>
+        <div className="flex space-x-2">
+          <input type="text" value={attributeValue} readOnly className="border px-2 py-1 rounded bg-gray-100" />
+          <button onClick={handleEditClick} className="bg-blue-500 text-white px-2 py-1 rounded">
+            Edit
+          </button>
         </div>
       )}
     </div>
@@ -51,5 +56,3 @@ const EditableInput: React.FC<EditableInputProps> = ({ attributeValue, attribute
 };
 
 export default EditableInput;
-
-

@@ -187,17 +187,17 @@ export const AccountSettings: React.FC = () => {
       <EditableInput
         attributeName="Email: "
         attributeValue={email}
-        onChange={setEmail}
+        onChange={(value) => setEmail(value)}
       />
       <EditableInput
         attributeName="First Name: "
         attributeValue={firstName}
-        onChange={setFirstName}
+        onChange={(value) => setFirstName(value)}
       />
       <EditableInput
         attributeName="Last Name: "
         attributeValue={lastName}
-        onChange={setLastName}
+        onChange={(value) => setLastName(value)}
       />
 
       {/* Button to update attributes */}
