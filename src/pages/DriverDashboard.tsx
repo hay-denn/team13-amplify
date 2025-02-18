@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { DashBoardHome } from "../components/DashBoardHome";
 import { useAuth } from "react-oidc-context";
@@ -11,7 +11,7 @@ export const DriverDashboard = () => {
     <>
       <Navbar companyName={companyName} userType="Driver"></Navbar>
       <DashBoardHome
-        userFName= {auth.user?.profile.email || "No Name"}
+        userFName= {auth.user?.profile.name || "No Name"}
         companyName={companyName}
       ></DashBoardHome>
     </>
