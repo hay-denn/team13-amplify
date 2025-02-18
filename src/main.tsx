@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
-import { AuthProvider } from "react-oidc-context";
+import { useAuth, AuthProvider } from "react-oidc-context";
 
 const deployment = "sprint-3";
 
@@ -16,7 +16,14 @@ const cognitoAuthConfig = {
   storage: window.localStorage
 };
 
-export const signOutRedirect = () => {
+export const signOutRedirect = async () => {
+  const auth = useAuth();
+  try {
+    await auth.removeUser(); // Clears local user session
+  } catch (error) {
+    console.error("Error removing user:", error);
+  }
+  
   const clientId = "r7oq53d98cg6a8l4cj6o8l7tm";
   const logoutUri = `https://${deployment}.d1zgxgaa1s4k42.amplifyapp.com/`;
   const cognitoDomain = "https://us-east-1jnojoftl2.auth.us-east-1.amazoncognito.com";

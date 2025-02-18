@@ -5,7 +5,7 @@ import "./Navbarstyle.css"; //stylesheet
 
 export const LoginButton = () => {
     const auth = useAuth();
-    if (auth.user) {
+    if (auth.isAuthenticated) {
         return (          
             <li className = "nav-links"><i className = "fa-solid" onClick={() => signOutRedirect()}>Sign out</i></li>
             );

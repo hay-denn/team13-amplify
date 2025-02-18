@@ -18,12 +18,17 @@ export const MenuInfoSponsoredDriver = [
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
+
+  /*
+  removing for now since there's too many nav links with the sign in / sign out button on there
   {
     title: "My Points",
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-car",
   },
+
+  */
   {
     title: "My Sponsor",
     url: "#",
