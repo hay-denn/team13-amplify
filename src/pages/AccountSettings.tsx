@@ -104,9 +104,10 @@ export const AccountSettings: React.FC = () => {
 
       setSuccessMessage("Password changed successfully.");
       setShowChangePasswordForm(false);
+      window.alert("✅ Password changed successfully.");
 
-      // (Optional) If you want to force a fresh login, clear local tokens or call an OIDC signOut
-      // await auth.signoutRedirect();
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      await auth.signoutRedirect();
 
     } catch (err: any) {
       console.error("Error changing password:", err);
