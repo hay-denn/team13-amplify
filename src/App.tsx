@@ -12,6 +12,7 @@ import Home from './pages/Home' //this is the 'home' page for non-signed in user
 import { DriverDashboard } from './pages/DriverDashboard';
 import { SponsorDashboard } from './pages/SponsorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { AccountSettings } from "./pages/AccountSettings";
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<DriverDashboard />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/account" element={<AccountSettings />} />
               </Routes>
             </Router>
           </div>
@@ -49,6 +51,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<SponsorDashboard />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/account" element={<AccountSettings />} />
               </Routes>
             </Router>
           </div>
@@ -60,6 +63,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<AdminDashboard />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/account" element={<AccountSettings />} />
               </Routes>
             </Router>
           </div>
@@ -78,6 +82,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
+        <Route path="/account" element={<AccountSettings />} />
       </Routes>
     </Router>
     </div>

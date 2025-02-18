@@ -37,7 +37,7 @@ export const MenuInfoSponsoredDriver = [
   },
   {
     title: "My Account",
-    url: "#",
+    url: "/account",
     cName: "nav-links profile-link",
     profileImg: "/Images/DefaultProfile.png",
   },
@@ -64,7 +64,7 @@ export const MenuInfoNewUser = [
   },
   {
     title: "My Account",
-    url: "#",
+    url: "/account",
     cName: "nav-links profile-link",
     profileImg: "/Images/DefaultProfile.png",
   },
@@ -91,7 +91,7 @@ export const MenuAdmin = [
   },
   {
     title: "My Account",
-    url: "#",
+    url: "/account",
     cName: "nav-links profile-link",
     profileImg: "/Images/DefaultProfile.png",
   },
@@ -130,7 +130,7 @@ export const MenuInfoSponsor = [
   },
   {
     title: "My Account",
-    url: "#",
+    url: "/account",
     cName: "nav-links profile-link",
     profileImg: "/Images/DefaultProfile.png",
   },
