@@ -72,7 +72,6 @@ export const AccountSettings: React.FC = () => {
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Grab the access token
     const userAccessToken = auth.user?.access_token;
     if (!userAccessToken) {
       setErrorMessage("Cannot update attributes: no access token available.");
@@ -89,7 +88,7 @@ export const AccountSettings: React.FC = () => {
         body: JSON.stringify({
           UserAttributes: [
             { Name: "email", Value: email },
-            { Name: "given_name", Value: firstName },
+            { Name: "name", Value: firstName },
             { Name: "family_name", Value: lastName },
           ],
           AccessToken: userAccessToken,
@@ -101,9 +100,9 @@ export const AccountSettings: React.FC = () => {
         throw new Error(errorData.message || "Error updating user attributes");
       }
 
-      // If successful
+      
       setSuccessMessage("Attributes updated successfully.");
-      console.log("✅ User attributes updated in Cognito.");
+      alert("✅ Profile updated successfully!");
     } catch (error: any) {
       console.error("Error updating user attributes:", error);
       setErrorMessage(error.message || "Error updating user attributes");
@@ -196,7 +195,7 @@ export const AccountSettings: React.FC = () => {
       />
       <EditableInput
         attributeName="Last Name: "
-        attributeValue={lastName}
+        attributeValue={lastName} 
         onChange={(value) => setLastName(value)}
       />
 
