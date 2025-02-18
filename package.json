@@ -13,7 +13,7 @@
     "@aws-amplify/api": "^6.2.3",
     "@aws-amplify/api-rest": "^4.0.68",
     "@aws-amplify/ui-react": "^6.9.1",
-    "aws-amplify": "^6.12.3",
+    "aws-amplify": "^6.13.0",
     "aws-sdk": "^2.1692.0",
     "bootstrap": "^5.3.3",
     "oidc-client-ts": "^3.1.0",

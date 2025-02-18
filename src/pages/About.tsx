@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "react-oidc-context";
-import { Navbar } from "../components/Navbar";
 
 type AboutInfo = {
     id: number;
@@ -17,10 +15,6 @@ export default function About() {
     const [aboutData, setAboutData] = useState<AboutInfo[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
-    const auth = useAuth();
-    const cognitoGroups: string[] = auth.user?.profile?.["cognito:groups"] as string[] || [];
-    const userGroup = cognitoGroups[0];
 
     useEffect(() => {
         fetch("https://f80ht57pud.execute-api.us-east-1.amazonaws.com/about") // Ensure this is the correct API URL
@@ -46,7 +40,6 @@ export default function About() {
 
     return (
         <div className="about-page">
-            <Navbar userType = {userGroup} />
             <h1>About Us</h1>
             {aboutData.length === 0 ? (
                 <p>No about information available.</p>

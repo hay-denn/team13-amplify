@@ -35,6 +35,7 @@ function App() {
       case "Driver":
         return (
           <div>
+            <Navbar companyName="Placeholder"userType="Driver"></Navbar>
             <Router>
               <Routes>
                 <Route path="/" element={<DriverDashboard />} />
@@ -47,6 +48,7 @@ function App() {
       case "Sponsor":
         return (
           <div>
+            <Navbar companyName="Placeholder" userType="Sponsor"></Navbar>
             <Router>
               <Routes>
                 <Route path="/" element={<SponsorDashboard />} />
@@ -59,6 +61,7 @@ function App() {
       case "Admin":
         return (
           <div>
+            <Navbar userType="Admin"></Navbar>
             <Router>
               <Routes>
                 <Route path="/" element={<AdminDashboard />} />

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import AWS from 'aws-sdk';
-import { useAuth } from 'react-oidc-context';
 
 
 interface EditableInputProps {
@@ -9,40 +7,6 @@ interface EditableInputProps {
 }
 
 const EditableInput: React.FC<EditableInputProps> = ({ attributeValue, attributeName }) => {
-    const { user } = useAuth();
-    // Configure AWS Cognito Identity Service Provider
-    const cognitoISP = new AWS.CognitoIdentityServiceProvider({
-        region: 'your-region', // Replace with your region
-    });
-  
-    const updateUserAttributes = async (name: string, value: string) => {
-        if (!user) {
-          console.error('User is not authenticated');
-          return;
-        }
-      
-        // Prepare the user attributes dynamically based on input variables
-        const userAttributes = [
-          {
-            "Name": name,
-            "Value": value,
-          }
-        ];
-      
-        const params = {
-          UserPoolId: 'us-east-1_jnOjoFtl2',  // Your User Pool ID
-          Username: user.profile.email || "",  // Use the logged-in user's username
-          UserAttributes: userAttributes,  // Pass in the dynamically created user attributes
-        };
-      
-        try {
-          // Update user attributes in the User Pool
-          const response = await cognitoISP.adminUpdateUserAttributes(params).promise();
-          console.log('User attributes updated successfully', response);
-        } catch (error) {
-          console.error('Error updating user attributes', error);
-        }
-      };
 
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(attributeValue);
@@ -55,7 +19,6 @@ const EditableInput: React.FC<EditableInputProps> = ({ attributeValue, attribute
 
   const handleSaveClick = () => {
     setInputValue(tempValue);
-    updateUserAttributes(attributeName, tempValue)
     setIsEditing(false);
   };
 
@@ -67,6 +30,7 @@ const EditableInput: React.FC<EditableInputProps> = ({ attributeValue, attribute
     <div>
       {isEditing ? (
         <div>
+            <label>{attributeName}</label>
           <input
             type="text"
             value={tempValue}
@@ -77,6 +41,7 @@ const EditableInput: React.FC<EditableInputProps> = ({ attributeValue, attribute
         </div>
       ) : (
         <div>
+            <label>{attributeName}</label>
           <input type="text" value={inputValue} readOnly />
           <button onClick={handleEditClick}>Edit</button>
         </div>
