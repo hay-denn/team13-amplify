@@ -5,13 +5,13 @@ import { useAuth } from "react-oidc-context";
 
 export const DriverDashboard = () => {
   const [companyName] = useState("Amazon");
-  const { user } = useAuth();
+  const auth = useAuth();
 
   return (
     <>
       <Navbar companyName={companyName} userType="Driver"></Navbar>
       <DashBoardHome
-        userFName= {user?.profile?.name || "No Name"}
+        userFName= {auth.user?.profile?.name || "No Name"}
         companyName={companyName}
       ></DashBoardHome>
     </>
