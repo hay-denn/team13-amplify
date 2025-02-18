@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import EditableInput from "../components/EditableInput";
 
-const REGION = "us-east-1"; 
+const REGION = "us-east-1";
 const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
 
 export const AccountSettings: React.FC = () => {
@@ -16,7 +16,7 @@ export const AccountSettings: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  // For live password strength checks
+  // For live checks (you can keep them, even if they're not updating the UI)
   const [hasNumber, setHasNumber] = useState(false);
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [hasUpperCase, setHasUpperCase] = useState(false);
@@ -32,7 +32,10 @@ export const AccountSettings: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Whenever newPassword changes, update the requirement flags
+  // Additional state for capturing missing requirements
+  const [missingRequirements, setMissingRequirements] = useState<string[]>([]);
+
+  // Just keep the effect that sets hasNumber, etc.
   useEffect(() => {
     setHasNumber(/\d/.test(newPassword));
     setHasSpecialChar(/[!@#$%^&*(),.?":{}|<>]/.test(newPassword));
@@ -54,6 +57,7 @@ export const AccountSettings: React.FC = () => {
     setConfirmNewPassword("");
     setErrorMessage("");
     setSuccessMessage("");
+    setMissingRequirements([]);
   };
 
   // Direct call to Cognito ChangePassword API
@@ -61,19 +65,41 @@ export const AccountSettings: React.FC = () => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
+    setMissingRequirements([]);
 
-    // Basic client-side checks
-    if (!hasNumber || !hasSpecialChar || !hasUpperCase || !hasLowerCase || !isLongEnough) {
+    // Collect any missing requirements
+    const issues: string[] = [];
+    if (!hasNumber) {
+      issues.push("Must contain at least 1 number");
+    }
+    if (!hasSpecialChar) {
+      issues.push("Must contain at least 1 special character");
+    }
+    if (!hasUpperCase) {
+      issues.push("Must contain at least 1 uppercase letter");
+    }
+    if (!hasLowerCase) {
+      issues.push("Must contain at least 1 lowercase letter");
+    }
+    if (!isLongEnough) {
+      issues.push("Must be at least 8 characters long");
+    }
+
+    // If any requirement is missing, display them and stop
+    if (issues.length > 0) {
+      setMissingRequirements(issues);
       setErrorMessage("New password does not meet the requirements.");
       return;
     }
+
+    // Check if newPassword & confirmNewPassword match
     if (newPassword !== confirmNewPassword) {
       setErrorMessage("New passwords do not match.");
       return;
     }
 
-    // Example: grabbing the access token from your OIDC library
-    const userAccessToken = auth.user?.access_token; // Adjust to match your setup
+    // Confirm we have an access token
+    const userAccessToken = auth.user?.access_token;
     if (!userAccessToken) {
       setErrorMessage("Cannot change password: no access token is available.");
       return;
@@ -183,25 +209,6 @@ export const AccountSettings: React.FC = () => {
                   {showNewPassword ? "Hide" : "Show"}
                 </button>
               </div>
-
-              {/* Live password feedback */}
-              <ul className="mt-1 text-sm">
-                <li className={hasNumber ? "text-green-600" : "text-red-600"}>
-                  Contains at least 1 number
-                </li>
-                <li className={hasSpecialChar ? "text-green-600" : "text-red-600"}>
-                  Contains at least 1 special character
-                </li>
-                <li className={hasUpperCase ? "text-green-600" : "text-red-600"}>
-                  Contains at least 1 uppercase letter
-                </li>
-                <li className={hasLowerCase ? "text-green-600" : "text-red-600"}>
-                  Contains at least 1 lowercase letter
-                </li>
-                <li className={isLongEnough ? "text-green-600" : "text-red-600"}>
-                  Minimum 8 characters
-                </li>
-              </ul>
             </div>
 
             {/* Confirm New Password */}
@@ -224,6 +231,18 @@ export const AccountSettings: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* If there are missing requirements, show them in a list */}
+            {missingRequirements.length > 0 && (
+              <div>
+                <p className="text-red-600 mb-2">Requirements not met:</p>
+                <ul className="list-disc ml-5 text-red-600">
+                  {missingRequirements.map((req, idx) => (
+                    <li key={idx}>{req}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Error/Success Messages */}
             {errorMessage && <p className="text-red-600">{errorMessage}</p>}
