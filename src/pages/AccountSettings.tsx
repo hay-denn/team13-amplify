@@ -7,23 +7,28 @@ const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
 
 export const AccountSettings: React.FC = () => {
   const auth = useAuth();
-  
+
+  // States for user attributes
+  const [email, setEmail] = useState(auth.user?.profile.email || "");
+  const [firstName, setFirstName] = useState(auth.user?.profile.name || "");
+  const [lastName, setLastName] = useState(auth.user?.profile.family_name || "");
+
   // Toggles the change password form
   const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
 
-  // Form fields
+  // Form fields for password
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  // For live checks (you can keep them, even if they're not updating the UI)
+  // For live checks (keep them even if UI doesn't update)
   const [hasNumber, setHasNumber] = useState(false);
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [hasUpperCase, setHasUpperCase] = useState(false);
   const [hasLowerCase, setHasLowerCase] = useState(false);
   const [isLongEnough, setIsLongEnough] = useState(false);
 
-  // Show/hide the password text
+  // Show/hide password text
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,7 +40,7 @@ export const AccountSettings: React.FC = () => {
   // Additional state for capturing missing requirements
   const [missingRequirements, setMissingRequirements] = useState<string[]>([]);
 
-  // Just keep the effect that sets hasNumber, etc.
+  // Keep the effect for password checks
   useEffect(() => {
     setHasNumber(/\d/.test(newPassword));
     setHasSpecialChar(/[!@#$%^&*(),.?":{}|<>]/.test(newPassword));
@@ -60,7 +65,54 @@ export const AccountSettings: React.FC = () => {
     setMissingRequirements([]);
   };
 
-  // Direct call to Cognito ChangePassword API
+  // ==========================
+  //  1) UPDATE USER ATTRIBUTES
+  // ==========================
+  const handleUpdateAttributes = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    // Grab the access token
+    const userAccessToken = auth.user?.access_token;
+    if (!userAccessToken) {
+      setErrorMessage("Cannot update attributes: no access token available.");
+      return;
+    }
+
+    try {
+      const response = await fetch(COGNITO_API_URL, {
+        method: "POST",
+        headers: {
+          "X-Amz-Target": "AWSCognitoIdentityProviderService.UpdateUserAttributes",
+          "Content-Type": "application/x-amz-json-1.1",
+        },
+        body: JSON.stringify({
+          UserAttributes: [
+            { Name: "email", Value: email },
+            { Name: "given_name", Value: firstName },
+            { Name: "family_name", Value: lastName },
+          ],
+          AccessToken: userAccessToken,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error updating user attributes");
+      }
+
+      // If successful
+      setSuccessMessage("Attributes updated successfully.");
+      console.log("✅ User attributes updated in Cognito.");
+    } catch (error: any) {
+      console.error("Error updating user attributes:", error);
+      setErrorMessage(error.message || "Error updating user attributes");
+    }
+  };
+
+  // =====================
+  //  2) CHANGE PASSWORD
+  // =====================
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
@@ -69,21 +121,11 @@ export const AccountSettings: React.FC = () => {
 
     // Collect any missing requirements
     const issues: string[] = [];
-    if (!hasNumber) {
-      issues.push("Must contain at least 1 number");
-    }
-    if (!hasSpecialChar) {
-      issues.push("Must contain at least 1 special character");
-    }
-    if (!hasUpperCase) {
-      issues.push("Must contain at least 1 uppercase letter");
-    }
-    if (!hasLowerCase) {
-      issues.push("Must contain at least 1 lowercase letter");
-    }
-    if (!isLongEnough) {
-      issues.push("Must be at least 8 characters long");
-    }
+    if (!hasNumber) issues.push("Must contain at least 1 number");
+    if (!hasSpecialChar) issues.push("Must contain at least 1 special character");
+    if (!hasUpperCase) issues.push("Must contain at least 1 uppercase letter");
+    if (!hasLowerCase) issues.push("Must contain at least 1 lowercase letter");
+    if (!isLongEnough) issues.push("Must be at least 8 characters long");
 
     // If any requirement is missing, display them and stop
     if (issues.length > 0) {
@@ -130,7 +172,7 @@ export const AccountSettings: React.FC = () => {
       window.alert("✅ Password changed successfully.");
 
       // Optional sign-out/redirect logic
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await auth.signoutRedirect();
     } catch (err: any) {
       console.error("Error changing password:", err);
@@ -142,19 +184,29 @@ export const AccountSettings: React.FC = () => {
     <div className="p-4 max-w-lg mx-auto space-y-6">
       <h2 className="text-2xl font-bold mb-4">Account Settings</h2>
 
-      {/* Example of other user attributes */}
       <EditableInput
         attributeName="Email: "
-        attributeValue={auth.user?.profile.email || ""}
+        attributeValue={email}
+        onChange={setEmail}
       />
       <EditableInput
         attributeName="First Name: "
-        attributeValue={auth.user?.profile.name || ""}
+        attributeValue={firstName}
+        onChange={setFirstName}
       />
       <EditableInput
         attributeName="Last Name: "
-        attributeValue={auth.user?.profile.family_name || ""}
+        attributeValue={lastName}
+        onChange={setLastName}
       />
+
+      {/* Button to update attributes */}
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={handleUpdateAttributes}
+      >
+        Update Profile
+      </button>
 
       <h3 className="mt-4">Change Your Password</h3>
       {!showChangePasswordForm && (
