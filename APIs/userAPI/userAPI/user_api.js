@@ -4,7 +4,7 @@ const PORT = 3000;
 const db = require('./db'); 
 
 app.use(express.json())
-const user_types = ["driver","sponsor","admin"]
+const user_types = ["Driver","Sponsor","Admin"]
 
 app.listen(PORT, '0.0.0.0', () => {
 	console.log('Server listening on port 3000');
