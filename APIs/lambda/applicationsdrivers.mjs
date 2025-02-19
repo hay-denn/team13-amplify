@@ -9,8 +9,8 @@ app.use(express.json());
 const db = mysql.createPool({
   host: "team13-database.cobd8enwsupz.us-east-1.rds.amazonaws.com",
   user: "admin",
-  password: "pw4Team13RDSDatabase",
-  database: "DRS",
+  password: "**REMOVED**",
+  database: "**REMOVED**",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
