@@ -174,7 +174,7 @@ export const AccountSettings: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await auth.removeUser();
       await auth.signoutRedirect();
-      
+
     } catch (err: any) {
       console.error("Error changing password:", err);
       setErrorMessage(err.message || "Error changing password");
