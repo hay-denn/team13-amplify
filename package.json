@@ -16,10 +16,13 @@
     "@aws-amplify/ui-react": "^6.9.1",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify": "^6.12.3",
+    "boostrap": "^2.0.0",
+    "bootstrap": "^5.3.3",
     "oidc-client-ts": "^3.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-oidc-context": "^3.2.0"
+    "react-oidc-context": "^3.2.0",
+    "react-router-dom": "^7.2.0"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.14.0",
