@@ -5,7 +5,7 @@ import App from './App.tsx';
 import { AuthProvider } from "react-oidc-context";
 import { Amplify } from 'aws-amplify';
 
-const deployment = "sprint-3";
+const deployment = "sprint-4";
 
 const cognitoAuthConfig = {
   authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_jnOjoFtl2",
