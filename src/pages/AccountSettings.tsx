@@ -10,7 +10,7 @@ export const AccountSettings: React.FC = () => {
 
   // States for user attributes
   const [email, setEmail] = useState(auth.user?.profile.email || "");
-  const [firstName, setFirstName] = useState(auth.user?.profile.name || "");
+  const [firstName, setFirstName] = useState(auth.user?.profile.given_name || "");
   const [lastName, setLastName] = useState(auth.user?.profile.family_name || "");
 
   // Toggles the change password form
@@ -88,7 +88,7 @@ export const AccountSettings: React.FC = () => {
         body: JSON.stringify({
           UserAttributes: [
             { Name: "email", Value: email },
-            { Name: "name", Value: firstName },
+            { Name: "given_name", Value: firstName },
             { Name: "family_name", Value: lastName },
           ],
           AccessToken: userAccessToken,
