@@ -13,7 +13,7 @@ const cognitoAuthConfig = {
   client_secret: "2kgslpdmdnia6mffkqrc47furuiv6e3hhe15fidvn4tmodcavu5",
   redirect_uri: `https://${deployment}.d1zgxgaa1s4k42.amplifyapp.com/`,
   response_type: "code",
-  scope: "email openid phone aws.cognito.signin.user.admin",
+  scope: "email openid phone profile aws.cognito.signin.user.admin",
   storage: window.localStorage
 };
 
