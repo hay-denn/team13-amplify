@@ -149,5 +149,11 @@ export const MenuInfoGuest = [
     cName: "nav-links",
     icon: "fa-solid fa-circle-user",
   },
+  {
+    title: "User Manage Test",
+    url: "/usermanagetest",
+    cName: "nav-links",
+    icon: "fa-solid fa-circle-user",
+  }
 ];
 

@@ -13,6 +13,7 @@ import { DriverDashboard } from './pages/DriverDashboard';
 import { SponsorDashboard } from './pages/SponsorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AccountSettings } from "./pages/AccountSettings";
+import UserManageTest from "./pages/UserManageTest";
 
 
 function App() {
@@ -85,7 +86,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/account" element={<AccountSettings />} />
+        <Route path="/usermanagetest" element={<UserManageTest />} />
       </Routes>
     </Router>
     </div>
