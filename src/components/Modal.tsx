@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./Modal.css";
 
-async function createDriver(data: object): Promise<void> {
+async function callAPI(url: string, methodType: string, data: object): Promise<void> {
     try {
-      const response = await fetch("https://f80ht57pud.execute-api.us-east-1.amazonaws.com/driver", {
-        method: 'POST', // HTTP method
+      const response = await fetch(url, {
+        method: methodType, // HTTP method
         headers: {
           'Content-Type': 'application/json', // Content type header
         },
@@ -58,6 +58,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   }, [initialData, isOpen]);
 
   const handleSaveUser = () => {
+    const DRIVER_API_BASE_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+
     if (newUser) {
         //create the new user
         if (userType == "Driver") {
@@ -65,13 +67,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                 "DriverEmail": email,
                 "DriverFName": firstName,
                 "DriverLName": familyName,
-                "DriverSponsor": "",
-                "DriverPoints": "0"
             };
-            createDriver(data);
+            callAPI(`${DRIVER_API_BASE_URL}/driver`, "POST", data);
         }
     } else {
         //update an exisitng user
+
     }
     onClose(); // Close the modal
   };
