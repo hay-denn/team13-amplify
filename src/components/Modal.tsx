@@ -58,7 +58,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   }, [initialData, isOpen]);
 
   const handleSaveUser = () => {
-    const DRIVER_API_BASE_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+    const API_BASE_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
 
     if (newUser) {
         //create the new user
@@ -68,11 +68,50 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                 "DriverFName": firstName,
                 "DriverLName": familyName,
             };
-            callAPI(`${DRIVER_API_BASE_URL}/driver`, "POST", data);
+            callAPI(`${API_BASE_URL}/driver`, "POST", data);
+        } else if (userType == "Admin") {
+          const data = {
+               "AdminEmail": email,
+               "AdminFName": firstName,
+               "AdminLName": familyName
+          };
+        callAPI(`${API_BASE_URL}/admin`, "POST", data);
+        } else if (userType == "Sponsor") {
+          const data = {
+            "SponsorEmail": email,
+            "SponsorFName": firstName,
+            "SponsorLName": familyName
+       };
+       callAPI(`${API_BASE_URL}/sponsor`, "POST", data);
+        } else {
+          alert("Invalid user type!");
         }
     } else {
         //update an exisitng user
-
+        if (userType == "Driver") {
+          const data = {
+              "DriverEmail": email,
+              "DriverFName": firstName,
+              "DriverLName": familyName,
+          };
+          callAPI(`${API_BASE_URL}/driver`, "UPDATE", data);
+      } else if (userType == "Admin") {
+        const data = {
+             "AdminEmail": email,
+             "AdminFName": firstName,
+             "AdminLName": familyName
+        };
+      callAPI(`${API_BASE_URL}/admin`, "UPDATE", data);
+      } else if (userType == "Sponsor") {
+        const data = {
+          "SponsorEmail": email,
+          "SponsorFName": firstName,
+          "SponsorLName": familyName
+     };
+     callAPI(`${API_BASE_URL}/sponsor`, "UPDATE", data);
+      } else {
+        alert("Invalid user type!");
+      }
     }
     onClose(); // Close the modal
   };
