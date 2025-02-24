@@ -57,6 +57,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     }
   }, [initialData, isOpen]);
 
+  const handleDeleteUser = () => {
+    const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+    const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+    const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+    if (!newUser) {
+        //create the new user
+        if (userType == "Driver") {
+            const data = {
+              "UserEmail": email
+            };
+            callAPI(`${DRIVER_URL}/driver`, "DELETE", data);
+        } else if (userType == "Admin") {
+          const data = {
+              "UserEmail": email
+          };
+        callAPI(`${ADMIN_URL}/admin`, "DELETE", data);
+        } else if (userType == "Sponsor") {
+          const data = {
+            "UserEmail": email
+          };
+       callAPI(`${SPONSOR_URL}/sponsor`, "DELETE", data);
+        } else {
+          alert("Invalid user type!");
+        }
+    }
+    onClose();
+  };
+
   const handleSaveUser = () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
@@ -80,9 +108,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         callAPI(`${ADMIN_URL}/admin`, "POST", data);
         } else if (userType == "Sponsor") {
           const data = {
-            "SponsorEmail": email,
-            "SponsorFName": firstName,
-            "SponsorLName": familyName
+            "UserEmail": email,
+            "UserFName": firstName,
+            "UserLName": familyName,
+            "UserOrganization": 1 //this is temporary until sponsor organizations are implemented
        };
        callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
         } else {
@@ -106,9 +135,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       callAPI(`${ADMIN_URL}/admin`, "PUT", data);
       } else if (userType == "Sponsor") {
         const data = {
-          "SponsorEmail": email,
-          "SponsorFName": firstName,
-          "SponsorLName": familyName
+          "UserEmail": email,
+          "UserFName": firstName,
+          "UserLName": familyName,
+          "UserOrganization": 1 //this is temporary until sponsor organizations are implemented
      };
      callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
       } else {
@@ -146,6 +176,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="modal-input"
+          readOnly={!newUser}
         />
 
         <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
@@ -155,6 +186,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
             </option>
           ))}
         </select>
+
+        {/* Show delete button only when editing an existing user */}
+        {!newUser && (
+          <button onClick={handleDeleteUser} className="modal-button delete">
+            Delete User
+          </button>
+        )}
 
         <button onClick={handleSaveUser} className="modal-button">
           {newUser ? "Create User" : "Save Changes"}
