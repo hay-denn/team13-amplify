@@ -58,7 +58,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   }, [initialData, isOpen]);
 
   const handleSaveUser = () => {
-    const API_BASE_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+    const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+    const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+    const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
     if (newUser) {
         //create the new user
@@ -68,21 +70,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                 "DriverFName": firstName,
                 "DriverLName": familyName,
             };
-            callAPI(`${API_BASE_URL}/driver`, "POST", data);
+            callAPI(`${DRIVER_URL}/driver`, "POST", data);
         } else if (userType == "Admin") {
           const data = {
                "AdminEmail": email,
                "AdminFName": firstName,
                "AdminLName": familyName
           };
-        callAPI(`${API_BASE_URL}/admin`, "POST", data);
+        callAPI(`${ADMIN_URL}/admin`, "POST", data);
         } else if (userType == "Sponsor") {
           const data = {
             "SponsorEmail": email,
             "SponsorFName": firstName,
             "SponsorLName": familyName
        };
-       callAPI(`${API_BASE_URL}/sponsor`, "POST", data);
+       callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
         } else {
           alert("Invalid user type!");
         }
@@ -94,21 +96,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
               "DriverFName": firstName,
               "DriverLName": familyName,
           };
-          callAPI(`${API_BASE_URL}/driver`, "UPDATE", data);
+          callAPI(`${DRIVER_URL}/driver`, "PUT", data);
       } else if (userType == "Admin") {
         const data = {
              "AdminEmail": email,
              "AdminFName": firstName,
              "AdminLName": familyName
         };
-      callAPI(`${API_BASE_URL}/admin`, "UPDATE", data);
+      callAPI(`${ADMIN_URL}/admin`, "PUT", data);
       } else if (userType == "Sponsor") {
         const data = {
           "SponsorEmail": email,
           "SponsorFName": firstName,
           "SponsorLName": familyName
      };
-     callAPI(`${API_BASE_URL}/sponsor`, "UPDATE", data);
+     callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
       } else {
         alert("Invalid user type!");
       }
