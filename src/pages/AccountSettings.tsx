@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "react-oidc-context";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext, useAuth } from "react-oidc-context";
 import EditableInput from "../components/EditableInput";
+import { signOutRedirect } from "../main";
+
 
 const REGION = "us-east-1";
 const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
 
 export const AccountSettings: React.FC = () => {
   const auth = useAuth();
+  const authContext = useContext(AuthContext);
 
   // States for user attributes
   const [email, setEmail] = useState(auth.user?.profile.email || "");
-  const [firstName, setFirstName] = useState(auth.user?.profile.name || "");
+  const [firstName, setFirstName] = useState(auth.user?.profile.given_name || "");
   const [lastName, setLastName] = useState(auth.user?.profile.family_name || "");
 
   // Toggles the change password form
@@ -88,7 +91,7 @@ export const AccountSettings: React.FC = () => {
         body: JSON.stringify({
           UserAttributes: [
             { Name: "email", Value: email },
-            { Name: "name", Value: firstName },
+            { Name: "given_name", Value: firstName },
             { Name: "family_name", Value: lastName },
           ],
           AccessToken: userAccessToken,
@@ -170,10 +173,10 @@ export const AccountSettings: React.FC = () => {
       setShowChangePasswordForm(false);
       window.alert("✅ Password changed successfully.");
 
-      // Optional sign-out/redirect logic
+      // Signout and redirect after changing pw
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await auth.removeUser();
-      await auth.signoutRedirect();
+      await authContext?.removeUser();
+      signOutRedirect();
 
     } catch (err: any) {
       console.error("Error changing password:", err);
