@@ -99,3 +99,11 @@ body {
   margin-top: 2rem;
   padding: 2rem;
 }
+
+body {
+  background: linear-gradient(to right, #E0F7FA, #FFFFFF);
+  color: rgb(0, 0, 0);
+  place-content: center;
+  font-size: 150%;
+}
+

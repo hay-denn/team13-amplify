@@ -84,7 +84,13 @@ export const MenuAdmin = [
     icon: "fa-solid fa-circle-user",
   },
   {
-    title: "Account Management",
+    title: "Manage Users",
+    url: "/page1",
+    cName: "nav-links",
+    icon: "fa-solid fa-store",
+  },
+  {
+    title: "Auditing information",
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-store",
@@ -117,12 +123,6 @@ export const MenuInfoSponsor = [
     icon: "fa-solid fa-store",
   },
   {
-    title: "Sponsor Settings",
-    url: "#",
-    cName: "nav-links",
-    icon: "fa-solid fa-car",
-  },
-  {
     title: "My Drivers",
     url: "#",
     cName: "nav-links",
@@ -150,4 +150,3 @@ export const MenuInfoGuest = [
     icon: "fa-solid fa-circle-user",
   },
 ];
-
