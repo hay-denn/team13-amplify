@@ -38,7 +38,7 @@ app.post("/purchase", (request, response) => {
   }
 
   db.query(
-    "INSERT INTO purchases (PurchaseDriver, PurchaseDate, \
+    "INSERT INTO DRS.purchases (PurchaseDriver, PurchaseDate, \
 	  	PurchaseStatus) \
 	  VALUES (?, ?, ?)",
     [PurchaseDriver, PurchaseDate, PurchaseStatus],
@@ -60,20 +60,20 @@ app.post("/purchase", (request, response) => {
  * get specific purchase
  */
 app.get("/purchase", (request, response) => {
-  const { PurchaseID } = request.query;
+  const { PurchaseID } = request.body;
 
   if (!PurchaseID) {
     return response.status(400).json({ error: 'PurchaseID required' });
   }
 
-  db.query("SELECT * FROM purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
+  db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return response.status(500).json({ error: 'Database error' });
     }
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'user not found' });
+      return response.status(400).json({ error: 'Purchase not found' });
     }
 
     return response.send(results[0]);
@@ -86,7 +86,7 @@ app.get("/purchase", (request, response) => {
 app.get("/purchases", (request, response) => {
 
   db.query(
-    "SELECT * FROM purchases",
+    "SELECT * FROM DRS.purchases",
     (err, results) => {
       if (err) {
         console.error("Database error:", err);
@@ -108,7 +108,7 @@ app.put("/purchase", (request, response) => {
     return response.status(400).json({ error: 'PurchaseID required' });
   }
 
-  db.query("SELECT * FROM purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
+  db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -121,7 +121,7 @@ app.put("/purchase", (request, response) => {
     const updates = [];
     const values = [];
 
-    if (PurchaseDrive ) {
+    if (PurchaseDrive) {
       updates.push("PurchaseDriver = ?");
       values.push(PurchaseDriver);
     }
@@ -131,16 +131,16 @@ app.put("/purchase", (request, response) => {
       values.push(PurchaseDate);
     }
 
-	if (PurchaseStatus) {
-	  updates.push("PurchaseStatus = ?");
-	  values.push(PurchaseStatus);
-	}
+	  if (PurchaseStatus) {
+	    updates.push("PurchaseStatus = ?");
+	    values.push(PurchaseStatus);
+	  }
   
     if (updates.length === 0) {
       return response.json({ message: 'No changes provided' });
     }
 
-    const updateQuery = `UPDATE purchases SET ${updates.join(", ")} WHERE PurchaseID = ?`;
+    const updateQuery = `UPDATE DRS.purchases SET ${updates.join(", ")} WHERE PurchaseID = ?`;
     values.push(PurchaseID); 
 
     db.query(updateQuery, values, (updateErr, updateResults) => {
@@ -168,12 +168,11 @@ app.put("/purchase", (request, response) => {
  * delete a purchase
  */
 app.delete("/purchase", (request, response) => {
-  const { PurchaseID } = request.query;
+  const { PurchaseID } = request.body;
   if (!PurchaseID) {
     return response.status(400).json({ error: 'PurchaseID required' });
   }
-
-  db.query("SELECT * FROM purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
+  db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -185,7 +184,7 @@ app.delete("/purchase", (request, response) => {
 
     const userToDelete = results[0];
 
-    db.query("DELETE FROM purchases WHERE PurchaseID = ?", [PurchaseID], (deleteErr, deleteResults) => {
+    db.query("DELETE FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (deleteErr, deleteResults) => {
       if (deleteErr) {
         console.error("Database delete error:", deleteErr);
         return response.status(500).json({ error: 'Database delete error' });
@@ -205,7 +204,7 @@ app.delete("/purchase", (request, response) => {
 app.get("/purchase_count", (request, response) => {
 
     db.query(
-      "SELECT COUNT(*) AS count FROM purchases",
+      "SELECT COUNT(*) AS count FROM DRS.purchases",
       (err, results) => {
         if (err) {
           console.error("Database error:", err);
@@ -218,5 +217,3 @@ app.get("/purchase_count", (request, response) => {
 });
 
 export const handler = serverlessExpress({ app });
-
-

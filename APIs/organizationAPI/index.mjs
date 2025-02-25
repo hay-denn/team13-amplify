@@ -37,7 +37,7 @@ app.post("/organization", (request, response) => {
     });
   }
 
-  db.query("SELECT * FROM sponsororganizations WHERE OrganizationName = ?", [OrganizationName], (err, results) => {
+  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationName = ?", [OrganizationName], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -48,7 +48,7 @@ app.post("/organization", (request, response) => {
     }
 
     db.query(
-      "INSERT INTO sponsororganizations (OrganizationName) \
+      "INSERT INTO DRS.sponsororganizations (OrganizationName) \
 	  VALUES (?)",
       [OrganizationName],
       (err, insertResults) => {
@@ -70,16 +70,16 @@ app.post("/organization", (request, response) => {
  * get specific organization
  */
 app.get("/organization", (request, response) => {
-  const { OrganizationID } = request.query;
+  const { OrganizationID } = request.body;
 
   if (!OrganizationID) {
-    return response.status(400).json({ error: 'OrganizationID required' });
+    return response.status(400).json({ error: "OrganizationID required" });
   }
 
-  db.query("SELECT * FROM sponsororganizations WHERE OrganizaitonID = ?", [OrganizationID], (err, results) => {
+  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
     if (err) {
       console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error' });
+      return response.status(500).json({ error: 'Database error'});
     }
 
     if (results.length === 0) {
@@ -96,7 +96,7 @@ app.get("/organization", (request, response) => {
 app.get("/organizations", (request, response) => {
 
   db.query(
-    "SELECT * FROM sponsororganizations",
+    "SELECT * FROM DRS.sponsororganizations",
     (err, results) => {
       if (err) {
         console.error("Database error:", err);
@@ -118,7 +118,7 @@ app.put("/organization", (request, response) => {
     return response.status(400).json({ error: 'OrganizationID required' });
   }
 
-  db.query("SELECT * FROM sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
+  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -140,7 +140,7 @@ app.put("/organization", (request, response) => {
       return response.json({ message: 'No changes provided' });
     }
 
-    const updateQuery = `UPDATE sponsororganizations SET ${updates.join(", ")} WHERE OrganizationID = ?`;
+    const updateQuery = `UPDATE DRS.sponsororganizations SET ${updates.join(", ")} WHERE OrganizationID = ?`;
     values.push(OrganizationID); 
 
     db.query(updateQuery, values, (updateErr, updateResults) => {
@@ -149,7 +149,7 @@ app.put("/organization", (request, response) => {
         return response.status(500).json({ error: 'Database update error' });
       }
 
-      db.query("SELECT * FROM sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (selErr, selResults) => {
+      db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (selErr, selResults) => {
         if (selErr) {
           console.error("Database select error:", selErr);
           return response.status(500).json({ error: 'Database select error after update' });
@@ -168,12 +168,13 @@ app.put("/organization", (request, response) => {
  * delete an organization
  */
 app.delete("/organization", (request, response) => {
-  const { OrganizationID } = request.query;
+  const { OrganizationID } = request.body;
+  
   if (!OrganizationID) {
-    return response.status(400).json({ error: 'UserEmail required' });
+    return response.status(400).json({ error: 'OrganizationID required' });
   }
 
-  db.query("SELECT * FROM sponsorusers WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
+  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
@@ -185,7 +186,7 @@ app.delete("/organization", (request, response) => {
 
     const userToDelete = results[0];
 
-    db.query("DELETE FROM sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (deleteErr, deleteResults) => {
+    db.query("DELETE FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (deleteErr, deleteResults) => {
       if (deleteErr) {
         console.error("Database delete error:", deleteErr);
         return response.status(500).json({ error: 'Database delete error' });
@@ -205,7 +206,7 @@ app.delete("/organization", (request, response) => {
 app.get("/organization_count", (request, response) => {
 
     db.query(
-      "SELECT COUNT(*) AS count FROM sponsororganizations",
+      "SELECT COUNT(*) AS count FROM DRS.sponsororganizations",
       (err, results) => {
         if (err) {
           console.error("Database error:", err);
@@ -218,5 +219,3 @@ app.get("/organization_count", (request, response) => {
 });
 
 export const handler = serverlessExpress({ app });
-
-
