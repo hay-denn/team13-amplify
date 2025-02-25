@@ -12,7 +12,7 @@ export const DashBoardHome = ({ userFName = "User", companyName }: Props) => {
     <>
       <h1 className="welcome">Good Afternoon, {userFName}!</h1>
 
-      {companyName ? (
+      {companyName && companyName.length > 1 ? (
         <div className="home">
           <div className="box box1">
             <TopBox></TopBox>
