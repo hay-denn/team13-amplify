@@ -42,6 +42,7 @@ function App() {
                 <Route path="/" element={<DriverDashboard />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/account" element={<AccountSettings />} />
+                <Route path="/usermanagetest" element={<UserManageTest />} />
               </Routes>
             </Router>
           </div>
