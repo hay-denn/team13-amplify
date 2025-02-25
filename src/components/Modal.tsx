@@ -24,6 +24,7 @@ async function callAPI(url: string, methodType: string, data: object): Promise<v
     }
 }
 
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -66,19 +67,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         //create the new user
         if (userType == "Driver") {
             const data = {
-              "DriverEmail": email
             };
-            callAPI(`${DRIVER_URL}/driver`, "DELETE", data);
+            callAPI(`${DRIVER_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else if (userType == "Admin") {
           const data = {
-              "AdminEmail": email
           };
-        callAPI(`${ADMIN_URL}/admin`, "DELETE", data);
+          callAPI(`${SPONSOR_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else if (userType == "Sponsor") {
           const data = {
-            "UserEmail": email
           };
-       callAPI(`${SPONSOR_URL}/sponsor`, "DELETE", data);
+          callAPI(`${ADMIN_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else {
           alert("Invalid user type!");
         }
