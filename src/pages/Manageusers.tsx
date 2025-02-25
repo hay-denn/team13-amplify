@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ListOfUsersTable } from "../components/ListOfUsersTable";
 import axios from "axios";
-import { testDriverAccounts } from "../components/TestData/MockAccounts";
 import "./Manageusers.css";
 
 export const Manageusers = () => {
