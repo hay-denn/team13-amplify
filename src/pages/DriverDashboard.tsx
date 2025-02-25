@@ -9,7 +9,7 @@ export const DriverDashboard = () => {
   return (
     <>
       <DashBoardHome
-        userFName= {auth.user?.profile.name || "No Name"}
+        userFName= {auth.user?.profile.given_name || "Driver"}
         companyName={companyName}
       ></DashBoardHome>
     </>
