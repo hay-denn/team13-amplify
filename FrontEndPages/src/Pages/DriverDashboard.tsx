@@ -3,7 +3,7 @@ import { Navbar } from "../Components/Navbar";
 import { DashBoardHome } from "../Components/DashBoardHome";
 
 export const DriverDashboard = () => {
-  const [companyName] = useState("Amazon");
+  const [companyName] = useState("");
   return (
     <>
       <Navbar companyName={companyName} userType="Driver"></Navbar>

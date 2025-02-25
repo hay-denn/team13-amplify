@@ -3,7 +3,7 @@ import { DashBoardHome } from "../components/DashBoardHome";
 import { useAuth } from "react-oidc-context";
 
 export const DriverDashboard = () => {
-  const [companyName] = useState("Amazon");
+  const [companyName] = useState("");
   const auth = useAuth();
 
   return (
