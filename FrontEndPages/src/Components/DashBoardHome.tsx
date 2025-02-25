@@ -10,7 +10,7 @@ interface Props {
 export const DashBoardHome = ({ userFName = "User", companyName }: Props) => {
   return (
     <>
-      <h1 className="welcome">Good Afternoon {userFName}!</h1>
+      <h1 className="welcome">Good Afternoon, {userFName}!</h1>
 
       {companyName ? (
         <div className="home">
