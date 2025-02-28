@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import "./HomeStyles.css";
 import { TopBox } from "./TopBox/TopBox";
 import "bootstrap/dist/css/bootstrap.min.css";
-import CarouselTemplate from "./ImageCycles";
+import CarouselTemplate from "./WelcomeImages";
 import { SponsorApplyModal } from "./Modal";
 import { AuthContext } from "react-oidc-context";
 
@@ -13,11 +13,9 @@ interface Props {
 
 export const DashBoardHome = ({ companyName }: Props) => {
   const authContext = useContext(AuthContext);
-  const userFName = authContext?.user?.profile?.given_name || ""; 
-  const userEmail = authContext?.user?.profile?.email || ""; 
+  const userFName = authContext?.user?.profile?.given_name || "";
+  const userEmail = authContext?.user?.profile?.email || "";
   const [showModal, setShowModal] = useState(false);
-
-
 
   interface Application {
     ApplicationID: number;
@@ -27,7 +25,7 @@ export const DashBoardHome = ({ companyName }: Props) => {
     ApplicationStatus: string;
     ApplicationDateSubmitted: string;
   }
-  
+
   const [applications, setApplications] = useState<Application[]>([]);
   useEffect(() => {
     if (userEmail) {
@@ -38,21 +36,22 @@ export const DashBoardHome = ({ companyName }: Props) => {
   const fetchApplications = async (): Promise<void> => {
     try {
       const response = await fetch(
-        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications?ApplicationDriver=${encodeURIComponent(userEmail)}`
+        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications?ApplicationDriver=${encodeURIComponent(
+          userEmail
+        )}`
       );
-      const data = await response.json() as Application[];
+      const data = (await response.json()) as Application[];
 
       if (!Array.isArray(data)) {
         console.error("Unexpected response format:", data);
         return;
       }
 
-      setApplications(data); 
+      setApplications(data);
     } catch (error) {
       console.error("Error fetching applications:", error);
     }
   };
-
 
   return (
     <>
@@ -79,7 +78,10 @@ export const DashBoardHome = ({ companyName }: Props) => {
                 Now that you have completed registration as a driver, it is time
                 for you to start applying to a sponsor of your choice.
               </p>
-              <button className="btn btn-primary mb-3" onClick={() => setShowModal(true)}>
+              <button
+                className="btn btn-primary mb-3"
+                onClick={() => setShowModal(true)}
+              >
                 Apply Now!
               </button>
 
@@ -92,21 +94,32 @@ export const DashBoardHome = ({ companyName }: Props) => {
                     <div key={app.ApplicationID} className="application-card">
                       <span className="application-date">
                         {app.ApplicationDateSubmitted
-                          ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                          ? new Date(
+                              app.ApplicationDateSubmitted
+                            ).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
                             })
                           : "N/A"}
-                          <br />
-                          {new Date(app.ApplicationDateSubmitted).toLocaleTimeString("en-US", {
-                            hour: "numeric",
-                            minute: "numeric",
-                            hour12: true,
-                          })}
+                        <br />
+                        {new Date(
+                          app.ApplicationDateSubmitted
+                        ).toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "numeric",
+                          hour12: true,
+                        })}
                       </span>
-                      <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>{app.ApplicationStatus}</span> 
-                      <p>{app.ApplicationSponsorUser || "N/A"} | {app.ApplicationOrganization}</p>
+                      <span
+                        className={`application-status ${app.ApplicationStatus.toLowerCase()}`}
+                      >
+                        {app.ApplicationStatus}
+                      </span>
+                      <p>
+                        {app.ApplicationSponsorUser || "N/A"} |{" "}
+                        {app.ApplicationOrganization}
+                      </p>
                     </div>
                   ))
                 )}
@@ -121,10 +134,10 @@ export const DashBoardHome = ({ companyName }: Props) => {
       )}
 
       {/* Sponsor Apply Modal */}
-      <SponsorApplyModal 
-        show={showModal} 
-        handleClose={() => setShowModal(false)} 
-        driverEmail={userEmail} 
+      <SponsorApplyModal
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        driverEmail={userEmail}
         fetchApplications={fetchApplications} // ✅ Pass fetchApplications as a prop
       />
     </>

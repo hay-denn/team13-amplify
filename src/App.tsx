@@ -45,7 +45,7 @@ function App() {
               <Route path="/usermanagetest" element={<UserManageTest />} />
             </>
           ) : (
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<DriverDashboard />} />
           )}
           <Route path="/about" element={<About />} />
           <Route path="/api_dashboard" element={<APIDashboard />} />

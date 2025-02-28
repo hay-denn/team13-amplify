@@ -1,5 +1,8 @@
 import { Component } from "react";
 import "./ImageCycles.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
+
 class CarouselTemplate extends Component {
   render() {
     return (
@@ -31,7 +34,7 @@ class CarouselTemplate extends Component {
           <div className="carousel-inner">
             <div className="carousel-item active">
               <img
-                src="src/Components/Images/TruckDriver1.png"
+                src="/images/TruckDriver1.png"
                 className="d-block w-100"
                 alt="First Slide"
                 style={{ maxHeight: "500px" }}
@@ -43,7 +46,7 @@ class CarouselTemplate extends Component {
             </div>
             <div className="carousel-item">
               <img
-                src="src/Components/Images/TruckDriver2.png"
+                src="/images/TruckDriver2.png"
                 className="d-block w-100"
                 alt="Second Slide"
                 style={{ maxHeight: "500px" }}
@@ -52,7 +55,7 @@ class CarouselTemplate extends Component {
             </div>
             <div className="carousel-item">
               <img
-                src="src/Components/Images/TruckDriver3.png"
+                src="/images/TruckDriver3.png"
                 className="d-block w-100"
                 alt="Third Slide"
                 style={{ maxHeight: "500px" }}
