@@ -11,7 +11,7 @@ interface Props {
   companyName?: string;
 }
 
-export const DashBoardHome = ({ companyName }: Props) => {
+export const DriverDashBoard = ({ companyName }: Props) => {
   const authContext = useContext(AuthContext);
   const userFName = authContext?.user?.profile?.given_name || "";
   const userEmail = authContext?.user?.profile?.email || "";

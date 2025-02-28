@@ -4,7 +4,6 @@
   text-align: center;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #ffffff; 
 }
 
 .home-page, .about-page {
@@ -98,4 +97,11 @@ body {
 .content {
   margin-top: 2rem;
   padding: 2rem;
+}
+
+body {
+  background: linear-gradient(to right, #E0F7FA, #FFFFFF);
+  color: rgb(0, 0, 0);
+  place-content: center;
+  font-size: 150%;
 }

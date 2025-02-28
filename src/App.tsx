@@ -4,8 +4,8 @@ import Layout from "./components/Layout";
 
 // Pages
 import About from "./pages/About";
-import Home from "./pages/Home";
-import { DriverDashboard } from "./pages/DriverDashboard";
+import Home from "./pages/DriverHomeStyles.tsx";
+import { DriverDashBoard } from "./pages/DriverDashboard.tsx";
 import { SponsorDashboard } from "./pages/SponsorDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { AccountSettings } from "./pages/AccountSettings";
@@ -30,7 +30,7 @@ function App() {
           {auth.isAuthenticated ? (
             <>
               {userGroup === "Driver" && (
-                <Route path="/" element={<DriverDashboard />} />
+                <Route path="/" element={<DriverDashBoard />} />
               )}
               {userGroup === "Sponsor" && (
                 <Route path="/" element={<SponsorDashboard />} />

@@ -8,7 +8,7 @@ import {
 } from "./Menu";
 import "./Navbarstyle.css"; //stylesheet
 import { useState } from "react";
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 interface Props {
   companyName?: string;
@@ -28,7 +28,7 @@ function getNavbarClass(userType: string, companyName: any) {
       return MenuInfoNewUser;
     }
   } else {
-    return MenuInfoGuest
+    return MenuInfoGuest;
   }
 }
 
@@ -65,7 +65,7 @@ export const Navbar = ({ companyName, userType }: Props) => {
                 <i className={item.icon}>{item.title}</i>
               </Link>
             </li>
-          ))} 
+          ))}
           <LoginButton />
         </ul>
       </nav>
