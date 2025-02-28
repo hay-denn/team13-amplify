@@ -54,3 +54,45 @@
     padding-top: 120px;
     padding-left: 30px;
   }
+
+  .applications-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 10px;
+  }
+  
+  .application-card {
+    position: relative; /* ✅ Allows positioning of elements inside */
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    display: flex; /* ✅ Makes sure everything aligns properly */
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .application-date {
+    position: absolute; /* ✅ Moves to top left */
+    top: 10px;
+    left: 15px;
+    font-size: 0.9em;
+    color: gray;
+  }
+  
+  .application-status {
+    position: absolute; /* ✅ Moves to top right */
+    top: 10px;
+    right: 15px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  
+  .application-status.pending { color: orange; }
+  .application-status.approved { color: green; }
+  .application-status.rejected { color: red; }

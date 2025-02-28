@@ -25,6 +25,7 @@ export const DashBoardHome = ({ companyName }: Props) => {
     ApplicationOrganization: number;
     ApplicationSponsorUser: string | null;
     ApplicationStatus: string;
+    ApplicationDateSubmitted: string;
   }
   
   const [applications, setApplications] = useState<Application[]>([]);
@@ -89,15 +90,15 @@ export const DashBoardHome = ({ companyName }: Props) => {
                 ) : (
                   applications.map((app) => (
                     <div key={app.ApplicationID} className="application-card">
-                      <p><strong>Organization:</strong> {app.ApplicationOrganization}</p>
-                      <p><strong>Sponsor User:</strong> {app.ApplicationSponsorUser || "N/A"}</p>
-                      <p><strong>Status:</strong> <span className={`status ${app.ApplicationStatus.toLowerCase()}`}>{app.ApplicationStatus}</span></p>
+                      <span className="application-date">{new Date(app.ApplicationDateSubmitted).toLocaleDateString()}</span> 
+                      <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>{app.ApplicationStatus}</span> 
+                      <p>{app.ApplicationSponsorUser || "N/A"} | {app.ApplicationOrganization}</p>
                     </div>
                   ))
                 )}
               </div>
             </div>
-            
+
             <div className="col-md-7 right-col">
               <CarouselTemplate />
             </div>
