@@ -13,7 +13,6 @@ import APIDashboard from "./pages/APIDashboard.tsx";
 import APIRoutes from "./pages/APIRoutes.tsx";
 import UserManageTest from "./pages/UserManageTest";
 import { Manageusers } from "./pages/Manageusers.tsx";
-import { MenuInfoGuest } from "./components/Menu.tsx";
 
 function App() {
   const auth = useAuth();

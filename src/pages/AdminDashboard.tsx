@@ -1,4 +1,3 @@
-import { Navbar } from "../components/Navbar";
 import { TopBox } from "../components/TopBox/TopBox";
 
 interface Props {
