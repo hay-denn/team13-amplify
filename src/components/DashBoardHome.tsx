@@ -1,10 +1,10 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import "./HomeStyles.css";
 import { TopBox } from "./TopBox/TopBox";
 import "bootstrap/dist/css/bootstrap.min.css";
 import CarouselTemplate from "./ImageCycles";
 import { SponsorApplyModal } from "./Modal";
-import { AuthContext } from "react-oidc-context"; // Import AuthContext to access user info
+import { AuthContext } from "react-oidc-context";
 
 interface Props {
   userFName?: string;
@@ -13,9 +13,45 @@ interface Props {
 
 export const DashBoardHome = ({ companyName }: Props) => {
   const authContext = useContext(AuthContext);
-  const userFName = authContext?.user?.profile?.given_name || ""; // Get the user's first name from Cognito
-  const userEmail = authContext?.user?.profile?.email || ""; // Get the user's email from Cognito
+  const userFName = authContext?.user?.profile?.given_name || ""; 
+  const userEmail = authContext?.user?.profile?.email || ""; 
   const [showModal, setShowModal] = useState(false);
+
+
+
+  interface Application {
+    ApplicationID: number;
+    ApplicationDriver: string;
+    ApplicationOrganization: number;
+    ApplicationSponsorUser: string | null;
+    ApplicationStatus: string;
+  }
+  
+  const [applications, setApplications] = useState<Application[]>([]);
+  useEffect(() => {
+    if (userEmail) {
+      fetchApplications();
+    }
+  }, [userEmail]); // Fetch applications when userEmail changes
+
+  const fetchApplications = async (): Promise<void> => {
+    try {
+      const response = await fetch(
+        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications?ApplicationDriver=${encodeURIComponent(userEmail)}`
+      );
+      const data = await response.json() as Application[];
+
+      if (!Array.isArray(data)) {
+        console.error("Unexpected response format:", data);
+        return;
+      }
+
+      setApplications(data); 
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    }
+  };
+
 
   return (
     <>
@@ -45,7 +81,23 @@ export const DashBoardHome = ({ companyName }: Props) => {
               <button className="btn btn-primary mb-3" onClick={() => setShowModal(true)}>
                 Apply Now!
               </button>
+
+              <div className="applications-container">
+                <h2>My Applications</h2>
+                {applications.length === 0 ? (
+                  <p>No applications found.</p>
+                ) : (
+                  applications.map((app) => (
+                    <div key={app.ApplicationID} className="application-card">
+                      <p><strong>Organization:</strong> {app.ApplicationOrganization}</p>
+                      <p><strong>Sponsor User:</strong> {app.ApplicationSponsorUser || "N/A"}</p>
+                      <p><strong>Status:</strong> <span className={`status ${app.ApplicationStatus.toLowerCase()}`}>{app.ApplicationStatus}</span></p>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
+            
             <div className="col-md-7 right-col">
               <CarouselTemplate />
             </div>
