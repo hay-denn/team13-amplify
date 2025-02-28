@@ -98,6 +98,12 @@ export const DashBoardHome = ({ companyName }: Props) => {
                               day: "numeric",
                             })
                           : "N/A"}
+                          <br />
+                          {new Date(app.ApplicationDateSubmitted).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "numeric",
+                            hour12: true,
+                          })}
                       </span>
                       <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>{app.ApplicationStatus}</span> 
                       <p>{app.ApplicationSponsorUser || "N/A"} | {app.ApplicationOrganization}</p>

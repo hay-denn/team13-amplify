@@ -82,6 +82,8 @@
     left: 15px;
     font-size: 0.9em;
     color: gray;
+    text-align: left;
+    line-height: 1.2;
   }
   
   .application-status {
