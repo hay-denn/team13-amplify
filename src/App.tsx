@@ -13,10 +13,10 @@ import APIDashboard from "./pages/APIDashboard.tsx";
 import APIRoutes from "./pages/APIRoutes.tsx";
 import UserManageTest from "./pages/UserManageTest";
 
-
 function App() {
   const auth = useAuth();
-  const cognitoGroups: string[] = auth.user?.profile?.["cognito:groups"] as string[] || [];
+  const cognitoGroups: string[] =
+    (auth.user?.profile?.["cognito:groups"] as string[]) || [];
   const userGroup = cognitoGroups[0];
 
   if (auth.isLoading) return <div>Loading...</div>;
@@ -24,13 +24,19 @@ function App() {
 
   return (
     <Router>
-      <Layout>
+      <Layout userType={userGroup}>
         <Routes>
           {auth.isAuthenticated ? (
             <>
-              {userGroup === "Driver" && <Route path="/" element={<DriverDashboard />} />}
-              {userGroup === "Sponsor" && <Route path="/" element={<SponsorDashboard />} />}
-              {userGroup === "Admin" && <Route path="/" element={<AdminDashboard />} />}
+              {userGroup === "Driver" && (
+                <Route path="/" element={<DriverDashboard />} />
+              )}
+              {userGroup === "Sponsor" && (
+                <Route path="/" element={<SponsorDashboard />} />
+              )}
+              {userGroup === "Admin" && (
+                <Route path="/" element={<AdminDashboard />} />
+              )}
               <Route path="/account" element={<AccountSettings />} />
               <Route path="/usermanagetest" element={<UserManageTest />} />
             </>

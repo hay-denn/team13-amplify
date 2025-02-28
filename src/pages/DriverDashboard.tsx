@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DashBoardHome } from "../components/DashBoardHome";
+import { DashBoardHome } from "../components/DriverDashBoardHome";
 import { useAuth } from "react-oidc-context";
 
 export const DriverDashboard = () => {
@@ -9,7 +9,7 @@ export const DriverDashboard = () => {
   return (
     <>
       <DashBoardHome
-        userFName= {auth.user?.profile.given_name || "Driver"}
+        userFName={auth.user?.profile.given_name || "Driver"}
         companyName={companyName}
       ></DashBoardHome>
     </>
