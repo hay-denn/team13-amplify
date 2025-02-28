@@ -91,8 +91,10 @@
     font-weight: bold;
     padding: 5px 10px;
     border-radius: 5px;
+    color: white;
+    background-color: gray;
   }
   
-  .application-status.pending { color: orange; }
-  .application-status.approved { color: green; }
-  .application-status.rejected { color: red; }
+  .application-status.pending { background-color: orange; }
+  .application-status.approved { background-color: green; }
+  .application-status.rejected { background-color: red; }

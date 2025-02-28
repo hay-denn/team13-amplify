@@ -90,7 +90,15 @@ export const DashBoardHome = ({ companyName }: Props) => {
                 ) : (
                   applications.map((app) => (
                     <div key={app.ApplicationID} className="application-card">
-                      <span className="application-date">{new Date(app.ApplicationDateSubmitted).toLocaleDateString()}</span> 
+                      <span className="application-date">
+                        {app.ApplicationDateSubmitted
+                          ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : "N/A"}
+                      </span>
                       <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>{app.ApplicationStatus}</span> 
                       <p>{app.ApplicationSponsorUser || "N/A"} | {app.ApplicationOrganization}</p>
                     </div>
