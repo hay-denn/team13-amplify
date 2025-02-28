@@ -115,7 +115,12 @@ export const DashBoardHome = ({ companyName }: Props) => {
       )}
 
       {/* Sponsor Apply Modal */}
-      <SponsorApplyModal show={showModal} handleClose={() => setShowModal(false)} driverEmail={userEmail} />
+      <SponsorApplyModal 
+        show={showModal} 
+        handleClose={() => setShowModal(false)} 
+        driverEmail={userEmail} 
+        fetchApplications={fetchApplications} // ✅ Pass fetchApplications as a prop
+      />
     </>
   );
 };

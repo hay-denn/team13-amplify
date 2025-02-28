@@ -203,7 +203,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
 };
 
 // Sponsor Apply Modal added below
-export const SponsorApplyModal = ({ show, handleClose, driverEmail }: { show: boolean; handleClose: () => void; driverEmail: string }) => {
+export const SponsorApplyModal = ({ show, handleClose, driverEmail, fetchApplications}: { show: boolean; handleClose: () => void; driverEmail: string; fetchApplications: () => void;}) => {
   const [sponsorId, setSponsorId] = useState("");
   const [sponsorEmail, setSponsorEmail] = useState("");
 
@@ -242,6 +242,7 @@ export const SponsorApplyModal = ({ show, handleClose, driverEmail }: { show: bo
               setSponsorId("");
               setSponsorEmail("");
               handleClose();
+              fetchApplications();
           } else {
               alert("Failed to submit application.");
           }
