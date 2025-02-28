@@ -7,17 +7,19 @@ import { SponsorApplyModal } from "./Modal";
 import { AuthContext } from "react-oidc-context"; // Import AuthContext to access user info
 
 interface Props {
+  userFName?: string;
   companyName?: string;
 }
 
 export const DashBoardHome = ({ companyName }: Props) => {
   const authContext = useContext(AuthContext);
+  const userFName = authContext?.user?.profile?.given_name || ""; // Get the user's first name from Cognito
   const userEmail = authContext?.user?.profile?.email || ""; // Get the user's email from Cognito
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
-      <h1 className="welcome">Good Afternoon2, {userEmail}!</h1>
+      <h1 className="welcome">Good Afternoon, {userFName}!</h1>
 
       {companyName ? (
         <div className="home">
