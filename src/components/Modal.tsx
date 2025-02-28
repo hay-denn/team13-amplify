@@ -225,7 +225,7 @@ export const SponsorApplyModal = ({ show, handleClose, driverEmail }: { show: bo
 
       const applicationData = {
           ApplicationDriver: driverEmail,
-          ApplicationSponsorID: Number(sponsorId),
+          ApplicationOrganization: Number(sponsorId),
           ApplicationSponsorUser: sponsorEmail,
           ApplicationStatus: "Submitted", 
       };
