@@ -79,7 +79,7 @@ export const MenuInfoNewUser = [
     url: "/usermanagetest",
     cName: "nav-links",
     icon: "fa-solid fa-circle-user",
-  }
+  },
 ];
 
 export const MenuAdmin = [
@@ -96,7 +96,13 @@ export const MenuAdmin = [
     icon: "fa-solid fa-circle-user",
   },
   {
-    title: "Account Management",
+    title: "Manage Users",
+    url: "/manageusers",
+    cName: "nav-links",
+    icon: "fa-solid fa-store",
+  },
+  {
+    title: "Auditing information",
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-store",

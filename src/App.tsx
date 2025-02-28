@@ -12,6 +12,8 @@ import { AccountSettings } from "./pages/AccountSettings";
 import APIDashboard from "./pages/APIDashboard.tsx";
 import APIRoutes from "./pages/APIRoutes.tsx";
 import UserManageTest from "./pages/UserManageTest";
+import { Manageusers } from "./pages/Manageusers.tsx";
+import { MenuInfoGuest } from "./components/Menu.tsx";
 
 function App() {
   const auth = useAuth();
@@ -35,7 +37,10 @@ function App() {
                 <Route path="/" element={<SponsorDashboard />} />
               )}
               {userGroup === "Admin" && (
-                <Route path="/" element={<AdminDashboard />} />
+                <>
+                  <Route path="/" element={<AdminDashboard />} />
+                  <Route path="/manageusers" element={<Manageusers />} />
+                </>
               )}
               <Route path="/account" element={<AccountSettings />} />
               <Route path="/usermanagetest" element={<UserManageTest />} />
