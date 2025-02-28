@@ -203,8 +203,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
 };
 
 // Sponsor Apply Modal added below
-export const SponsorApplyModal = ({ show, handleClose, userFName }: { show: boolean; handleClose: () => void; userFName: string }) => {
-  const driverEmail = userFName || ""; 
+export const SponsorApplyModal = ({ show, handleClose, driverEmail }: { show: boolean; handleClose: () => void; driverEmail: string }) => {
   const [sponsorId, setSponsorId] = useState("");
   const [sponsorEmail, setSponsorEmail] = useState("");
 

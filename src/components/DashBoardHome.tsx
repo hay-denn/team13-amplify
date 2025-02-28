@@ -1,21 +1,23 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import "./HomeStyles.css";
 import { TopBox } from "./TopBox/TopBox";
 import "bootstrap/dist/css/bootstrap.min.css";
 import CarouselTemplate from "./ImageCycles";
-import { SponsorApplyModal } from "./Modal"; // Importing the modal
+import { SponsorApplyModal } from "./Modal";
+import { AuthContext } from "react-oidc-context"; // Import AuthContext to access user info
 
 interface Props {
-  userFName?: string;
   companyName?: string;
 }
 
-export const DashBoardHome = ({ userFName = "User", companyName }: Props) => {
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+export const DashBoardHome = ({ companyName }: Props) => {
+  const authContext = useContext(AuthContext);
+  const userEmail = authContext?.user?.profile?.email || ""; // Get the user's email from Cognito
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <>
-      <h1 className="welcome">Good Afternoon2, {userFName}!</h1>
+      <h1 className="welcome">Good Afternoon2, {userEmail}!</h1>
 
       {companyName ? (
         <div className="home">
@@ -50,7 +52,7 @@ export const DashBoardHome = ({ userFName = "User", companyName }: Props) => {
       )}
 
       {/* Sponsor Apply Modal */}
-      <SponsorApplyModal show={showModal} handleClose={() => setShowModal(false)} userFName={userFName} />
+      <SponsorApplyModal show={showModal} handleClose={() => setShowModal(false)} driverEmail={userEmail} />
     </>
   );
 };
