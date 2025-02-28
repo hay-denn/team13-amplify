@@ -204,51 +204,103 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
 
 // Sponsor Apply Modal added below
 export const SponsorApplyModal = ({ show, handleClose, userFName }: { show: boolean; handleClose: () => void; userFName: string }) => {
-    const [organization, setOrganization] = useState("");
-    const [sponsorUser, setSponsorUser] = useState("");
+  const driverEmail = userFName || ""; 
+  const [sponsorId, setSponsorId] = useState("");
+  const [sponsorEmail, setSponsorEmail] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const applicationData = {
-            ApplicationDriver: userFName,
-            ApplicationOrganization: organization,
-            ApplicationSponsorUser: sponsorUser || null,
-            ApplicationStatus: "Pending",
-        };
+  const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      if (!driverEmail.trim()) {
+          alert("Driver email is required.");
+          return;
+      }
+      if (!sponsorId.trim() || isNaN(Number(sponsorId))) {
+          alert("Please enter a valid Sponsor ID.");
+          return;
+      }
+      if (!sponsorEmail.trim()) {
+          alert("Sponsor email is required.");
+          return;
+      }
 
-        try {
-            const response = await fetch("https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplication", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(applicationData),
-            });
+      const applicationData = {
+          ApplicationDriver: driverEmail,
+          ApplicationSponsorID: Number(sponsorId),
+          ApplicationSponsorUser: sponsorEmail,
+          ApplicationStatus: "Submitted", 
+      };
 
-            if (response.ok) {
-                alert("Application submitted successfully!");
-                setOrganization("");
-                setSponsorUser("");
-                handleClose();
-            } else {
-                alert("Failed to submit application.");
-            }
-        } catch (error) {
-            console.error("Error submitting application:", error);
-            alert("An error occurred while submitting the application.");
-        }
-    };
+      try {
+          const response = await fetch("https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplication", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(applicationData),
+          });
 
-    return (
-        <BootstrapModal show={show} onHide={handleClose} centered backdrop="static">
-            <BootstrapModal.Header closeButton>
-                <BootstrapModal.Title>Apply for a Sponsor</BootstrapModal.Title>
-            </BootstrapModal.Header>
-            <BootstrapModal.Body>
-                <Form onSubmit={handleSubmit}>
-                    <Button variant="primary" type="submit">Submit Application</Button>
-                </Form>
-            </BootstrapModal.Body>
-        </BootstrapModal>
-    );
+          if (response.ok) {
+              alert("Application submitted successfully!");
+              setSponsorId("");
+              setSponsorEmail("");
+              handleClose();
+          } else {
+              alert("Failed to submit application.");
+          }
+      } catch (error) {
+          console.error("Error submitting application:", error);
+          alert("An error occurred while submitting the application.");
+      }
+  };
+
+  return (
+      <BootstrapModal show={show} onHide={handleClose} centered backdrop="static">
+          <BootstrapModal.Header closeButton>
+              <BootstrapModal.Title>Apply for a Sponsor</BootstrapModal.Title>
+          </BootstrapModal.Header>
+          <BootstrapModal.Body>
+              <Form onSubmit={handleSubmit}>
+                  {/* Driver's Email (Pre-filled) */}
+                  <Form.Group className="mb-3">
+                      <Form.Label>Driver Email</Form.Label>
+                      <Form.Control
+                          type="email"
+                          value={driverEmail}
+                          readOnly
+                      />
+                  </Form.Group>
+
+                  {/* Sponsor ID (Integer) */}
+                  <Form.Group className="mb-3">
+                      <Form.Label>Sponsor ID</Form.Label>
+                      <Form.Control
+                          type="number"
+                          placeholder="Enter Sponsor ID"
+                          value={sponsorId}
+                          onChange={(e) => setSponsorId(e.target.value)}
+                          required
+                      />
+                  </Form.Group>
+
+                  {/* Sponsor User's Email */}
+                  <Form.Group className="mb-3">
+                      <Form.Label>Sponsor User's Email</Form.Label>
+                      <Form.Control
+                          type="email"
+                          placeholder="Enter Sponsor's Email"
+                          value={sponsorEmail}
+                          onChange={(e) => setSponsorEmail(e.target.value)}
+                          required
+                      />
+                  </Form.Group>
+
+                  {/* Submit Button */}
+                  <Button variant="primary" type="submit">
+                      Submit Application
+                  </Button>
+              </Form>
+          </BootstrapModal.Body>
+      </BootstrapModal>
+  );
 };
 
 export default Modal;
