@@ -64,14 +64,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     }
   }, [initialData, isOpen]);
 
-  async function manageCognitoUser(
+  const manageCognitoUser = async (
     action: "createUser" | "updateUser" | "deleteUser",
     userPoolId: string,
     username: string,
     accessToken: string, // The access token from OIDC authentication
     attributes?: Record<string, string>,
     password?: string
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
         method: "POST",
@@ -87,7 +87,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           password,
         }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         console.log("Success:", data.message);
@@ -97,7 +97,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     } catch (error) {
       console.error(`Error performing ${action}:`, error);
     }
-  }
+  };
 
   const handleDeleteUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
