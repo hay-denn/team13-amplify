@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Modal as BootstrapModal, Button, Form } from "react-bootstrap";
+import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminDeleteUserCommand, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 import "./Modal.css";
+
+const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" }); // Replace with your region
+const userPoolId = "us-east-1_uN566DiPO"; // Replace with your Cognito User Pool ID
+
 
 async function callAPI(url: string, methodType: string, data: object): Promise<void> {
     try {
@@ -59,13 +64,66 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   }, [initialData, isOpen]);
 
 
+  //Cognito Create User
+  const createUser = async () => {
+    try {
+      const command = new AdminCreateUserCommand({
+        UserPoolId: userPoolId,
+        Username: email,
+        UserAttributes: [
+          { Name: "given_name", Value: firstName },
+          { Name: "family_name", Value: familyName },
+          { Name: "email", Value: email },
+          { Name: "email_verified", Value: "true" },
+        ],
+        MessageAction: "SUPPRESS", // Don't send an invitation email
+      });
+      await cognitoClient.send(command);
+      alert("User created successfully!");
+    } catch (error) {
+      alert("Error creating user: " + error);
+    }
+  };
 
-  const handleDeleteUser = () => {
+  //Cognito Update User
+  const updateUser = async () => {
+    try {
+      const command = new AdminUpdateUserAttributesCommand({
+        UserPoolId: userPoolId,
+        Username: email,
+        UserAttributes: [
+          { Name: "given_name", Value: firstName },
+          { Name: "family_name", Value: familyName },
+        ],
+      });
+      await cognitoClient.send(command);
+      alert("User updated successfully!");
+    } catch (error) {
+      alert("Error updating user: " + error);
+    }
+  };
+
+  //Cognito Delete User
+  const deleteUser = async () => {
+    try {
+      const command = new AdminDeleteUserCommand({
+        UserPoolId: userPoolId,
+        Username: email,
+      });
+      await cognitoClient.send(command);
+      alert("User deleted successfully!");
+    } catch (error) {
+      alert("Error deleting user: " + error);
+    }
+  };
+
+
+  const handleDeleteUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
     if (!newUser) {
-        //create the new user
+        await deleteUser();
         if (userType == "Driver") {
             const data = {
             };
@@ -85,13 +143,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     onClose();
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
     if (newUser) {
-        //create the new user
+        //create new user
+        await createUser();
         if (userType == "Driver") {
             const data = {
                 "DriverEmail": email,
@@ -118,7 +177,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           alert("Invalid user type!");
         }
     } else {
-        //update an exisitng user
+      //update an exisitng user
+      await updateUser();
       if (userType == "Driver") {
         const data = {
             "DriverEmail": email,
