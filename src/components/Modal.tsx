@@ -5,40 +5,7 @@ import { useAuth } from "react-oidc-context";
 
 const USER_POOL_ID = "us-east-1_uN566DiPO";
 
-async function manageCognitoUser(
-  action: "createUser" | "updateUser" | "deleteUser",
-  userPoolId: string,
-  username: string,
-  accessToken: string, // The access token from OIDC authentication
-  attributes?: Record<string, string>,
-  password?: string
-): Promise<void> {
-  try {
-    const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        action,
-        userPoolId,
-        username,
-        accessToken, // Pass the access token to validate
-        attributes,
-        password,
-      }),
-    });
 
-    const data = await response.json();
-    if (response.ok) {
-      console.log("Success:", data.message);
-    } else {
-      throw new Error(data.error);
-    }
-  } catch (error) {
-    console.error(`Error performing ${action}:`, error);
-  }
-}
 
 
 async function callAPI(url: string, methodType: string, data: object): Promise<void> {
@@ -96,6 +63,41 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setNewUser(true);
     }
   }, [initialData, isOpen]);
+
+  async function manageCognitoUser(
+    action: "createUser" | "updateUser" | "deleteUser",
+    userPoolId: string,
+    username: string,
+    accessToken: string, // The access token from OIDC authentication
+    attributes?: Record<string, string>,
+    password?: string
+  ): Promise<void> {
+    try {
+      const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action,
+          userPoolId,
+          username,
+          accessToken, // Pass the access token to validate
+          attributes,
+          password,
+        }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Success:", data.message);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error(`Error performing ${action}:`, error);
+    }
+  }
 
   const handleDeleteUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
