@@ -1,10 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { Modal as BootstrapModal, Button, Form } from "react-bootstrap";
-import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminDeleteUserCommand, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 import "./Modal.css";
+import { useAuth } from "react-oidc-context";
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" }); // Replace with your region
-const userPoolId = "us-east-1_uN566DiPO"; // Replace with your Cognito User Pool ID
+const USER_POOL_ID = "us-east-1_uN566DiPO";
+
+async function manageCognitoUser(
+  action: "createUser" | "updateUser" | "deleteUser",
+  userPoolId: string,
+  username: string,
+  accessToken: string, // The access token from OIDC authentication
+  attributes?: Record<string, string>,
+  password?: string
+): Promise<void> {
+  try {
+    const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action,
+        userPoolId,
+        username,
+        accessToken, // Pass the access token to validate
+        attributes,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Success:", data.message);
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (error) {
+    console.error(`Error performing ${action}:`, error);
+  }
+}
 
 
 async function callAPI(url: string, methodType: string, data: object): Promise<void> {
@@ -63,67 +97,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     }
   }, [initialData, isOpen]);
 
-
-  //Cognito Create User
-  const createUser = async () => {
-    try {
-      const command = new AdminCreateUserCommand({
-        UserPoolId: userPoolId,
-        Username: email,
-        UserAttributes: [
-          { Name: "given_name", Value: firstName },
-          { Name: "family_name", Value: familyName },
-          { Name: "email", Value: email },
-          { Name: "email_verified", Value: "true" },
-        ],
-        MessageAction: "SUPPRESS", // Don't send an invitation email
-      });
-      await cognitoClient.send(command);
-      alert("User created successfully!");
-    } catch (error) {
-      alert("Error creating user: " + error);
-    }
-  };
-
-  //Cognito Update User
-  const updateUser = async () => {
-    try {
-      const command = new AdminUpdateUserAttributesCommand({
-        UserPoolId: userPoolId,
-        Username: email,
-        UserAttributes: [
-          { Name: "given_name", Value: firstName },
-          { Name: "family_name", Value: familyName },
-        ],
-      });
-      await cognitoClient.send(command);
-      alert("User updated successfully!");
-    } catch (error) {
-      alert("Error updating user: " + error);
-    }
-  };
-
-  //Cognito Delete User
-  const deleteUser = async () => {
-    try {
-      const command = new AdminDeleteUserCommand({
-        UserPoolId: userPoolId,
-        Username: email,
-      });
-      await cognitoClient.send(command);
-      alert("User deleted successfully!");
-    } catch (error) {
-      alert("Error deleting user: " + error);
-    }
-  };
-
-
   const handleDeleteUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
     if (!newUser) {
-        await deleteUser();
         if (userType == "Driver") {
             const data = {
             };
@@ -148,9 +126,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
-    if (newUser) {
+    const auth = useAuth();
+    if (!auth.user?.access_token) {
+      console.error("user not authenticated!");
+    } else {
+      if (newUser) {
+        manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "Password1!");
         //create new user
-        await createUser();
         if (userType == "Driver") {
             const data = {
                 "DriverEmail": email,
@@ -178,7 +160,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         }
     } else {
       //update an exisitng user
-      await updateUser();
       if (userType == "Driver") {
         const data = {
             "DriverEmail": email,
@@ -205,6 +186,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         alert("Invalid user type!");
       }
     }
+    }
+
     onClose(); // Close the modal
   };
 
