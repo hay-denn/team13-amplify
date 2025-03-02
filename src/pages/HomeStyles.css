@@ -98,6 +98,7 @@
   }
 
   .cancel-button {
+    display: block;
     margin-top: 10px;
     background-color: red;
     color: white;

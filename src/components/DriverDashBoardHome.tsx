@@ -72,7 +72,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
 
   return (
     <>
-      <h1 className="welcome">Good Afternoon, {userFName}!</h1>
+      <h1 className="welcome">Good Afternoon, test {userFName}!</h1>
 
       {companyName ? (
         <div className="home">
@@ -137,7 +137,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                         {app.ApplicationSponsorUser || "N/A"} |{" "}
                         {app.ApplicationOrganization}
                       </p>
-                      {app.ApplicationStatus.toLowerCase() === "submitted" && (
+                      {app.ApplicationStatus?.trim().toLowerCase() === "submitted" && (
                         <button
                           className="btn btn-danger cancel-button"
                           onClick={() => handleCancelApplication(app.ApplicationID)}
