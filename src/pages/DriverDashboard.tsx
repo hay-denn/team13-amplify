@@ -27,11 +27,12 @@ export const DriverDashBoard = ({ companyName }: Props) => {
   }
 
   const [applications, setApplications] = useState<Application[]>([]);
+
   useEffect(() => {
     if (userEmail) {
       fetchApplications();
     }
-  }, [userEmail]); // Fetch applications when userEmail changes
+  }, [userEmail]);
 
   const fetchApplications = async (): Promise<void> => {
     try {
@@ -50,6 +51,22 @@ export const DriverDashBoard = ({ companyName }: Props) => {
       setApplications(data);
     } catch (error) {
       console.error("Error fetching applications:", error);
+    }
+  };
+
+  const handleCancelApplication = async (applicationID: number) => {
+    try {
+      await fetch(
+        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/removeApplication`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ApplicationID: applicationID }),
+        }
+      );
+      fetchApplications();
+    } catch (error) {
+      console.error("Error deleting application:", error);
     }
   };
 
@@ -120,6 +137,14 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                         {app.ApplicationSponsorUser || "N/A"} |{" "}
                         {app.ApplicationOrganization}
                       </p>
+                      {app.ApplicationStatus?.trim().toLowerCase() === "submitted" && (
+                        <button
+                          className="btn btn-danger cancel-button"
+                          onClick={() => handleCancelApplication(app.ApplicationID)}
+                        >
+                          Cancel
+                        </button>
+                      )}
                     </div>
                   ))
                 )}
@@ -133,7 +158,6 @@ export const DriverDashBoard = ({ companyName }: Props) => {
         </div>
       )}
 
-      {/* Sponsor Apply Modal */}
       <SponsorApplyModal
         show={showModal}
         handleClose={() => setShowModal(false)}
