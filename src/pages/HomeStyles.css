@@ -96,6 +96,22 @@
     color: white;
     background-color: gray;
   }
+
+  .cancel-button {
+    margin-top: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .cancel-button:hover {
+    background-color: darkred;
+  }
   
   .application-status.pending { background-color: orange; }
   .application-status.approved { background-color: green; }
