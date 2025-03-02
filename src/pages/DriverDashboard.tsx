@@ -56,15 +56,21 @@ export const DriverDashBoard = ({ companyName }: Props) => {
 
   const handleCancelApplication = async (applicationID: number) => {
     try {
-      await fetch(
-        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/removeApplication`,
+      const response = await fetch(
+        "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplication",
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ApplicationID: applicationID }),
         }
       );
-      fetchApplications();
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete application. Status: ${response.status}`);
+      }
+  
+      console.log("Application deleted successfully!");
+      await fetchApplications();
     } catch (error) {
       console.error("Error deleting application:", error);
     }
