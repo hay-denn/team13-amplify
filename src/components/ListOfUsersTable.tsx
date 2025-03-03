@@ -1,3 +1,6 @@
+import { useState } from "react";
+import Modal from "./Modal";
+
 interface Driver {
   DriverEmail: string;
   DriverFName: string;
@@ -25,11 +28,21 @@ interface Props {
   adminTable: Admin[];
 }
 
-export const ListOfUsersTable = ({
-  driverTable,
-  sponsorTable,
-  adminTable,
-}: Props) => {
+export const ListOfUsersTable = ({ driverTable, sponsorTable, adminTable }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<{ firstName: string; familyName: string; email: string; userType: string; newUser: boolean } | undefined>();
+  
+  const handleEditUser = (pfirstName: string, pfamilyName: string, pemail: string, puserType: string) => {
+    setModalData({
+      firstName: pfirstName,
+      familyName: pfamilyName,
+      email: pemail,
+      userType: puserType,
+      newUser: false
+    });
+    setIsModalOpen(true);
+  };
+  
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -52,14 +65,9 @@ export const ListOfUsersTable = ({
               <td>{driver.DriverFName}</td>
               <td>{driver.DriverLName}</td>
               <td>{driver.DriverEmail}</td>
-              {driver.DriverSponsor ? (
-                <td>{driver.DriverSponsor}</td>
-              ) : (
-                <td>None</td>
-              )}
-
+              <td>{driver.DriverSponsor || "None"}</td>
               <td>
-                <button className="btn btn-primary">Edit</button>
+                <button className="btn btn-primary" onClick={() => handleEditUser(driver.DriverFName, driver.DriverLName, driver.DriverEmail, "Driver")}>Edit</button>
               </td>
             </tr>
           ))}
@@ -71,34 +79,29 @@ export const ListOfUsersTable = ({
               <td>{sponsor.UserFName}</td>
               <td>{sponsor.UserLName}</td>
               <td>{sponsor.UserEmail}</td>
-              {sponsor.UserOrganization ? (
-                <td>{sponsor.UserOrganization}</td>
-              ) : (
-                <td>N / A</td>
-              )}
+              <td>{sponsor.UserOrganization || "N / A"}</td>
               <td>
-                <button className="btn btn-primary">Edit</button>
+                <button className="btn btn-primary" onClick={() => handleEditUser(sponsor.UserFName, sponsor.UserLName, sponsor.UserEmail, "Sponsor")}>Edit</button>
               </td>
             </tr>
           ))}
 
           {adminTable.map((admin, index) => (
             <tr key={`admin-${index}`}>
-              <th scope="row">
-                {driverTable.length + sponsorTable.length + index + 1}
-              </th>
+              <th scope="row">{driverTable.length + sponsorTable.length + index + 1}</th>
               <td>Admin</td>
               <td>{admin.AdminFName}</td>
               <td>{admin.AdminLName}</td>
               <td>{admin.AdminEmail}</td>
               <td>Administrator</td>
               <td>
-                <button className="btn btn-primary">Edit</button>
+                <button className="btn btn-primary" onClick={() => handleEditUser(admin.AdminFName, admin.AdminLName, admin.AdminEmail, "Admin")}>Edit</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} initialData={modalData} />
     </div>
   );
 };

@@ -12,12 +12,12 @@ const UserManageTest: React.FC = () => {
   };
 
   // Function to open modal for editing a user
-  const handleEditUser = () => {
+  const handleEditUser = (pfirstName: string, pfamilyName: string, pemail: string, puserType: string) => {
     setModalData({
-      firstName: "John",
-      familyName: "Doe",
-      email: "john.doe@example.com",
-      userType: "Driver", // Example of pre-filled user type
+      firstName: pfirstName,
+      familyName: pfamilyName,
+      email: pemail,
+      userType: puserType, // Example of pre-filled user type
       newUser: false
     });
     setIsModalOpen(true);
