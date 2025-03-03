@@ -5,7 +5,40 @@ import { useAuth } from "react-oidc-context";
 
 const USER_POOL_ID = "us-east-1_uN566DiPO";
 
+async function manageCognitoUser (
+  action: "createUser" | "updateUser" | "deleteUser",
+  userPoolId: string,
+  username: string,
+  accessToken: string, // The access token from OIDC authentication
+  attributes?: Record<string, string>,
+  password?: string
+): Promise<void> {
+  try {
+    const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action,
+        userPoolId,
+        username,
+        accessToken, // Pass the access token to validate
+        attributes,
+        password,
+      }),
+    });
 
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Success:", data.message);
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (error) {
+    console.error(`Error performing ${action}:`, error);
+  }
+};
 
 
 async function callAPI(url: string, methodType: string, data: object): Promise<void> {
@@ -46,6 +79,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]); // Default to "Driver"
   const [newUser, setNewUser] = useState(true);
+  const auth = useAuth();
+
 
   // Populate form fields when initialData changes
   useEffect(() => {
@@ -63,41 +98,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setNewUser(true);
     }
   }, [initialData, isOpen]);
-
-  const manageCognitoUser = async (
-    action: "createUser" | "updateUser" | "deleteUser",
-    userPoolId: string,
-    username: string,
-    accessToken: string, // The access token from OIDC authentication
-    attributes?: Record<string, string>,
-    password?: string
-  ): Promise<void> => {
-    try {
-      const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action,
-          userPoolId,
-          username,
-          accessToken, // Pass the access token to validate
-          attributes,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Success:", data.message);
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (error) {
-      console.error(`Error performing ${action}:`, error);
-    }
-  };
 
   const handleDeleteUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
@@ -128,12 +128,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
-    const auth = useAuth();
     if (!auth.user?.access_token) {
       console.error("user not authenticated!");
     } else {
       if (newUser) {
-        manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "Password1!");
+      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "Password1!");
         //create new user
         if (userType == "Driver") {
             const data = {
