@@ -2,7 +2,7 @@ interface Driver {
   DriverEmail: string;
   DriverFName: string;
   DriverLName: string;
-  DriverSponsor: any;
+  DriverSponsor: string;
   DriverPoints: string;
 }
 
@@ -40,6 +40,7 @@ export const ListOfUsersTable = ({
             <th scope="col">First</th>
             <th scope="col">Last</th>
             <th scope="col">Email</th>
+            <th scope="col">Organization</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
@@ -51,6 +52,12 @@ export const ListOfUsersTable = ({
               <td>{driver.DriverFName}</td>
               <td>{driver.DriverLName}</td>
               <td>{driver.DriverEmail}</td>
+              {driver.DriverSponsor ? (
+                <td>{driver.DriverSponsor}</td>
+              ) : (
+                <td>None</td>
+              )}
+
               <td>
                 <button className="btn btn-primary">Edit</button>
               </td>
@@ -64,6 +71,11 @@ export const ListOfUsersTable = ({
               <td>{sponsor.UserFName}</td>
               <td>{sponsor.UserLName}</td>
               <td>{sponsor.UserEmail}</td>
+              {sponsor.UserOrganization ? (
+                <td>{sponsor.UserOrganization}</td>
+              ) : (
+                <td>N / A</td>
+              )}
               <td>
                 <button className="btn btn-primary">Edit</button>
               </td>
@@ -79,6 +91,7 @@ export const ListOfUsersTable = ({
               <td>{admin.AdminFName}</td>
               <td>{admin.AdminLName}</td>
               <td>{admin.AdminEmail}</td>
+              <td>Administrator</td>
               <td>
                 <button className="btn btn-primary">Edit</button>
               </td>
