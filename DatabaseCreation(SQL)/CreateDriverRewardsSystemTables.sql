@@ -12,7 +12,7 @@ create table admins(
 -- Table stores all information about the sponsorship companies
 create table sponsororganizations(
 	OrganizationID int auto_increment Primary Key,
-    OrganizationName varchar(30) NOT NULL);
+    OrganizationName varchar(30) NOT NULL UNIQUE);
 
 -- Table stores all information about sponsorship users
 create table sponsorusers(
@@ -26,10 +26,16 @@ create table sponsorusers(
 create table drivers(
 	DriverEmail varchar(50) Primary Key,
     DriverFName varchar(30) NOT NULL,
-    DriverLName varchar(30) NOT NULL,
-    DriverSponsor int,
-    DriverPoints decimal (12,2) default 0.0 NOT NULL,
-    foreign key (DriverSponsor) references sponsororganizations(OrganizationID) on update cascade on delete cascade);
+    DriverLName varchar(30) NOT NULL);
+
+-- Table that stores driver's sponsors
+create table driverssponsors(
+	DriversEmail varchar(50),
+    DriversSponsorID int,
+    DriversPoints decimal(12,2) NOT NULL default 0.0,
+    primary key (DriversEmail, DriversSponsorID),
+    foreign key (DriversEmail) references drivers(DriverEmail) on update cascade on delete cascade,
+    foreign key (DriversSponsorID) references sponsororganizations(OrganizationID) on update cascade on delete cascade);
 
 -- Create view to see all users
 create view allusers as
@@ -48,7 +54,7 @@ create table pointchanges(
 	PointChangeID int Primary Key auto_increment,
     PointChangeDriver varchar(50) NOT NULL,
     PointChangeSponsor varchar(50) NOT NULL,
-    PointChangeNumber decimal(8,2) NOT NULL,
+    PointChangeAmount decimal(8,2) NOT NULL,
     PointChangeAction varchar(200) NOT NULL,
     PointChangeDate date NOT NULL,
     foreign key (PointChangeDriver) references drivers(DriverEmail),
@@ -57,22 +63,24 @@ create table pointchanges(
 -- Trigger that automatically adds points to users point total
 delimiter $$
 
+-- Add points when inserted to table
 create trigger insertpoints after insert
 on pointchanges
 for each row
 begin
-	update drivers
-    set DriverPoints = DriverPoints + NEW.PointChangeNumber
-    where DriverEmail = NEW.PointChangeDriver;
+	update driverssponsors
+    set DriversPoints = DriversPoints + NEW.PointChangeAmount
+    where DriversEmail = NEW.PointChangeDriver;
 end$$
 
+-- Modify points based on change in point value
 create trigger updatepoints after update
 on pointchanges
 for each row
 begin
-	update drivers
-    set DriverPoints = DriverPoints + NEW.PointChangeNumber - OLD.PointChangeNumber
-    where DriverEmail = NEW.PointChangeDriver;
+	update driverssponsors
+    set DriversPoints = DriversPoints + NEW.PointChangeAmount - OLD.PointChangeAmount
+    where DriversEmail = NEW.PointChangeDriver;
 end$$
 
 delimiter ;
@@ -82,10 +90,26 @@ create table driversponsorapplications(
     ApplicationDriver varchar(50) NOT NULL,
     ApplicationOrganization int NOT NULL,
     ApplicationSponsorUser varchar(50),
-    ApplicationStatus varchar(15) NOT NULL,
+    ApplicationStatus varchar(15) NOT NULL default "Submitted",
+    ApplicationSubmittedDate date NOT NULL,
     foreign key (ApplicationDriver) references drivers(DriverEmail) on update cascade on delete cascade,
     foreign key (ApplicationOrganization) references sponsororganizations(OrganizationID) on update cascade on delete cascade,
     foreign key (ApplicationSponsorUser) references sponsorusers(UserEmail) on update cascade on delete cascade);
+    
+-- Trigger for automatically adding driver sponsor relationship
+delimiter $
+
+create trigger updatedriverssponsors after update
+on driversponsorapplications
+for each row
+begin
+	if ApplicationStatus = "Accepted" then
+		insert into driverssponsor (DriversEmail, DriversSponsorID, DriversPoints)
+        values (NEW.ApplicationDriver, NEW.ApplicationOrganization, 0);
+	end if;
+end$$
+
+delimiter ;
     
 create table catalog(
 	CatalogID int auto_increment Primary Key,
