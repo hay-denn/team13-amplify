@@ -7,11 +7,10 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// not sure why but env vars arent working
 const db = mysql.createPool({
-  host: "team13-database.cobd8enwsupz.us-east-1.rds.amazonaws.com",
-  user: "admin",
-  password: "pw4Team13RDSDatabase",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: "DRS",
   waitForConnections: true,
   connectionLimit: 10,
@@ -48,25 +47,38 @@ app.post("/sponsor", (request, response) => {
     if (results.length > 0) {
       return response.status(400).json({ error: 'user already exists' });
     }
-
-    db.query(
-      "INSERT INTO sponsorusers (UserFName, UserLName, \
-	  						UserEmail, UserOrganization) \
-	  VALUES (?, ?, ?, ?)",
-      [UserFName, UserLName, UserEmail, UserOrganization],
-      (err, insertResults) => {
-        if (err) {
-          console.error("Database insert error:", err);
-          return response.status(500).json({ error: 'Database insert error' });
-        }
-
-        response.status(201).json({
-          message: 'User created',
-          user: { UserFName, UserLName, UserEmail, UserOrganization }
-        });
-      }
-    );
   });
+
+  // check organization exists
+  db.query("SELECT * FROM sponsororganizations WHERE OrganizationID = ?", 
+    [UserOrganization], (err, results) => {
+    if (err) {
+      console.error("Database select error:", err);
+      return response.status(500).json({ error: 'Database error' });
+    }
+    if (results.length === 0) {
+      return response.status(400).json({ error: 'Organization does not exist' });
+    }
+  }
+  );
+
+  db.query(
+    "INSERT INTO sponsorusers (UserFName, UserLName, \
+    UserEmail, UserOrganization) \
+    VALUES (?, ?, ?, ?)",
+    [UserFName, UserLName, UserEmail, UserOrganization],
+    (err, insertResults) => {
+      if (err) {
+        console.error("Database insert error:", err);
+        return response.status(500).json({ error: 'Database insert error' });
+      }
+
+      response.status(201).json({
+        message: 'User created',
+        user: { UserFName, UserLName, UserEmail, UserOrganization }
+      });
+    }
+  );
 });
 
 /*

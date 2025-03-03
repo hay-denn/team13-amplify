@@ -9,9 +9,9 @@ app.use(express.json());
 
 // not sure why but env vars arent working
 const db = mysql.createPool({
-  host: "team13-database.cobd8enwsupz.us-east-1.rds.amazonaws.com",
-  user: "admin",
-  password: "pw4Team13RDSDatabase",
+  host: process.env.DB_URL,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: "DRS",
   waitForConnections: true,
   connectionLimit: 10,
@@ -37,14 +37,26 @@ app.post("/purchase", (request, response) => {
     });
   }
 
+  // check driver exists
+  db.query("SELECT * FROM DRS.drivers WHERE DriverEmail = ?", [PurchaseDriver], (err, results) => {
+    if (err) {
+      console.error("Database select error on drivers:", err);
+      return response.status(500).json({ error: 'Database error' });
+    }
+    if (results.length === 0) {
+      return response.status(400).json({ error: 'Driver does not exist' });
+    }
+  }
+  );
+
   db.query(
     "INSERT INTO DRS.purchases (PurchaseDriver, PurchaseDate, \
-	  	PurchaseStatus) \
-	  VALUES (?, ?, ?)",
+    PurchaseStatus) \
+    VALUES (?, ?, ?)",
     [PurchaseDriver, PurchaseDate, PurchaseStatus],
     (err, insertResults) => {
       if (err) {
-        console.error("Database insert error:", err);
+        console.error("Database insert error on purchases:", err);
         return response.status(500).json({ error: 'Database insert error' });
       }
 
@@ -60,7 +72,7 @@ app.post("/purchase", (request, response) => {
  * get specific purchase
  */
 app.get("/purchase", (request, response) => {
-  const { PurchaseID } = request.body;
+  const { PurchaseID } = request.query;
 
   if (!PurchaseID) {
     return response.status(400).json({ error: 'PurchaseID required' });
@@ -85,15 +97,36 @@ app.get("/purchase", (request, response) => {
  */
 app.get("/purchases", (request, response) => {
 
-  db.query(
-    "SELECT * FROM DRS.purchases",
-    (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return response.status(500).json({ error: "Database error" });
+  const { PurchaseDriver } = request.query;
+
+  // get all purchases by driver
+  if (PurchaseDriver) {
+    db.query(
+      "SELECT * FROM DRS.purchases WHERE PurchaseDriver = ?",
+      [PurchaseDriver],
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: 'Database error' });
+        }
+        return response.send(results);
       }
-      return response.send(results);
-    })
+    );
+  }
+
+  // get all purchases
+  else {
+    db.query(
+      "SELECT * FROM DRS.purchases",
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: 'Database error' });
+        }
+        return response.send(results);
+      }
+    );
+  }
 
 });
 
@@ -107,6 +140,7 @@ app.put("/purchase", (request, response) => {
   if (!PurchaseID) {
     return response.status(400).json({ error: 'PurchaseID required' });
   }
+
 
   db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
     if (err) {
@@ -122,6 +156,16 @@ app.put("/purchase", (request, response) => {
     const values = [];
 
     if (PurchaseDrive) {
+      // check driver exists
+      db.query("SELECT * FROM DRS.drivers WHERE DriverEmail = ?", [PurchaseDriver], (err, results) => {
+        if (err) {
+          console.error("Database select error on drivers:", err);
+          return response.status(500).json({ error: 'Database error' });
+        }
+        if (results.length === 0) {
+          return response.status(400).json({ error: 'Driver does not exist' });
+        }
+      });
       updates.push("PurchaseDriver = ?");
       values.push(PurchaseDriver);
     }
@@ -131,10 +175,10 @@ app.put("/purchase", (request, response) => {
       values.push(PurchaseDate);
     }
 
-	  if (PurchaseStatus) {
-	    updates.push("PurchaseStatus = ?");
-	    values.push(PurchaseStatus);
-	  }
+    if (PurchaseStatus) {
+      updates.push("PurchaseStatus = ?");
+      values.push(PurchaseStatus);
+    }
   
     if (updates.length === 0) {
       return response.json({ message: 'No changes provided' });
@@ -149,7 +193,7 @@ app.put("/purchase", (request, response) => {
         return response.status(500).json({ error: 'Database update error' });
       }
 
-      db.query("SELECT * FROM purchases WHERE PurchaseID = ?", [PurchaseID], (selErr, selResults) => {
+      db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (selErr, selResults) => {
         if (selErr) {
           console.error("Database select error:", selErr);
           return response.status(500).json({ error: 'Database select error after update' });
@@ -168,7 +212,7 @@ app.put("/purchase", (request, response) => {
  * delete a purchase
  */
 app.delete("/purchase", (request, response) => {
-  const { PurchaseID } = request.body;
+  const { PurchaseID } = request.query;
   if (!PurchaseID) {
     return response.status(400).json({ error: 'PurchaseID required' });
   }
