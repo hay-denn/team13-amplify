@@ -129,22 +129,16 @@ export const MenuInfoSponsor = [
     icon: "fa-solid fa-circle-user",
   },
   {
-    title: "My Catalogs",
+    title: "Catalogs",
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
   {
-    title: "Sponsor Settings",
-    url: "#",
+    title: "Driver Management",
+    url: "/DriverManagement",
     cName: "nav-links",
     icon: "fa-solid fa-car",
-  },
-  {
-    title: "My Drivers",
-    url: "#",
-    cName: "nav-links",
-    icon: "fa-solid fa-sitemap",
   },
   {
     title: "My Account",

@@ -13,7 +13,7 @@ import APIDashboard from "./pages/APIDashboard.tsx";
 import APIRoutes from "./pages/APIRoutes.tsx";
 import UserManageTest from "./pages/UserManageTest";
 import { Manageusers } from "./pages/Manageusers.tsx";
-
+import { DriverManagement } from "./pages/DriverManagement.tsx";
 function App() {
   const auth = useAuth();
   const cognitoGroups: string[] =
@@ -33,7 +33,13 @@ function App() {
                 <Route path="/" element={<DriverDashBoard />} />
               )}
               {userGroup === "Sponsor" && (
-                <Route path="/" element={<SponsorDashboard />} />
+                <>
+                  <Route path="/" element={<SponsorDashboard />} />
+                  <Route
+                    path="/DriverManagement"
+                    element={<DriverManagement />}
+                  />
+                </>
               )}
               {userGroup === "Admin" && (
                 <>
