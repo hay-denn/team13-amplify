@@ -119,10 +119,10 @@ create table catalog(
 create table product(
 	ProductID int auto_increment Primary Key,
     ProductCatalog int NOT NULL,
-    ProductName varchar(50),
+    ProductName varchar(50) NOT NULL,
     ProductDescription varchar(100),
     ProductPrice decimal(6,2) NOT NULL,
-    ProductInventory int NOT NULL,
+    ProductInventory int NOT NULL default 0,
     foreign key (ProductCatalog) references catalog(CatalogID) on update cascade on delete cascade);
     
 create table purchases(
