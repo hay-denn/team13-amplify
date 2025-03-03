@@ -11,7 +11,8 @@ async function manageCognitoUser (
   username: string,
   accessToken: string, // The access token from OIDC authentication
   attributes?: Record<string, string>,
-  password?: string
+  password?: string,
+  driver_group?: string
 ): Promise<void> {
   try {
     const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
@@ -26,6 +27,7 @@ async function manageCognitoUser (
         accessToken, // Pass the access token to validate
         attributes,
         password,
+        driver_group
       }),
     });
 
@@ -103,7 +105,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
     const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
-    if (!newUser) {
+    if (!newUser) {    
+      if (!auth.user?.access_token) {
+        alert("Unable to make user edit. You are not signed in.");
+      } else {
+      await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
         if (userType == "Driver") {
             const data = {
             };
@@ -119,6 +125,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         } else {
           alert("Invalid user type!");
         }
+      }
     }
     onClose();
   };
@@ -129,10 +136,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
     if (!auth.user?.access_token) {
-      console.error("user not authenticated!");
+      alert("Unable to make user edit. You are not signed in.");
     } else {
       if (newUser) {
-      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "Password1!");
+      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "Password1!", userType);
         //create new user
         if (userType == "Driver") {
             const data = {
@@ -161,6 +168,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         }
     } else {
       //update an exisitng user
+      await manageCognitoUser("updateUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
       if (userType == "Driver") {
         const data = {
             "DriverEmail": email,
