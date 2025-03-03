@@ -5,6 +5,20 @@ import { useAuth } from "react-oidc-context";
 
 const USER_POOL_ID = "us-east-1_uN566DiPO";
 
+//TODO
+//Add sponsor orgs to driver update and create calls for our DB
+
+async function getOrgs() {
+  try {
+    const response = await fetch("https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"); // Replace with actual API URL
+    if (!response.ok) throw new Error("Failed to fetch organizations");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching organizations:", error);
+    return [];
+  }
+}
+
 async function manageCognitoUser (
   action: "createUser" | "updateUser" | "deleteUser",
   userPoolId: string,
@@ -12,7 +26,7 @@ async function manageCognitoUser (
   accessToken: string, // The access token from OIDC authentication
   attributes?: Record<string, string>,
   password?: string,
-  driver_group?: string
+  userGroup?: string
 ): Promise<void> {
   try {
     const response = await fetch("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/manage-user", {
@@ -27,7 +41,7 @@ async function manageCognitoUser (
         accessToken, // Pass the access token to validate
         attributes,
         password,
-        driver_group
+        userGroup
       }),
     });
 
@@ -70,7 +84,7 @@ async function callAPI(url: string, methodType: string, data: object): Promise<v
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: { firstName: string; familyName: string; email: string; userType: string; newUser: boolean };
+  initialData?: { firstName: string; familyName: string; email: string; userType: string; newUser: boolean; org?: string };
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
@@ -82,6 +96,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const [userType, setUserType] = useState(userTypes[1]); // Default to "Driver"
   const [newUser, setNewUser] = useState(true);
   const auth = useAuth();
+  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
+  useEffect(() => {
+    getOrgs().then(setOrgs);
+  }, []);
 
 
   // Populate form fields when initialData changes
@@ -92,6 +111,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setEmail(initialData.email);
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
+      if (initialData.org) {
+        //The org is passed in as the name. This code gets the orgID from the passed in name and sets the selected org to that ID.
+        //That way we can make edits to the sponsor org of a driver or sponsor
+        const matchedOrg = orgs.find(org => org.OrganizationName === initialData.org);
+        const orgId = matchedOrg ? matchedOrg.OrganizationID : null; // Returns the ID if found, otherwise null
+        if (orgId) {
+          setSelectedOrg(orgId);
+
+        }
+      }
     } else {
       setFirstName("");
       setFamilyName("");
@@ -146,6 +175,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                 "DriverEmail": email,
                 "DriverFName": firstName,
                 "DriverLName": familyName,
+
             };
             callAPI(`${DRIVER_URL}/driver`, "POST", data);
         } else if (userType == "Admin") {
@@ -160,7 +190,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
             "UserEmail": email,
             "UserFName": firstName,
             "UserLName": familyName,
-            "UserOrganization": 1 //this is temporary until sponsor organizations are implemented
+            "UserOrganization": selectedOrg
        };
        callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
         } else {
@@ -188,7 +218,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           "UserEmail": email,
           "UserFName": firstName,
           "UserLName": familyName,
-          "UserOrganization": 1 //this is temporary until sponsor organizations are implemented
+          "UserOrganization": selectedOrg //this is temporary until sponsor organizations are implemented
         };
         callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
       } else {
@@ -230,6 +260,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           onChange={(e) => setEmail(e.target.value)}
           className="modal-input"
         />
+        <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
+          <option value="" disabled>Select Organization</option>
+          {orgs.map((org) => (
+            <option key={org.OrganizationID} value={org.OrganizationID}>
+              {org.OrganizationName}
+            </option>
+          ))}
+        </select>
 
         <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
           {userTypes.map((type) => (

@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { ListOfUsersTable } from "../components/ListOfUsersTable";
 import axios from "axios";
 import "./Manageusers.css";
+import Modal from "../components/Modal";
 
 export const Manageusers = () => {
   //Function to retrieve the users
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const handleCreateUser = () => {
+    setIsModalOpen(true);
+  };
 
   const url_drivers =
     "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
@@ -71,9 +77,21 @@ export const Manageusers = () => {
               sponsorTable={sponsorList}
               adminTable={adminList}
             ></ListOfUsersTable>
-            <a href="#" className="btn btn-primary">
-              Add user
-            </a>
+            <button
+              onClick={handleCreateUser}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#28a745",
+                color: "white",
+                borderRadius: "5px",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              Create User
+            </button>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} initialData={undefined} />
           </div>
         </div>
       </div>
