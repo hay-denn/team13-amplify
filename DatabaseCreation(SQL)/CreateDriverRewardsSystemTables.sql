@@ -54,7 +54,7 @@ create table pointchanges(
 	PointChangeID int Primary Key auto_increment,
     PointChangeDriver varchar(50) NOT NULL,
     PointChangeSponsor varchar(50) NOT NULL,
-    PointChangeAmount decimal(8,2) NOT NULL,
+    PointChangeNumber decimal(8,2) NOT NULL,
     PointChangeAction varchar(200) NOT NULL,
     PointChangeDate date NOT NULL,
     foreign key (PointChangeDriver) references drivers(DriverEmail),
@@ -69,7 +69,7 @@ on pointchanges
 for each row
 begin
 	update driverssponsors
-    set DriversPoints = DriversPoints + NEW.PointChangeAmount
+    set DriversPoints = DriversPoints + NEW.PointChangeNumber
     where DriversEmail = NEW.PointChangeDriver;
 end$$
 
@@ -79,7 +79,7 @@ on pointchanges
 for each row
 begin
 	update driverssponsors
-    set DriversPoints = DriversPoints + NEW.PointChangeAmount - OLD.PointChangeAmount
+    set DriversPoints = DriversPoints + NEW.PointChangeNumber - OLD.PointChangeNumber
     where DriversEmail = NEW.PointChangeDriver;
 end$$
 
@@ -103,8 +103,8 @@ create trigger updatedriverssponsors after update
 on driversponsorapplications
 for each row
 begin
-	if ApplicationStatus = "Accepted" then
-		insert into driverssponsor (DriversEmail, DriversSponsorID, DriversPoints)
+	if NEW.ApplicationStatus = "Accepted" then
+		insert into DRS.driverssponsors (DriversEmail, DriversSponsorID, DriversPoints)
         values (NEW.ApplicationDriver, NEW.ApplicationOrganization, 0);
 	end if;
 end$$
