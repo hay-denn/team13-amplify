@@ -70,11 +70,10 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
     display: flex; /* ✅ Makes sure everything aligns properly */
+    justify-content: space-between;
+    align-items: center;
     flex-direction: column;
-    align-items: flex-start;
-    flex-direction: column;
-    text-align: left;
-    gap: 8px;
+    text-align: center;
   }
   
   .application-date {

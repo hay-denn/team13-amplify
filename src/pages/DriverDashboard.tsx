@@ -125,6 +125,14 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                               day: "numeric",
                             })
                           : "N/A"}
+                        <br />
+                        {new Date(
+                          app.ApplicationDateSubmitted
+                        ).toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "numeric",
+                          hour12: true,
+                        })}
                       </span>
                       <span
                         className={`application-status ${app.ApplicationStatus.toLowerCase()}`}
