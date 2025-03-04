@@ -71,7 +71,66 @@ export const AccountSettings: React.FC = () => {
   // ==========================
   //  1) UPDATE USER ATTRIBUTES
   // ==========================
+  //Calling our database
+  const callAPI = async(url: string, methodType: string, data: object): Promise<void> => {
+    try {
+      const response = await fetch(url, {
+        method: methodType, // HTTP method
+        headers: {
+          'Content-Type': 'application/json', // Content type header
+        },
+        body: JSON.stringify(data), // Convert the data to JSON string
+      });
+      if (response.ok) {
+        // If the request was successful
+        const responseData = await response.json();
+        console.log('Success: ' + JSON.stringify(responseData))
+        alert('User edit saved!'); // Display success alert with response data
+      } else {
+        // Handle error if response status is not OK
+        alert('Unable to make user edit - Error: ' + response.status + ' - ' + response.statusText); // Display error alert with status and message
+      }
+    } catch (error) {
+      // Catch any network or other errors
+      alert('Unable to make user edit - Network Error: ' + error); // Display network error alert
+    }
+}
+
   const handleUpdateAttributes = async () => {
+    const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+    const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+    const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+    if (auth.isAuthenticated) {
+      const cognitoGroups: string[] =
+      (auth.user?.profile?.["cognito:groups"] as string[]) || [];
+      const userGroup = cognitoGroups[0];
+      if (userGroup === "Driver") {
+        const data = {
+            "DriverEmail": email,
+            "DriverFName": firstName,
+            "DriverLName": lastName
+        };
+        callAPI(`${DRIVER_URL}/driver`, "PUT", data);
+      } else if (userGroup === "Sponsor") {
+        const data = {
+            "UserEmail": email,
+            "UserFName": firstName,
+            "UserLName": lastName,
+        };
+        callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
+      } else if (userGroup === "Admin") {
+          const data = {
+            "AdminEmail": email,
+            "AdminFName": firstName,
+            "AdminLName": lastName
+        };
+        callAPI(`${ADMIN_URL}/admin`, "PUT", data);
+      } else {
+        alert("User has invalid type. Cannot save changes to app database!");
+      }
+    } else {
+      alert("Unable to save edits. User not authenticated!");
+    }
     setErrorMessage("");
     setSuccessMessage("");
 

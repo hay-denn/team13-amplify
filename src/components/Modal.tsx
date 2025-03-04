@@ -176,16 +176,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                 "DriverEmail": email,
                 "DriverFName": firstName,
                 "DriverLName": familyName,
-
             };
-            callAPI(`${DRIVER_URL}/driver`, "POST", data);
+            callAPI(`${DRIVER_URL}/driver`, "PUT", data);
         } else if (userType == "Admin") {
           const data = {
                "AdminEmail": email,
                "AdminFName": firstName,
                "AdminLName": familyName
           };
-        callAPI(`${ADMIN_URL}/admin`, "POST", data);
+        callAPI(`${ADMIN_URL}/admin`, "PUT", data);
         } else if (userType == "Sponsor") {
           const data = {
             "UserEmail": email,
@@ -193,7 +192,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
             "UserLName": familyName,
             "UserOrganization": selectedOrg
        };
-       callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
+       callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
         } else {
           alert("Invalid user type!");
         }
