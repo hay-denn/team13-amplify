@@ -52,8 +52,8 @@ app.post("/purchase", (request, response) => {
   db.query(
     "INSERT INTO DRS.purchases (PurchaseDriver, PurchaseDate, \
     PurchaseStatus) \
-    VALUES (?, ?, ?)",
-    [PurchaseDriver, PurchaseDate, PurchaseStatus],
+    VALUES (?, NOW(), ?)",
+    [PurchaseDriver, PurchaseStatus],
     (err, insertResults) => {
       if (err) {
         console.error("Database insert error on purchases:", err);

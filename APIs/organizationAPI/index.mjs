@@ -9,9 +9,9 @@ app.use(express.json());
 
 // not sure why but env vars arent working
 const db = mysql.createPool({
-  host: "team13-database.cobd8enwsupz.us-east-1.rds.amazonaws.com",
-  user: "admin",
-  password: "pw4Team13RDSDatabase",
+  host: process.env.DB_URL,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: "DRS",
   waitForConnections: true,
   connectionLimit: 10,
@@ -70,7 +70,7 @@ app.post("/organization", (request, response) => {
  * get specific organization
  */
 app.get("/organization", (request, response) => {
-  const { OrganizationID } = request.body;
+  const { OrganizationID } = request.query;
 
   if (!OrganizationID) {
     return response.status(400).json({ error: "OrganizationID required" });
@@ -114,8 +114,8 @@ app.get("/organizations", (request, response) => {
 app.put("/organization", (request, response) => {
   const {OrganizationID, OrganizationName} = request.body;
 
-  if (!OrganizationID) {
-    return response.status(400).json({ error: 'OrganizationID required' });
+  if (!OrganizationID || !OrganizationName) {
+    return response.status(400).json({ error: 'OrganizationID and OrganizationName required' });
   }
 
   db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
@@ -128,25 +128,15 @@ app.put("/organization", (request, response) => {
       return response.status(400).json({ error: 'Organization not found' });
     }
 
-    const updates = [];
-    const values = [];
-
-    if (OrganizationName) {
-      updates.push("OrganizationName = ?");
-      values.push(OrganizationName);
-    }
-  
-    if (updates.length === 0) {
-      return response.json({ message: 'No changes provided' });
-    }
-
-    const updateQuery = `UPDATE DRS.sponsororganizations SET ${updates.join(", ")} WHERE OrganizationID = ?`;
-    values.push(OrganizationID); 
+    const values = [OrganizationName, OrganizationID];
+    const updateQuery = `UPDATE DRS.sponsororganizations SET OrganizationName = ? WHERE OrganizationID = ?`;
 
     db.query(updateQuery, values, (updateErr, updateResults) => {
       if (updateErr) {
         console.error("Database update error:", updateErr);
-        return response.status(500).json({ error: 'Database update error' });
+        return response.status(500).json({ error: 'Database update error',
+            UpdateError: updateErr.sqlMessage
+        });
       }
 
       db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (selErr, selResults) => {
@@ -168,7 +158,7 @@ app.put("/organization", (request, response) => {
  * delete an organization
  */
 app.delete("/organization", (request, response) => {
-  const { OrganizationID } = request.body;
+  const { OrganizationID } = request.query;
   
   if (!OrganizationID) {
     return response.status(400).json({ error: 'OrganizationID required' });

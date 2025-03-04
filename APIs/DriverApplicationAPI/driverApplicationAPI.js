@@ -260,14 +260,70 @@ app.put("/driversponsorapplication", (req, res) => {
     const values = [];
 
     if (ApplicationDriver) {
+      // check if the driver exists
+      const selectDriverQuery = `
+        SELECT *
+        FROM DRS.drivers
+        WHERE DriverEmail = ?
+      `;
+      db.query(selectDriverQuery, [ApplicationDriver], (err, results) => {
+        if (err) {
+          console.error("Database select error on drivers:", err);
+          return res.status(500).json({ error: "Database error on drivers" });
+        }
+        if (results.length === 0) {
+          return res.status(400).json({
+            error: "Driver not found",
+          });
+        }
+      });
+
       updates.push("ApplicationDriver = ?");
       values.push(ApplicationDriver);
     }
     if (ApplicationOrganization != null) {
+      // check if the organization exists
+      const selectOrganizationQuery = `
+        SELECT *
+        FROM DRS.sponsororganizations
+        WHERE OrganizationID = ?
+      `;
+      db.query(selectOrganizationQuery, [ApplicationOrganization], (err, results) => {
+        if (err) {
+          console.error("Database select error on organizations:", err);
+          return res.status(500).json({ error: "Database error on organizations" });
+        }
+        if (results.length === 0) {
+          return res.status(400).json({
+            error: "Organization not found",
+          });
+        }
+      }
+      );
+
       updates.push("ApplicationOrganization = ?");
       values.push(ApplicationOrganization);
     }
     if (ApplicationSponsorUser) {
+      // check if the sponsor user exists
+      const selectSponsorUserQuery = `
+        SELECT *
+        FROM DRS.sponsorusers
+        WHERE UserEmail = ?
+      `;
+      db.query(selectSponsorUserQuery, [ApplicationSponsorUser], (err, results) => {
+        if (err) {
+          console.error("Database select error on sponsorusers:", err);
+          return res.status(500).json({ error: "Database error on sponsor users" });
+        }
+        if (results.length === 0) {
+          return res.status(400).json({
+            error: "Sponsor user not found",
+          });
+        }
+      }
+      );
+
       updates.push("ApplicationSponsorUser = ?");
       values.push(ApplicationSponsorUser);
     }
