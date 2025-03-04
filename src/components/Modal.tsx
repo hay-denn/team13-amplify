@@ -176,7 +176,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                 "DriverEmail": email,
                 "DriverFName": firstName,
                 "DriverLName": familyName,
-
             };
             callAPI(`${DRIVER_URL}/driver`, "POST", data);
         } else if (userType == "Admin") {

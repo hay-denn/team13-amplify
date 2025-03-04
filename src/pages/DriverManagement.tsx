@@ -34,7 +34,7 @@ export const DriverManagement = () => {
               List Of Applications
             </h5>
 
-            <p className="card-text">Manage User Applicaitons below</p>
+            <p className="card-text">Manage User Applications below</p>
 
             <ApplicationTable
               applicationTable={applicationList}
