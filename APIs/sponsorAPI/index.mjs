@@ -110,15 +110,35 @@ app.get("/sponsor", (request, response) => {
  */
 app.get("/sponsors", (request, response) => {
 
-  db.query(
-    "SELECT * FROM sponsorusers",
-    (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return response.status(500).json({ error: "Database error" });
+  // add query parameter to get all users in an organization
+  const { UserOrganization } = request.query;
+
+  if (UserOrganization) {
+
+    db.query(
+      "SELECT * FROM sponsorusers WHERE UserOrganization = ?",
+      [UserOrganization],
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: 'Database error' });
+        }
+        return response.send(results);
       }
-      return response.send(results);
-    })
+    );
+  }
+  else {
+    db.query(
+      "SELECT * FROM sponsorusers",
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: "Database error" });
+        }
+        return response.send(results);
+      }
+    );
+  }
 
 });
 
