@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { responsivePropType } from "react-bootstrap/esm/createUtilityClasses";
 import { Link } from "react-router-dom";
 
 const API_BASE_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
