@@ -134,7 +134,7 @@ create table purchases(
     
 create table productspurchased(
 	ProductPurchasedID int,
-    PuchaseAssociatedID int,
+    PurchaseAssociatedID int,
     ProductPurchaseQuantity int,
     primary key(ProductPurchasedID, PuchaseAssociatedID),
     foreign key (ProductPurchasedID) references product(ProductID) on update cascade on delete cascade,
