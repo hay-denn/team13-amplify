@@ -75,7 +75,7 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
 
   useEffect(() => {
     setApps(applicationTable);
-  }, []);
+  }, [applicationTable]);
 
   return (
     <div>
