@@ -70,7 +70,7 @@ for each row
 begin
 	update driverssponsors
     set DriversPoints = DriversPoints + NEW.PointChangeNumber
-    where DriversEmail = NEW.PointChangeDriver;
+    where DriversEmail = NEW.PointChangeDriver and DriversSponsorID = (select UserOrganization from sponsorusers where UserEmail = NEW.PointChangeSponsor);
 end$$
 
 -- Modify points based on change in point value
@@ -80,7 +80,7 @@ for each row
 begin
 	update driverssponsors
     set DriversPoints = DriversPoints + NEW.PointChangeNumber - OLD.PointChangeNumber
-    where DriversEmail = NEW.PointChangeDriver;
+    where DriversEmail = NEW.PointChangeDriver and DriversSponsorID = (select UserOrganization from sponsorusers where UserEmail = NEW.PointChangeSponsor);
 end$$
 
 delimiter ;
