@@ -4,13 +4,14 @@ import "./Modal.css";
 
 const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-async function getOrgs() {
+// Fetch sponsors instead of organizations
+async function getSponsors() {
   try {
-    const response = await fetch(`${API_BASE_URL}/organizations`);
-    if (!response.ok) throw new Error("Failed to fetch organizations");
+    const response = await fetch(`${API_BASE_URL}/sponsors`);
+    if (!response.ok) throw new Error("Failed to fetch sponsors");
     return await response.json();
   } catch (error) {
-    console.error("Error fetching organizations:", error);
+    console.error("Error fetching sponsors:", error);
     return [];
   }
 }
@@ -18,7 +19,14 @@ async function getOrgs() {
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: { firstName: string; familyName: string; email: string; userType: string; newUser: boolean; org?: string };
+  initialData?: {
+    firstName: string;
+    familyName: string;
+    email: string;
+    userType: string;
+    newUser: boolean;
+    org?: string;
+  };
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
@@ -29,11 +37,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]);
   const [newUser, setNewUser] = useState(true);
-  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
+  // Sponsor data instead of organizations
+  const [sponsors, setSponsors] = useState<
+    { UserOrganization: number; UserFName: string; UserLName: string }[]
+  >([]);
+  const [selectedSponsor, setSelectedSponsor] = useState<number | null>(null);
 
   useEffect(() => {
-    getOrgs().then(setOrgs);
+    getSponsors().then(setSponsors);
   }, []);
 
   useEffect(() => {
@@ -44,10 +55,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
       if (initialData.org) {
-        const matchedOrg = orgs.find(org => org.OrganizationName === initialData.org);
-        const orgId = matchedOrg ? matchedOrg.OrganizationID : null;
-        if (orgId) {
-          setSelectedOrg(orgId);
+        const matchedSponsor = sponsors.find(
+          (sponsor) =>
+            `${sponsor.UserFName} ${sponsor.UserLName}` === initialData.org
+        );
+        const sponsorId = matchedSponsor ? matchedSponsor.UserOrganization : null;
+        if (sponsorId) {
+          setSelectedSponsor(sponsorId);
         }
       }
     } else {
@@ -57,12 +71,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setUserType(userTypes[1]);
       setNewUser(true);
     }
-  }, [initialData, isOpen]);
+  }, [initialData, isOpen, sponsors]);
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button onClick={onClose} className="modal-close-btn">✖</button>
+        <button onClick={onClose} className="modal-close-btn">
+          ✖
+        </button>
         <h2>{newUser ? "Create User" : "Edit User"}</h2>
 
         <input
@@ -88,16 +104,29 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           className="modal-input"
         />
 
-        <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
-          <option value="" disabled>Select Organization</option>
-          {orgs.map((org) => (
-            <option key={org.OrganizationID} value={org.OrganizationID}>
-              {org.OrganizationName}
+        <select
+          value={selectedSponsor ?? ""}
+          onChange={(e) => setSelectedSponsor(Number(e.target.value))}
+          className="modal-select"
+        >
+          <option value="" disabled>
+            Select Sponsor
+          </option>
+          {sponsors.map((sponsor) => (
+            <option
+              key={sponsor.UserOrganization}
+              value={sponsor.UserOrganization}
+            >
+              {sponsor.UserFName} {sponsor.UserLName} | {sponsor.UserOrganization}
             </option>
           ))}
         </select>
 
-        <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
+        <select
+          value={userType}
+          onChange={(e) => setUserType(e.target.value)}
+          className="modal-select"
+        >
           {userTypes.map((type) => (
             <option key={type} value={type}>
               {type}
@@ -124,13 +153,15 @@ export const SponsorApplyModal = ({
   driverEmail: string;
   fetchApplications: () => void;
 }) => {
-  const [sponsors, setSponsors] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [sponsors, setSponsors] = useState<
+    { UserOrganization: number; UserFName: string; UserLName: string }[]
+  >([]);
   const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
   const [sponsorEmail, setSponsorEmail] = useState("");
 
   useEffect(() => {
     if (show) {
-      fetch(`${API_BASE_URL}/organizations`)
+      fetch(`${API_BASE_URL}/sponsors`)
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -211,8 +242,11 @@ export const SponsorApplyModal = ({
                 -- Select a Sponsor --
               </option>
               {sponsors.map((sponsor) => (
-                <option key={sponsor.OrganizationID} value={sponsor.OrganizationID}>
-                  {sponsor.OrganizationName}
+                <option
+                  key={sponsor.UserOrganization}
+                  value={sponsor.UserOrganization}
+                >
+                  {sponsor.UserFName} {sponsor.UserLName} | {sponsor.UserOrganization}
                 </option>
               ))}
             </Form.Select>
