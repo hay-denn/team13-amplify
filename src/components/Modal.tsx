@@ -4,14 +4,13 @@ import "./Modal.css";
 
 const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-// Fetch sponsors from the API
-async function getSponsors() {
+async function getOrgs() {
   try {
-    const response = await fetch(`${API_BASE_URL}/sponsors`);
-    if (!response.ok) throw new Error("Failed to fetch sponsors");
+    const response = await fetch(`${API_BASE_URL}/organizations`);
+    if (!response.ok) throw new Error("Failed to fetch organizations");
     return await response.json();
   } catch (error) {
-    console.error("Error fetching sponsors:", error);
+    console.error("Error fetching organizations:", error);
     return [];
   }
 }
@@ -19,20 +18,7 @@ async function getSponsors() {
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: {
-    firstName: string;
-    familyName: string;
-    email: string;
-    userType: string;
-    newUser: boolean;
-    org?: string;
-  };
-}
-
-// Adjust this as needed if your sponsor data has different fields
-interface Sponsor {
-  OrganizationID: number;
-  OrganizationName: string;
+  initialData?: { firstName: string; familyName: string; email: string; userType: string; newUser: boolean; org?: string };
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
@@ -43,19 +29,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]);
   const [newUser, setNewUser] = useState(true);
+  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
 
-  // Sponsors list
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-
-  // Track which sponsor is selected
-  const [selectedSponsor, setSelectedSponsor] = useState<number | null>(null);
-
-  // Fetch sponsors once on mount (or whenever modal is opened, if desired)
   useEffect(() => {
-    getSponsors().then(setSponsors);
+    getOrgs().then(setOrgs);
   }, []);
 
-  // Populate form fields with initial data
   useEffect(() => {
     if (initialData) {
       setFirstName(initialData.firstName);
@@ -63,15 +43,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setEmail(initialData.email);
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
-
-      // If there's an org in initialData, match it to the sponsor list
       if (initialData.org) {
-        const matchedSponsor = sponsors.find(
-          (s) => s.OrganizationName === initialData.org
-        );
-        const sponsorId = matchedSponsor ? matchedSponsor.OrganizationID : null;
-        if (sponsorId) {
-          setSelectedSponsor(sponsorId);
+        const matchedOrg = orgs.find(org => org.OrganizationName === initialData.org);
+        const orgId = matchedOrg ? matchedOrg.OrganizationID : null;
+        if (orgId) {
+          setSelectedOrg(orgId);
         }
       }
     } else {
@@ -81,14 +57,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setUserType(userTypes[1]);
       setNewUser(true);
     }
-  }, [initialData, isOpen, sponsors]);
+  }, [initialData, isOpen]);
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button onClick={onClose} className="modal-close-btn">
-          ✖
-        </button>
+        <button onClick={onClose} className="modal-close-btn">✖</button>
         <h2>{newUser ? "Create User" : "Edit User"}</h2>
 
         <input
@@ -114,26 +88,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           className="modal-input"
         />
 
-        <select
-          value={selectedSponsor ?? ""}
-          onChange={(e) => setSelectedSponsor(Number(e.target.value))}
-          className="modal-select"
-        >
-          <option value="" disabled>
-            Select Sponsor
-          </option>
-          {sponsors.map((s) => (
-            <option key={s.OrganizationID} value={s.OrganizationID}>
-              {s.OrganizationName}
+        <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
+          <option value="" disabled>Select Organization</option>
+          {orgs.map((org) => (
+            <option key={org.OrganizationID} value={org.OrganizationID}>
+              {org.OrganizationName}
             </option>
           ))}
         </select>
 
-        <select
-          value={userType}
-          onChange={(e) => setUserType(e.target.value)}
-          className="modal-select"
-        >
+        <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
           {userTypes.map((type) => (
             <option key={type} value={type}>
               {type}
@@ -160,13 +124,22 @@ export const SponsorApplyModal = ({
   driverEmail: string;
   fetchApplications: () => void;
 }) => {
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [sponsors, setSponsors] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
   const [sponsorEmail, setSponsorEmail] = useState("");
 
   useEffect(() => {
     if (show) {
-      getSponsors().then(setSponsors);
+      fetch(`${API_BASE_URL}/organizations`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setSponsors(data);
+          } else {
+            console.error("Unexpected response format:", data);
+          }
+        })
+        .catch((error) => console.error("Error fetching sponsors:", error));
     }
   }, [show]);
 
@@ -194,14 +167,11 @@ export const SponsorApplyModal = ({
     };
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/driversponsorapplication`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(applicationData),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/driversponsorapplication`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(applicationData),
+      });
 
       if (response.ok) {
         alert("Application submitted successfully!");
@@ -240,9 +210,9 @@ export const SponsorApplyModal = ({
               <option value="" disabled>
                 -- Select a Sponsor --
               </option>
-              {sponsors.map((s) => (
-                <option key={s.OrganizationID} value={s.OrganizationID}>
-                  {s.OrganizationName}
+              {sponsors.map((sponsor) => (
+                <option key={sponsor.OrganizationID} value={sponsor.OrganizationID}>
+                  {sponsor.OrganizationName}
                 </option>
               ))}
             </Form.Select>
