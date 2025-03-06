@@ -4,6 +4,7 @@ import "./Modal.css";
 
 const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
+// Fetch sponsors from the API
 async function getSponsors() {
   try {
     const response = await fetch(`${API_BASE_URL}/sponsors`);
@@ -18,7 +19,20 @@ async function getSponsors() {
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: { firstName: string; familyName: string; email: string; userType: string; newUser: boolean; org?: string };
+  initialData?: {
+    firstName: string;
+    familyName: string;
+    email: string;
+    userType: string;
+    newUser: boolean;
+    org?: string;
+  };
+}
+
+// Adjust this as needed if your sponsor data has different fields
+interface Sponsor {
+  OrganizationID: number;
+  OrganizationName: string;
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
@@ -29,13 +43,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]);
   const [newUser, setNewUser] = useState(true);
-  const [sponsors, setSponsors] = useState<{ UserFName: string; UserLName: string; UserOrganization: number }[]>([]);
-  const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
 
+  // Sponsors list
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+
+  // Track which sponsor is selected
+  const [selectedSponsor, setSelectedSponsor] = useState<number | null>(null);
+
+  // Fetch sponsors once on mount (or whenever modal is opened, if desired)
   useEffect(() => {
     getSponsors().then(setSponsors);
   }, []);
 
+  // Populate form fields with initial data
   useEffect(() => {
     if (initialData) {
       setFirstName(initialData.firstName);
@@ -43,10 +63,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setEmail(initialData.email);
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
+
+      // If there's an org in initialData, match it to the sponsor list
       if (initialData.org) {
-        const matchedSponsor = sponsors.find(sponsor => sponsor.UserOrganization === Number(initialData.org));
-        if (matchedSponsor) {
-          setSelectedSponsorId(matchedSponsor.UserOrganization);
+        const matchedSponsor = sponsors.find(
+          (s) => s.OrganizationName === initialData.org
+        );
+        const sponsorId = matchedSponsor ? matchedSponsor.OrganizationID : null;
+        if (sponsorId) {
+          setSelectedSponsor(sponsorId);
         }
       }
     } else {
@@ -61,7 +86,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button onClick={onClose} className="modal-close-btn">✖</button>
+        <button onClick={onClose} className="modal-close-btn">
+          ✖
+        </button>
         <h2>{newUser ? "Create User" : "Edit User"}</h2>
 
         <input
@@ -87,16 +114,26 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           className="modal-input"
         />
 
-        <select value={selectedSponsorId ?? ""} onChange={(e) => setSelectedSponsorId(Number(e.target.value))} className="modal-select">
-          <option value="" disabled>Select Sponsor</option>
-          {sponsors.map((sponsor) => (
-            <option key={sponsor.UserOrganization} value={sponsor.UserOrganization}>
-              {sponsor.UserFName} {sponsor.UserLName} | {sponsor.UserOrganization}
+        <select
+          value={selectedSponsor ?? ""}
+          onChange={(e) => setSelectedSponsor(Number(e.target.value))}
+          className="modal-select"
+        >
+          <option value="" disabled>
+            Select Sponsor
+          </option>
+          {sponsors.map((s) => (
+            <option key={s.OrganizationID} value={s.OrganizationID}>
+              {s.OrganizationName}
             </option>
           ))}
         </select>
 
-        <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
+        <select
+          value={userType}
+          onChange={(e) => setUserType(e.target.value)}
+          className="modal-select"
+        >
           {userTypes.map((type) => (
             <option key={type} value={type}>
               {type}
@@ -123,7 +160,7 @@ export const SponsorApplyModal = ({
   driverEmail: string;
   fetchApplications: () => void;
 }) => {
-  const [sponsors, setSponsors] = useState<{ UserFName: string; UserLName: string; UserOrganization: number }[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
   const [sponsorEmail, setSponsorEmail] = useState("");
 
@@ -157,11 +194,14 @@ export const SponsorApplyModal = ({
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/driversponsorapplication`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(applicationData),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/driversponsorapplication`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(applicationData),
+        }
+      );
 
       if (response.ok) {
         alert("Application submitted successfully!");
@@ -200,9 +240,9 @@ export const SponsorApplyModal = ({
               <option value="" disabled>
                 -- Select a Sponsor --
               </option>
-              {sponsors.map((sponsor) => (
-                <option key={sponsor.UserOrganization} value={sponsor.UserOrganization}>
-                  {sponsor.UserFName} {sponsor.UserLName} | {sponsor.UserOrganization}
+              {sponsors.map((s) => (
+                <option key={s.OrganizationID} value={s.OrganizationID}>
+                  {s.OrganizationName}
                 </option>
               ))}
             </Form.Select>
