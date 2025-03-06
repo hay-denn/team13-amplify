@@ -4,13 +4,12 @@ import "./Modal.css";
 import { useAuth } from "react-oidc-context";
 
 const USER_POOL_ID = "us-east-1_uN566DiPO";
-
-//TODO
-//Add sponsor orgs to driver update and create calls for our DB
+const API_SPONSOR_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_DRIVER_SPONSOR_APP_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1"
 
 async function getOrgs() {
   try {
-    const response = await fetch("https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"); // Replace with actual API URL
+    const response = await fetch(`${API_SPONSOR_URL}/organizations`);
     if (!response.ok) throw new Error("Failed to fetch organizations");
     return await response.json();
   } catch (error) {
@@ -85,7 +84,13 @@ async function callAPI(url: string, methodType: string, data: object): Promise<v
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: { firstName: string; familyName: string; email: string; userType: string; newUser: boolean; org?: string };
+  initialData?: { 
+    firstName: string; 
+    familyName: string; 
+    email: string; 
+    userType: string; 
+    newUser: boolean; 
+    org?: string };
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
@@ -129,7 +134,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setUserType(userTypes[1]); // Reset to default
       setNewUser(true);
     }
-  }, [initialData, isOpen]);
+  }, [initialData, isOpen, orgs]);
 
   const handleDeleteUser = async () => {
     const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
@@ -293,53 +298,71 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
 };
 
 // Sponsor Apply Modal added below
-export const SponsorApplyModal = ({ show, handleClose, driverEmail, fetchApplications}: { show: boolean; handleClose: () => void; driverEmail: string; fetchApplications: () => void;}) => {
-  const [sponsorId, setSponsorId] = useState("");
-  const [sponsorEmail, setSponsorEmail] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      
-      if (!driverEmail.trim()) {
-          alert("Driver email is required.");
-          return;
-      }
-      if (!sponsorId.trim() || isNaN(Number(sponsorId))) {
-          alert("Please enter a valid Sponsor ID.");
-          return;
-      }
-      if (!sponsorEmail.trim()) {
-          alert("Sponsor email is required.");
-          return;
-      }
-
-      const applicationData = {
-          ApplicationDriver: driverEmail,
-          ApplicationOrganization: Number(sponsorId),
-          ApplicationSponsorUser: sponsorEmail,
-          ApplicationStatus: "Submitted", 
-      };
-
-      try {
-          const response = await fetch("https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplication", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(applicationData),
-          });
-
-          if (response.ok) {
-              alert("Application submitted successfully!");
-              setSponsorId("");
-              setSponsorEmail("");
-              handleClose();
-              fetchApplications();
+export const SponsorApplyModal = ({
+  show, 
+  handleClose, 
+  driverEmail, 
+  fetchApplications}: { 
+    show: boolean; 
+    handleClose: () => void; 
+    driverEmail: string; 
+    fetchApplications: () => void;
+  }) => {
+  const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [selectedOrg, setSelectedOrgID] = useState<number | null>(null);
+  
+  useEffect(() => {
+    if (show) {
+      fetch(`${API_SPONSOR_URL}/organizations`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setOrganizations(data);
           } else {
-              alert("Failed to submit application.");
+            console.error("Unexpected response format:", data);
           }
-      } catch (error) {
-          console.error("Error submitting application:", error);
-          alert("An error occurred while submitting the application.");
+        })
+        .catch((error) => console.error("Error fetching organizations:", error));
+    }
+  }, [show]);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!driverEmail.trim()) {
+      alert("Driver email is required.");
+      return;
+    }
+    if (!selectedOrg) {
+      alert("Please select a sponsor.");
+      return;
+    }
+
+    const applicationData = {
+      ApplicationDriver: driverEmail,
+      ApplicationOrganization: selectedOrg,
+      ApplicationStatus: "Submitted",
+    };
+
+    try {
+      const response = await fetch(`${API_DRIVER_SPONSOR_APP_URL}/driversponsorapplication`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(applicationData),
+      });
+
+      if (response.ok) {
+        alert("Application submitted successfully!");
+        setSelectedOrgID(null);
+        handleClose();
+        fetchApplications();
+      } else {
+        alert("Failed to submit application.");
       }
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      alert("An error occurred while submitting the application.");
+    }
   };
 
   return (
@@ -359,28 +382,26 @@ export const SponsorApplyModal = ({ show, handleClose, driverEmail, fetchApplica
                       />
                   </Form.Group>
 
-                  {/* Sponsor ID (Integer) */}
+                  {/* Organization */}
                   <Form.Group className="mb-3">
-                      <Form.Label>Sponsor ID</Form.Label>
-                      <Form.Control
-                          type="number"
-                          placeholder="Enter Sponsor ID"
-                          value={sponsorId}
-                          onChange={(e) => setSponsorId(e.target.value)}
-                          required
-                      />
-                  </Form.Group>
-
-                  {/* Sponsor User's Email */}
-                  <Form.Group className="mb-3">
-                      <Form.Label>Sponsor User's Email</Form.Label>
-                      <Form.Control
-                          type="email"
-                          placeholder="Enter Sponsor's Email"
-                          value={sponsorEmail}
-                          onChange={(e) => setSponsorEmail(e.target.value)}
-                          required
-                      />
+                    <Form.Label>Select Sponsor</Form.Label>
+                    <Form.Select
+                      value={selectedOrg ?? ""}
+                      onChange={(e) => setSelectedOrgID(Number(e.target.value))}
+                      required
+                    >
+                      <option value="" disabled>
+                        -- Select a Sponsor --
+                      </option>
+                      {organizations.map((sponsor) => (
+                        <option
+                          key={sponsor.OrganizationID}
+                          value={sponsor.OrganizationID}
+                        >
+                          {sponsor.OrganizationName}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
 
                   {/* Submit Button */}
