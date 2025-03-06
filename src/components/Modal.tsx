@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Modal as BootstrapModal, Button, Form } from "react-bootstrap";
 import "./Modal.css";
 
-const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+const API_DRIVER_SPONSOR_APP_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1"
 
 // Fetch sponsors instead of organizations
 async function getSponsors() {
   try {
-    const response = await fetch(`${API_BASE_URL}/sponsors`);
+    const response = await fetch(`${API_SPONSOR_URL}/sponsors`);
     if (!response.ok) throw new Error("Failed to fetch sponsors");
     return await response.json();
   } catch (error) {
@@ -161,7 +162,7 @@ export const SponsorApplyModal = ({
 
   useEffect(() => {
     if (show) {
-      fetch(`${API_BASE_URL}/sponsors`)
+      fetch(`${API_SPONSOR_URL}/sponsors`)
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -198,7 +199,7 @@ export const SponsorApplyModal = ({
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/driversponsorapplication`, {
+      const response = await fetch(`${API_DRIVER_SPONSOR_APP_URL}/driversponsorapplication`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(applicationData),
