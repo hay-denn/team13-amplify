@@ -158,7 +158,6 @@ export const SponsorApplyModal = ({
     { UserOrganization: number; UserFName: string; UserLName: string }[]
   >([]);
   const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
-  const [sponsorEmail, setSponsorEmail] = useState("");
 
   useEffect(() => {
     if (show) {
@@ -186,15 +185,10 @@ export const SponsorApplyModal = ({
       alert("Please select a sponsor.");
       return;
     }
-    if (!sponsorEmail.trim()) {
-      alert("Sponsor email is required.");
-      return;
-    }
 
     const applicationData = {
       ApplicationDriver: driverEmail,
       ApplicationOrganization: selectedSponsorId,
-      ApplicationSponsorUser: sponsorEmail,
       ApplicationStatus: "Submitted",
     };
 
@@ -208,7 +202,6 @@ export const SponsorApplyModal = ({
       if (response.ok) {
         alert("Application submitted successfully!");
         setSelectedSponsorId(null);
-        setSponsorEmail("");
         handleClose();
         fetchApplications();
       } else {
@@ -251,17 +244,6 @@ export const SponsorApplyModal = ({
                 </option>
               ))}
             </Form.Select>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Sponsor User's Email</Form.Label>
-            <Form.Control
-              type="email"
-              placeholder="Enter Sponsor's Email"
-              value={sponsorEmail}
-              onChange={(e) => setSponsorEmail(e.target.value)}
-              required
-            />
           </Form.Group>
 
           <Button variant="primary" type="submit">
