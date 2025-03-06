@@ -4,13 +4,13 @@ import "./Modal.css";
 
 const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-async function getOrgs() {
+async function getSponsors() {
   try {
-    const response = await fetch(`${API_BASE_URL}/organizations`);
-    if (!response.ok) throw new Error("Failed to fetch organizations");
+    const response = await fetch(`${API_BASE_URL}/sponsors`);
+    if (!response.ok) throw new Error("Failed to fetch sponsors");
     return await response.json();
   } catch (error) {
-    console.error("Error fetching organizations:", error);
+    console.error("Error fetching sponsors:", error);
     return [];
   }
 }
@@ -29,11 +29,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]);
   const [newUser, setNewUser] = useState(true);
-  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
+  const [sponsors, setSponsors] = useState<{ UserFName: string; UserLName: string; UserOrganization: number }[]>([]);
+  const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
 
   useEffect(() => {
-    getOrgs().then(setOrgs);
+    getSponsors().then(setSponsors);
   }, []);
 
   useEffect(() => {
@@ -44,10 +44,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
       if (initialData.org) {
-        const matchedOrg = orgs.find(org => org.OrganizationName === initialData.org);
-        const orgId = matchedOrg ? matchedOrg.OrganizationID : null;
-        if (orgId) {
-          setSelectedOrg(orgId);
+        const matchedSponsor = sponsors.find(sponsor => sponsor.UserOrganization === Number(initialData.org));
+        if (matchedSponsor) {
+          setSelectedSponsorId(matchedSponsor.UserOrganization);
         }
       }
     } else {
@@ -57,7 +56,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       setUserType(userTypes[1]);
       setNewUser(true);
     }
-  }, [initialData, isOpen]);
+  }, [initialData, isOpen, sponsors]);
 
   return (
     <div className="modal-overlay">
@@ -88,11 +87,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           className="modal-input"
         />
 
-        <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
-          <option value="" disabled>Select Organization</option>
-          {orgs.map((org) => (
-            <option key={org.OrganizationID} value={org.OrganizationID}>
-              {org.OrganizationName}
+        <select value={selectedSponsorId ?? ""} onChange={(e) => setSelectedSponsorId(Number(e.target.value))} className="modal-select">
+          <option value="" disabled>Select Sponsor</option>
+          {sponsors.map((sponsor) => (
+            <option key={sponsor.UserOrganization} value={sponsor.UserOrganization}>
+              {sponsor.UserFName} {sponsor.UserLName} | {sponsor.UserOrganization}
             </option>
           ))}
         </select>
@@ -124,22 +123,13 @@ export const SponsorApplyModal = ({
   driverEmail: string;
   fetchApplications: () => void;
 }) => {
-  const [sponsors, setSponsors] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [sponsors, setSponsors] = useState<{ UserFName: string; UserLName: string; UserOrganization: number }[]>([]);
   const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
   const [sponsorEmail, setSponsorEmail] = useState("");
 
   useEffect(() => {
     if (show) {
-      fetch(`${API_BASE_URL}/organizations`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setSponsors(data);
-          } else {
-            console.error("Unexpected response format:", data);
-          }
-        })
-        .catch((error) => console.error("Error fetching sponsors:", error));
+      getSponsors().then(setSponsors);
     }
   }, [show]);
 
@@ -211,8 +201,8 @@ export const SponsorApplyModal = ({
                 -- Select a Sponsor --
               </option>
               {sponsors.map((sponsor) => (
-                <option key={sponsor.OrganizationID} value={sponsor.OrganizationID}>
-                  {sponsor.OrganizationName}
+                <option key={sponsor.UserOrganization} value={sponsor.UserOrganization}>
+                  {sponsor.UserFName} {sponsor.UserLName} | {sponsor.UserOrganization}
                 </option>
               ))}
             </Form.Select>
