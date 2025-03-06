@@ -3,7 +3,7 @@ import { Modal as BootstrapModal, Button, Form } from "react-bootstrap";
 import "./Modal.css";
 
 const API_SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-const API_DRIVER_SPONSOR_APP_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1"
+const API_DRIVER_SPONSOR_APP_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1"
 
 // Fetch sponsors instead of organizations
 async function getSponsors() {
