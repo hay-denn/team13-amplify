@@ -91,7 +91,11 @@ export const Manageusers = () => {
             >
               Create User
             </button>
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} initialData={undefined} />
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              initialData={undefined}
+            />
           </div>
         </div>
       </div>
