@@ -144,7 +144,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       if (!auth.user?.access_token) {
         alert("Unable to make user edit. You are not signed in.");
       } else {
-      await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
+      await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, "", userType);
         if (userType == "Driver") {
             const data = {
             };
