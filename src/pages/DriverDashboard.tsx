@@ -24,16 +24,40 @@ export const DriverDashBoard = ({ companyName }: Props) => {
     ApplicationSponsorUser: string | null;
     ApplicationStatus: string;
     ApplicationDateSubmitted: string;
+    OrganizationName?: string;
   }
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [sponsors, setSponsors] = useState<Application[]>([]);
+  const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
 
   useEffect(() => {
     if (userEmail) {
       fetchApplications();
     }
   }, [userEmail]);
+
+  useEffect(() => {
+    fetchOrganizations();
+  }, []);
+
+  const fetchOrganizations = async (): Promise<void> => {
+    try {
+      const response = await fetch(
+        "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"
+      );
+      const data = (await response.json());
+
+      if (!Array.isArray(data)) {
+        console.error("Unexpected response format:", data);
+        return;
+      }
+
+      setOrganizations(data);
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+    }
+  };
 
   const fetchApplications = async (): Promise<void> => {
     try {
@@ -49,7 +73,15 @@ export const DriverDashBoard = ({ companyName }: Props) => {
         return;
       }
 
-      setApplications(data);
+      const applicationsWithOrgNames = data.map((app) => {
+        const org = organizations.find((org) => org.OrganizationID === app.ApplicationOrganization);
+        return {
+          ...app,
+          OrganizationName: org ? org.OrganizationName : "Unknown Organization",
+        };
+      });
+
+      setApplications(applicationsWithOrgNames);
       setSponsors(data.filter((app) => app.ApplicationStatus.toLowerCase() === "accepted"));
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -148,7 +180,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                       <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
                         {app.ApplicationStatus}
                       </span>
-                      <p>{app.ApplicationSponsorUser || "N/A"} | {app.ApplicationOrganization}</p>
+                      <p>{app.OrganizationName || "N/A"}</p>
                       {app.ApplicationStatus.toLowerCase() === "submitted" && (
                         <button
                           className="btn btn-danger cancel-button"
@@ -178,7 +210,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                             })
                           : "N/A"}
                       </span>
-                      <p>{sponsor.ApplicationSponsorUser || "N/A"}</p>
+                      <p>{sponsor.OrganizationName || "N/A"}</p>
                       <button
                         className="btn btn-danger cancel-button"
                         onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
