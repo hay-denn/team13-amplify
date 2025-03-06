@@ -27,6 +27,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
   }
 
   const [applications, setApplications] = useState<Application[]>([]);
+  // const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
 
   useEffect(() => {
     if (userEmail) {
