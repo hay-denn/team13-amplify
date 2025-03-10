@@ -19,7 +19,7 @@ async function getOrgs() {
 }
 
 async function manageCognitoUser (
-  action: "createUser" | "updateUser" | "deleteUser",
+  action: "createUser" | "updateUser" | "deleteUser" | "resetPassword",
   userPoolId: string,
   username: string,
   accessToken: string, // The access token from OIDC authentication
@@ -46,6 +46,9 @@ async function manageCognitoUser (
 
     const data = await response.json();
     if (response.ok) {
+      if (action === "resetPassword") {
+        alert("Password reset email sent to user!");
+      }
       console.log("Success:", data.message);
     } else {
       throw new Error(data.error);
@@ -235,6 +238,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     onClose(); // Close the modal
   };
 
+  const handlePasswordReset = async () => {
+    if (!auth.user?.access_token) {
+      alert("Unable to make user edit. You are not signed in.");
+    } else {
+      await manageCognitoUser("updateUser", USER_POOL_ID, email, auth.user.access_token, {}, "", userType);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -286,6 +297,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         {!newUser && (
           <button onClick={handleDeleteUser} className="modal-button delete">
             Delete User
+          </button>
+        )}
+        {!newUser && (
+          <button onClick={handlePasswordReset} className="modal-button delete">
+            Reset User's Password
           </button>
         )}
 
