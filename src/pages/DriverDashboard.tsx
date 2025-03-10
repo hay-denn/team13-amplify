@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, use } from "react";
+import { useState, useContext, useEffect} from "react";
 import "./HomeStyles.css";
 import { TopBox } from "../components/TopBox/TopBox";
 import "bootstrap/dist/css/bootstrap.min.css";
