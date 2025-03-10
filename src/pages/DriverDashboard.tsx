@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, use } from "react";
 import "./HomeStyles.css";
 import { TopBox } from "../components/TopBox/TopBox";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -30,16 +30,17 @@ export const DriverDashBoard = ({ companyName }: Props) => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [sponsors, setSponsors] = useState<Application[]>([]);
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-
-  useEffect(() => {
-    if (userEmail) {
-      fetchApplications();
-    }
-  }, [userEmail]);
+  const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
 
   useEffect(() => {
     fetchOrganizations();
   }, []);
+
+  useEffect(() => {
+    if (userEmail && organizationsLoaded) {
+      fetchApplications();
+    }
+  }, [userEmail, organizationsLoaded]);
 
   const fetchOrganizations = async (): Promise<void> => {
     try {
@@ -54,6 +55,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
       }
 
       setOrganizations(data);
+      setOrganizationsLoaded(true);
     } catch (error) {
       console.error("Error fetching organizations:", error);
     }
@@ -82,7 +84,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
       });
 
       setApplications(applicationsWithOrgNames);
-      setSponsors(data.filter((app) => app.ApplicationStatus.toLowerCase() === "accepted"));
+      setSponsors(data.filter((app) => app.ApplicationStatus.toLowerCase() === "approved"));
     } catch (error) {
       console.error("Error fetching applications:", error);
     }
