@@ -46,7 +46,7 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
     if (!selectedApp) return;
     try {
       const response = await fetch(
-        `${url_updateApplication}/driversponsorapplication`,
+        `${url_updateApplication}/driversponsorapplications`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -24,25 +24,40 @@ interface Admin {
 
 interface Props {
   driverTable: Driver[];
-  sponsorTable: Sponsor[];
-  adminTable: Admin[];
+  sponsorTable?: Sponsor[];
+  adminTable?: Admin[];
 }
 
-export const ListOfUsersTable = ({ driverTable, sponsorTable, adminTable }: Props) => {
+export const ListOfUsersTable = ({
+  driverTable,
+  sponsorTable = [],
+  adminTable = [],
+}: Props) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<{ firstName: string; familyName: string; email: string; userType: string; newUser: boolean } | undefined>();
-  
-  const handleEditUser = (pfirstName: string, pfamilyName: string, pemail: string, puserType: string) => {
+  const [modalData, setModalData] = useState<{
+    firstName: string;
+    familyName: string;
+    email: string;
+    userType: string;
+    newUser: boolean;
+  }>();
+
+  const handleEditUser = (
+    pfirstName: string,
+    pfamilyName: string,
+    pemail: string,
+    puserType: string
+  ) => {
     setModalData({
       firstName: pfirstName,
       familyName: pfamilyName,
       email: pemail,
       userType: puserType,
-      newUser: false
+      newUser: false,
     });
     setIsModalOpen(true);
   };
-  
+
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -67,7 +82,19 @@ export const ListOfUsersTable = ({ driverTable, sponsorTable, adminTable }: Prop
               <td>{driver.DriverEmail}</td>
               <td>{driver.DriverSponsor || "None"}</td>
               <td>
-                <button className="btn btn-primary" onClick={() => handleEditUser(driver.DriverFName, driver.DriverLName, driver.DriverEmail, "Driver")}>Edit</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() =>
+                    handleEditUser(
+                      driver.DriverFName,
+                      driver.DriverLName,
+                      driver.DriverEmail,
+                      "Driver"
+                    )
+                  }
+                >
+                  Edit
+                </button>
               </td>
             </tr>
           ))}
@@ -81,27 +108,57 @@ export const ListOfUsersTable = ({ driverTable, sponsorTable, adminTable }: Prop
               <td>{sponsor.UserEmail}</td>
               <td>{sponsor.UserOrganization || "N / A"}</td>
               <td>
-                <button className="btn btn-primary" onClick={() => handleEditUser(sponsor.UserFName, sponsor.UserLName, sponsor.UserEmail, "Sponsor")}>Edit</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() =>
+                    handleEditUser(
+                      sponsor.UserFName,
+                      sponsor.UserLName,
+                      sponsor.UserEmail,
+                      "Sponsor"
+                    )
+                  }
+                >
+                  Edit
+                </button>
               </td>
             </tr>
           ))}
 
           {adminTable.map((admin, index) => (
             <tr key={`admin-${index}`}>
-              <th scope="row">{driverTable.length + sponsorTable.length + index + 1}</th>
+              <th scope="row">
+                {driverTable.length + sponsorTable.length + index + 1}
+              </th>
               <td>Admin</td>
               <td>{admin.AdminFName}</td>
               <td>{admin.AdminLName}</td>
               <td>{admin.AdminEmail}</td>
               <td>Administrator</td>
               <td>
-                <button className="btn btn-primary" onClick={() => handleEditUser(admin.AdminFName, admin.AdminLName, admin.AdminEmail, "Admin")}>Edit</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() =>
+                    handleEditUser(
+                      admin.AdminFName,
+                      admin.AdminLName,
+                      admin.AdminEmail,
+                      "Admin"
+                    )
+                  }
+                >
+                  Edit
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} initialData={modalData} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialData={modalData}
+      />
     </div>
   );
 };
