@@ -57,8 +57,8 @@ create table pointchanges(
     PointChangeNumber decimal(8,2) NOT NULL,
     PointChangeAction varchar(200) NOT NULL,
     PointChangeDate date NOT NULL,
-    foreign key (PointChangeDriver) references drivers(DriverEmail),
-    foreign key (PointChangeSponsor) references sponsorusers(UserEmail));
+    foreign key (PointChangeDriver) references drivers(DriverEmail) on update cascade on delete cascade,
+    foreign key (PointChangeSponsor) references sponsorusers(UserEmail) on update cascade on delete cascade);
 
 -- Trigger that automatically adds points to users point total
 delimiter $$

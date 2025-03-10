@@ -19,7 +19,7 @@ async function getOrgs() {
 }
 
 async function manageCognitoUser (
-  action: "createUser" | "updateUser" | "deleteUser",
+  action: "createUser" | "updateUser" | "deleteUser" | "resetPassword",
   userPoolId: string,
   username: string,
   accessToken: string, // The access token from OIDC authentication
@@ -46,6 +46,9 @@ async function manageCognitoUser (
 
     const data = await response.json();
     if (response.ok) {
+      if (action === "resetPassword") {
+        alert("Password reset email sent to user!");
+      }
       console.log("Success:", data.message);
     } else {
       throw new Error(data.error);
@@ -104,6 +107,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   const auth = useAuth();
   const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
+  const [demoMode] = useState<boolean>(true);
   useEffect(() => {
     getOrgs().then(setOrgs);
   }, []);
@@ -144,7 +148,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       if (!auth.user?.access_token) {
         alert("Unable to make user edit. You are not signed in.");
       } else {
-      await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, "", userType);
+        if (!demoMode || userType != "Admin") {
+          await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
+        } else {
+          alert("Admin account deletion is not allowed from Manage Users page.");
+        }
         if (userType == "Driver") {
             const data = {
             };
@@ -152,11 +160,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         } else if (userType == "Admin") {
           const data = {
           };
-          callAPI(`${SPONSOR_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          if (!demoMode) {
+            callAPI(`${ADMIN_URL}/admin?AdminEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          }
         } else if (userType == "Sponsor") {
           const data = {
           };
-          callAPI(`${ADMIN_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          callAPI(`${SPONSOR_URL}/sponsor?UserEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else {
           alert("Invalid user type!");
         }
@@ -174,7 +184,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       alert("Unable to make user edit. You are not signed in.");
     } else {
       if (newUser) {
-      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "Password1!", userType);
+      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, "Password1!", userType);
         //create new user
         if (userType == "Driver") {
             const data = {
@@ -184,12 +194,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
             };
             callAPI(`${DRIVER_URL}/driver`, "POST", data);
         } else if (userType == "Admin") {
+
           const data = {
                "AdminEmail": email,
                "AdminFName": firstName,
                "AdminLName": familyName
           };
-        callAPI(`${ADMIN_URL}/admin`, "POST", data);
+          callAPI(`${ADMIN_URL}/admin`, "POST", data);
         } else if (userType == "Sponsor") {
           const data = {
             "UserEmail": email,
@@ -233,6 +244,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     }
 
     onClose(); // Close the modal
+  };
+
+  const handlePasswordReset = async () => {
+    if (!auth.user?.access_token) {
+      alert("Unable to make user edit. You are not signed in.");
+    } else {
+      await manageCognitoUser("resetPassword", USER_POOL_ID, email, auth.user.access_token, {}, "", userType);
+    }
   };
 
   if (!isOpen) return null;
@@ -286,6 +305,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         {!newUser && (
           <button onClick={handleDeleteUser} className="modal-button delete">
             Delete User
+          </button>
+        )}
+        {!newUser && (
+          <button onClick={handlePasswordReset} className="modal-button delete">
+            Reset User's Password
           </button>
         )}
 
