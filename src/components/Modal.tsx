@@ -148,7 +148,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       if (!auth.user?.access_token) {
         alert("Unable to make user edit. You are not signed in.");
       } else {
-        if (!demoMode) {
+        if (!demoMode || userType != "Admin") {
           await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
         } else {
           alert("Admin account deletion is not allowed from Manage Users page.");
@@ -161,12 +161,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           const data = {
           };
           if (!demoMode) {
-            callAPI(`${SPONSOR_URL}/admin?AdminEmail=${encodeURIComponent(email)}`, "DELETE", data);
+            callAPI(`${ADMIN_URL}/admin?AdminEmail=${encodeURIComponent(email)}`, "DELETE", data);
           }
         } else if (userType == "Sponsor") {
           const data = {
           };
-          callAPI(`${ADMIN_URL}/sponsor?UserEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          callAPI(`${SPONSOR_URL}/sponsor?UserEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else {
           alert("Invalid user type!");
         }
