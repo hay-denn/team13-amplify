@@ -148,7 +148,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
       if (!auth.user?.access_token) {
         alert("Unable to make user edit. You are not signed in.");
       } else {
-      await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
+        if (!demoMode) {
+          await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
+        } else {
+          alert("Admin account deletion is not allowed from Manage Users page.");
+        }
         if (userType == "Driver") {
             const data = {
             };
@@ -156,11 +160,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
         } else if (userType == "Admin") {
           const data = {
           };
-          callAPI(`${SPONSOR_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          if (!demoMode) {
+            callAPI(`${SPONSOR_URL}/admin?AdminEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          }
         } else if (userType == "Sponsor") {
           const data = {
           };
-          callAPI(`${ADMIN_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
+          callAPI(`${ADMIN_URL}/sponsor?UserEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else {
           alert("Invalid user type!");
         }
@@ -194,11 +200,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
                "AdminFName": firstName,
                "AdminLName": familyName
           };
-          if (!demoMode) {
-            callAPI(`${ADMIN_URL}/admin`, "POST", data);
-          } else {
-            alert("Admin account deletion is not allowed from Manage Users page.");
-          }
+          callAPI(`${ADMIN_URL}/admin`, "POST", data);
         } else if (userType == "Sponsor") {
           const data = {
             "UserEmail": email,
