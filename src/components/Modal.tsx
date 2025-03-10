@@ -242,7 +242,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     if (!auth.user?.access_token) {
       alert("Unable to make user edit. You are not signed in.");
     } else {
-      await manageCognitoUser("updateUser", USER_POOL_ID, email, auth.user.access_token, {}, "", userType);
+      await manageCognitoUser("resetPassword", USER_POOL_ID, email, auth.user.access_token, {}, "", userType);
     }
   };
 
