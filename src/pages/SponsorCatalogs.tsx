@@ -15,7 +15,7 @@ export const SponsorCatalogs: React.FC = () => {
       setCatalog([]);
       
       const url = `https://itunes.apple.com/search?term=${genre}&media=${type}&limit=${amount}`;
-      setApiUrl(url); // Set the API URL for debugging
+      setApiUrl(url);
 
       const response = await axios.get(url);
       setCatalog(response.data.results);
