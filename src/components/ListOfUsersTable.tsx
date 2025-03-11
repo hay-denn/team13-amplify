@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal from "./Modal";
+import Modal, { ViewOrgModal } from "./Modal";
 
 interface Driver {
   DriverEmail: string;
@@ -42,6 +42,10 @@ export const ListOfUsersTable = ({
     newUser: boolean;
   }>();
 
+  const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
+  const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
+ 
+
   const handleEditUser = (
     pfirstName: string,
     pfamilyName: string,
@@ -56,6 +60,11 @@ export const ListOfUsersTable = ({
       newUser: false,
     });
     setIsModalOpen(true);
+  };
+
+  const handleViewOrg = (pemail: string) => {
+    setViewOrgEmail(pemail);
+    setIsViewOrgModalOpen(true);
   };
 
   return (
@@ -80,7 +89,18 @@ export const ListOfUsersTable = ({
               <td>{driver.DriverFName}</td>
               <td>{driver.DriverLName}</td>
               <td>{driver.DriverEmail}</td>
-              <td>{driver.DriverSponsor || "None"}</td>
+              <td>
+                <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleViewOrg(
+                        driver.DriverEmail
+                      )
+                    }
+                  >
+                  View
+                </button>
+              </td>
               <td>
                 <button
                   className="btn btn-primary"
@@ -158,6 +178,11 @@ export const ListOfUsersTable = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialData={modalData}
+      />
+      <ViewOrgModal
+        isOpen={isViewOrgModalOpen}
+        onClose={() => setIsViewOrgModalOpen(false)}
+        email={viewOrgEmail}
       />
     </div>
   );

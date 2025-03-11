@@ -4,17 +4,30 @@ import "./Modal.css";
 import { useAuth } from "react-oidc-context";
 
 const USER_POOL_ID = "us-east-1_uN566DiPO";
-const API_SPONSOR_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_SPONSOR_ORG_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 const API_DRIVER_SPONSOR_APP_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1"
 
 const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
+const DRIVER_SPONSOR_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+
+
+async function getDriverSponsors(driverEmail: string) {
+  try {
+    const response = await fetch(`${DRIVER_SPONSOR_URL}/driverssponsors?DriversEmail${driverEmail}`);
+    if (!response.ok) throw new Error("Failed to fetch organizations");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching organizations:", error);
+    return [];
+  }
+}
 
 async function getOrgs() {
   try {
-    const response = await fetch(`${API_SPONSOR_URL}/organizations`);
+    const response = await fetch(`${API_SPONSOR_ORG_URL}/organizations`);
     if (!response.ok) throw new Error("Failed to fetch organizations");
     return await response.json();
   } catch (error) {
@@ -119,12 +132,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
   //Auth component to get access_token, verify authentication of user, etc.
   const auth = useAuth();
 
-  //Selecting orgs (to be removed)
-  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
-
   //Used to restrict admins from deleting other admins (demoing purposes)
   const [demoMode] = useState<boolean>(true);
+
+    //Selecting orgs (to be removed)
+    const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+    const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
 
   useEffect(() => {
     getOrgs().then(setOrgs);
@@ -406,7 +419,7 @@ export const SponsorApplyModal = ({
   
   useEffect(() => {
     if (show) {
-      fetch(`${API_SPONSOR_URL}/organizations`)
+      fetch(`${API_SPONSOR_ORG_URL}/organizations`)
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -504,6 +517,80 @@ export const SponsorApplyModal = ({
               </Form>
           </BootstrapModal.Body>
       </BootstrapModal>
+  );
+};
+
+
+
+//Modal to view the organizations for a Driver
+interface ViewOrgProps {
+  isOpen: boolean;
+  onClose: () => void;
+  email: string;
+}
+
+export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email }) => {
+  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [driverOrgs, setDriverOrgs] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);
+  const [selectedOrg, setSelectedOrg] = useState<number | "">("");
+
+  useEffect(() => {
+    getOrgs().then(setOrgs);
+    getDriverSponsors(email).then(setDriverOrgs);
+  }, [email]);
+
+  const handleSaveChanges = async () => {
+    const data = {
+      DriversEmail: email,
+      DriversSponsorId: selectedOrg
+    }
+    callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsors`, "POST", data);
+    onClose();
+  };
+
+  const handleRemoveOrganization = async (organizationID: number) => {
+    callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  // Get the list of driver organization IDs
+  const driverOrgIDs = new Set(driverOrgs.map((org) => org.DriversSponsorID));
+  
+  // Filter organizations to get the ones not in driverOrgs
+  const availableOrgs = orgs.filter((org) => !driverOrgIDs.has(org.OrganizationID));
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <button onClick={onClose} className="modal-close-btn">✖</button>
+        <h2>Driver Sponsor Organizations</h2>
+        <ul>
+          {driverOrgs.map((driverOrg) => {
+            const org = orgs.find((o) => o.OrganizationID === driverOrg.DriversSponsorID);
+            return org ? (
+              <li key={org.OrganizationID}>
+                {org.OrganizationName} 
+                <button onClick={() => handleRemoveOrganization(org.OrganizationID)} className="remove-button">Remove</button>
+              </li>
+            ) : null;
+          })}
+        </ul>
+        
+        {/* Dropdown to select an organization not currently associated with the driver */}
+        <select value={selectedOrg} onChange={(e) => setSelectedOrg(Number(e.target.value) || "")}>
+          <option value="">Select an organization</option>
+          {availableOrgs.map((org) => (
+            <option key={org.OrganizationID} value={org.OrganizationID}>
+              {org.OrganizationName}
+            </option>
+          ))}
+        </select>
+        
+        <button onClick={handleSaveChanges} className="modal-button">Add</button>
+      </div>
+    </div>
   );
 };
 
