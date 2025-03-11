@@ -1,0 +1,21 @@
+  .sponsor-catalogs {
+    padding: 20px;
+  }
+  
+  nav {
+    margin-bottom: 20px;
+  }
+  
+  form {
+    margin-bottom: 20px;
+  }
+  
+  .catalog-results {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .catalog-item {
+    margin: 10px;
+    text-align: center;
+  }
