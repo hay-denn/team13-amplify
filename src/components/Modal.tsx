@@ -366,14 +366,17 @@ const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement
           onChange={handlePasswordChange}
           className="modal-input"
         />
-        <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
-          <option value="" disabled>Select Organization</option>
-          {orgs.map((org) => (
-            <option key={org.OrganizationID} value={org.OrganizationID}>
-              {org.OrganizationName}
-            </option>
-          ))}
-        </select>
+        { userType === "Sponsor" && (
+            <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
+            <option value="" disabled>Select Organization</option>
+            {orgs.map((org) => (
+              <option key={org.OrganizationID} value={org.OrganizationID}>
+                {org.OrganizationName}
+              </option>
+            ))}
+          </select>
+        )}
+
 
         <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
           {userTypes.map((type) => (
@@ -389,7 +392,9 @@ const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement
             Delete User
           </button>
         )}
-        {!newUser && (
+      
+        {/* Don't show temp password field for existing user */}
+        {newUser && (
           <button onClick={handlePasswordReset} className="modal-button delete">
             Reset User's Password
           </button>
@@ -578,20 +583,20 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
       <div className="modal-content">
         <button onClick={onClose} className="modal-close-btn">✖</button>
         <h2>Driver Sponsor Organizations</h2>
-        <ul>
+        <ul className="modal-list">
           {driverOrgs.map((driverOrg) => {
             const org = orgs.find((o) => o.OrganizationID === driverOrg.DriversSponsorID);
             return org ? (
               <li key={org.OrganizationID}>
                 {org.OrganizationName} 
-                <button onClick={() => handleRemoveOrganization(org.OrganizationID)} className="remove-button">Remove</button>
+                <button onClick={() => handleRemoveOrganization(org.OrganizationID)} className="modal-remove-button">Remove</button>
               </li>
             ) : null;
           })}
         </ul>
         
         {/* Dropdown to select an organization not currently associated with the driver */}
-        <select value={selectedOrg} onChange={(e) => setSelectedOrg(Number(e.target.value) || "")}>
+        <select className="modal-select" value={selectedOrg} onChange={(e) => setSelectedOrg(Number(e.target.value) || "")}>
           <option value="">Select an organization</option>
           {availableOrgs.map((org) => (
             <option key={org.OrganizationID} value={org.OrganizationID}>
