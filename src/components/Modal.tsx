@@ -268,6 +268,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
 
 //check if email matches an existing user
 const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
+  console.log('email list' + initialData?.emailList);
   if (initialData?.emailList.includes(inputEmail) && inputEmail !== initialData?.email) {
       inputElement.setCustomValidity("This email matches an existing user.");
   } else {
@@ -277,7 +278,6 @@ const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
 
 //Handle updates to the email input element
 const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  console.log('change!');
     const inputEmail = e.target.value;
     setEmail(e.target.value);
     checkEmail(inputEmail, e.target);

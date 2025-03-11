@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
 
 interface Driver {
@@ -42,37 +42,43 @@ export const ListOfUsersTable = ({
     newUser: boolean;
     emailList: string[];
   }>();
-  let emails: string[] = [];
+  const [emails, setEmails] = useState<string[]>([]);
+  
+  useEffect(() => {
+    // Function to add more emails to the list from the tables
+    const addEmailsToList = () => {
+        const initialEmailList: string[] = [];
 
-  // Add emails from user table parameters to emailList
-  const addEmailsToList = () => {
-      driverTable.forEach(driver => {
-          if (driver.DriverEmail) {
-            emails.push(driver.DriverEmail);
-          } else {
-              console.log(`Driver email attribute not found.`);
-          }
-      });
-  
-      sponsorTable.forEach(sponsor => {
-          if (sponsor.UserEmail) {
-            emails.push(sponsor.UserEmail);
-          } else {
-              console.log(`Sponsor email attribute not found.`);
-          }
-      });
-  
-      adminTable.forEach(admin => {
-          if (admin.AdminEmail) {
-            emails.push(admin.AdminEmail);
-          } else {
-              console.log(`Admin email attribute not found.`);
-          }
-      });
-  }
-  //Calling addEmailsToList
-  addEmailsToList();
-  console.log(emails);
+        driverTable.forEach(driver => {
+            if (driver.DriverEmail) {
+                initialEmailList.push(driver.DriverEmail);
+            } else {
+                console.log(`Driver email attribute not found.`);
+            }
+        });
+
+        sponsorTable.forEach(sponsor => {
+            if (sponsor.UserEmail) {
+                initialEmailList.push(sponsor.UserEmail);
+            } else {
+                console.log(`Sponsor email attribute not found.`);
+            }
+        });
+
+        adminTable.forEach(admin => {
+            if (admin.AdminEmail) {
+                initialEmailList.push(admin.AdminEmail);
+            } else {
+                console.log(`Admin email attribute not found.`);
+            }
+        });
+
+        setEmails(initialEmailList);
+    }
+
+    // Adding emails from all tables when the component mounts
+    addEmailsToList();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleEditUser = (
     pfirstName: string,
