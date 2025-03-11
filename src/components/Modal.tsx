@@ -114,6 +114,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]); // Default to "Driver"
   const [newUser, setNewUser] = useState(true);
+  const [tempPassword, setTempPassword] = useState("");
 
   //Auth component to get access_token, verify authentication of user, etc.
   const auth = useAuth();
@@ -138,6 +139,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
       setEmail(initialData.email);
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
+      setTempPassword("Temppass123@"); //default temp password
       if (initialData.org) {
         //The org is passed in as the name. This code gets the orgID from the passed in name and sets the selected org to that ID.
         //That way we can make edits to the sponsor org of a driver or sponsor
@@ -195,7 +197,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
       alert("Unable to make user edit. You are not signed in.");
     } else {
       if (newUser) {
-      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, "Password1!", userType);
+      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, tempPassword, userType);
         //create new user
         if (userType == "Driver") {
             const data = {
@@ -271,18 +273,48 @@ const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
   if (emailList?.includes(inputEmail) && inputEmail !== initialData?.email) {
     console.log('match found for ' + inputEmail);
     inputElement.setCustomValidity("This email matches an existing user.");
+    inputElement.reportValidity();
   } else {
       inputElement.setCustomValidity("");
   }
-  inputElement.reportValidity();
 };
 
 //Handle updates to the email input element
 const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputEmail = e.target.value;
-    setEmail(e.target.value);
+    setEmail(inputEmail);
     checkEmail(inputEmail, e.target);
 }
+
+//Handle temp password changes
+const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const inputPassword = e.target.value;
+  setTempPassword(inputPassword);
+  checkPassword(inputPassword, e.target);
+}
+
+//check password validation
+const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement) => {
+  let validationMsg = "";
+  if (!(/\d/.test(inputTempPassword))) {
+    validationMsg += "Missing a number\n";
+  }
+  if (!(/[!@#$%^&*(),.?":{}|<>]/.test(inputTempPassword))) {
+    validationMsg += "Missing a special character\n";
+  }
+  if (!(/[A-Z]/.test(inputTempPassword))) {
+    validationMsg += "Missing uppercase letter\n";
+  }
+  if (!(/[a-z]/.test(inputTempPassword))) {
+    validationMsg += "Missing lowercase letter\n";
+  }
+  if (inputTempPassword.length < 8) {
+    validationMsg += "Password must be 8 characters or longer\n";
+  }
+  inputElement.setCustomValidity(validationMsg);
+  inputElement.reportValidity();
+}
+
   if (!isOpen) return null;
 
   return (
@@ -311,6 +343,14 @@ const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           value={email}
           readOnly={!newUser} //i don't think it's possible to change the email in our db, so for now it's not editable for existing accounts
           onChange={handleEmailChange}
+          onFocus={handleEmailChange}
+          className="modal-input"
+        />
+        <input
+          type="text"
+          placeholder="Temporary Password"
+          value={tempPassword}
+          onChange={handlePasswordChange}
           className="modal-input"
         />
         <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
