@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./Manageusers.css";
-import { useAuth } from "react-oidc-context";
 
 export const SponsorCatalogs: React.FC = () => {
-  const auth = useAuth();
   const [amount, setAmount] = useState(10);
   const [genre, setGenre] = useState("");
   const [type, setType] = useState("music");
