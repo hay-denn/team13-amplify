@@ -8,14 +8,16 @@ export const SponsorCatalogs: React.FC = () => {
   const [type, setType] = useState("music");
   const [catalog, setCatalog] = useState<any[]>([]);
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
+  const [apiUrl, setApiUrl] = useState("");
 
   const handleSearch = async () => {
     try {
       setCatalog([]);
       
-      const response = await axios.get(
-        `https://itunes.apple.com/search?term=${genre}&media=${type}&limit=${amount}`
-      );
+      const url = `https://itunes.apple.com/search?term=${genre}&media=${type}&limit=${amount}`;
+      setApiUrl(url); // Set the API URL for debugging
+
+      const response = await axios.get(url);
       setCatalog(response.data.results);
     } catch (error) {
       console.error("Error fetching catalog:", error);
@@ -89,6 +91,12 @@ export const SponsorCatalogs: React.FC = () => {
               Search
             </button>
           </form>
+          {apiUrl && (
+            <div className="mt-3">
+              <h6>API Call:</h6>
+              <p>{apiUrl}</p>
+            </div>
+          )}
         </div>
       </div>
 
