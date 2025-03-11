@@ -7,11 +7,10 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// not sure why but env vars arent working
 const db = mysql.createPool({
-  host: "team13-database.cobd8enwsupz.us-east-1.rds.amazonaws.com",
-  user: "admin",
-  password: "pw4Team13RDSDatabase",
+  host: process.env.DB_URL,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: "DRS",
   waitForConnections: true,
   connectionLimit: 10,
@@ -26,31 +25,30 @@ app.get("/status", (request, response) => {
 });
 
 /*
- *  Add amin
+ *  Add product purchased
  */
-app.post("/organization", (request, response) => {
-  const {OrganizationName} = request.body;
+app.post("/productpurchased", (request, response) => {
+  const {ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity} = request.body;
 
-  if (!OrganizationName) {
+  if (!ProductPurchasedID || !PurchaseAssociatedID || !ProductPurchaseQuantity) {
     return response.status(400).json({
-      error: 'OrganizationName is required',
+      error: 'ProductPurchasedID, PurchaseAssociatedID, and ProductPurchaseQuantity are required'
     });
   }
 
-  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationName = ?", [OrganizationName], (err, results) => {
+  db.query("SELECT * FROM DRS.productspurchased WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?", [ProductPurchasedID, PurchaseAssociatedID], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
     }
 
     if (results.length > 0) {
-      return response.status(400).json({ error: 'Organization already exists' });
+      return response.status(400).json({ error: 'Purchase already has that product' });
     }
 
     db.query(
-      "INSERT INTO DRS.sponsororganizations (OrganizationName) \
-	  VALUES (?)",
-      [OrganizationName],
+      "INSERT INTO DRS.productspurchased (ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity) VALUES (?, ?, ?)",
+      [ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity],
       (err, insertResults) => {
         if (err) {
           console.error("Database insert error:", err);
@@ -58,8 +56,8 @@ app.post("/organization", (request, response) => {
         }
 
         response.status(201).json({
-          message: 'Organization created',
-          user: { OrganizationName }
+          message: 'Product purchased added',
+          user: { ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity }
         });
       }
     );
@@ -67,23 +65,23 @@ app.post("/organization", (request, response) => {
 });
 
 /*
- * get specific organization
+ * get specific product purchased
  */
-app.get("/organization", (request, response) => {
-  const { OrganizationID } = request.body;
+app.get("/productpurchased", (request, response) => {
+  const { ProductPurchasedID, PurchaseAssociatedID } = request.query;
 
-  if (!OrganizationID) {
-    return response.status(400).json({ error: "OrganizationID required" });
+  if (!ProductPurchasedID || !PurchaseAssociatedID) {
+    return response.status(400).json({ error: 'ProductPurchasedID and PurchaseAssociatedID required' });
   }
 
-  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
+  db.query("SELECT * FROM DRS.productspurchased WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?", [ProductPurchasedID, PurchaseAssociatedID], (err, results) => {
     if (err) {
       console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error'});
+      return response.status(500).json({ error: 'Database error' });
     }
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'Organizaiton not found' });
+      return response.status(400).json({ error: 'Product purchased not found' });
     }
 
     return response.send(results[0]);
@@ -91,57 +89,80 @@ app.get("/organization", (request, response) => {
 });
 
 /*
- * get all organizations
+ * get all products purchased
  */
-app.get("/organizations", (request, response) => {
-
-  db.query(
-    "SELECT * FROM DRS.sponsororganizations",
-    (err, results) => {
+app.get("/productspurchased", (request, response) => {
+  const { ProductPurchasedID, PurchaseAssociatedID } = request.query;
+  
+  if(PurchaseAssociatedID){
+    db.query("SELECT * FROM DRS.productspurchased WHERE PurchaseAssociatedID = ?", [PurchaseAssociatedID], (err, results) => {
       if (err) {
         console.error("Database error:", err);
-        return response.status(500).json({ error: "Database error" });
+        return response.status(500).json({ error: 'Database error' });
       }
+  
+      if (results.length === 0) {
+        return response.status(400).json({ error: 'No products associated with order' });
+      }
+  
+      return response.send(results);
+    });
+  }
+
+  else if(ProductPurchasedID){
+    db.query("SELECT * FROM DRS.productspurchased WHERE ProductPurchasedID = ?", [ProductPurchasedID], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return response.status(500).json({ error: 'Database error' });
+      }
+  
+      if (results.length === 0) {
+        return response.status(400).json({ error: 'Product has not been purchased' });
+      }
+  
+      return response.send(results);
+    });
+  }
+
+  else{
+    db.query(
+      "SELECT * FROM DRS.productspurchased",
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: "Database error" });
+        }
       return response.send(results);
     })
-
+  }
 });
 
 
 /*
- * update organization
+ * update quanity
  */
-app.put("/organization", (request, response) => {
-  const {OrganizationID, OrganizationName} = request.body;
+app.put("/productpurchased", (request, response) => {
+  const {ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity} = request.body;
 
-  if (!OrganizationID) {
-    return response.status(400).json({ error: 'OrganizationID required' });
+  if (!ProductPurchasedID || !PurchaseAssociatedID || !ProductPurchaseQuantity) {
+    return response.status(400).json({ error: 'ProductPurchasedID, PurchaseAssociatedID, and ProductPurchaseQuantity are required' });
   }
 
-  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
+  db.query("SELECT * FROM DRS.productspurchased WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?", [ProductPurchasedID, PurchaseAssociatedID], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return response.status(500).json({ error: 'Database error' });
     }
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'Organization not found' });
+      return response.status(400).json({ error: 'Product purchased not found' });
     }
 
-    const updates = [];
-    const values = [];
+    const updates = ["ProductPurchaseQuantity = ?"];
+    const values = [ProductPurchaseQuantity];
 
-    if (OrganizationName) {
-      updates.push("OrganizationName = ?");
-      values.push(OrganizationName);
-    }
-  
-    if (updates.length === 0) {
-      return response.json({ message: 'No changes provided' });
-    }
-
-    const updateQuery = `UPDATE DRS.sponsororganizations SET ${updates.join(", ")} WHERE OrganizationID = ?`;
-    values.push(OrganizationID); 
+    const updateQuery = `UPDATE DRS.productspurchased SET ${updates.join(", ")} WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?`
+    values.push(ProductPurchasedID, PurchaseAssociatedID);
 
     db.query(updateQuery, values, (updateErr, updateResults) => {
       if (updateErr) {
@@ -149,14 +170,14 @@ app.put("/organization", (request, response) => {
         return response.status(500).json({ error: 'Database update error' });
       }
 
-      db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (selErr, selResults) => {
+      db.query("SELECT * FROM DRS.productspurchased WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?", [ProductPurchasedID, PurchaseAssociatedID], (selErr, selResults) => {
         if (selErr) {
           console.error("Database select error:", selErr);
           return response.status(500).json({ error: 'Database select error after update' });
         }
 
         return response.status(201).json({
-          message: 'Organization updated',
+          message: 'Quantity updated',
           user: selResults[0]
         });
       });
@@ -165,35 +186,35 @@ app.put("/organization", (request, response) => {
 });
 
 /*
- * delete an organization
+ * delete an product purchased
  */
-app.delete("/organization", (request, response) => {
-  const { OrganizationID } = request.body;
-  
-  if (!OrganizationID) {
-    return response.status(400).json({ error: 'OrganizationID required' });
+app.delete("/productpurchased", (request, response) => {
+  const { ProductPurchasedID, PurchaseAssociatedID } = request.query;
+
+  if (!ProductPurchasedID || !PurchaseAssociatedID) {
+    return response.status(400).json({ error: 'ProductPurchasedID and PurchaseAssociatedID required' });
   }
 
-  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (err, results) => {
+  db.query("SELECT * FROM DRS.productspurchased WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?", [ProductPurchasedID, PurchaseAssociatedID], (err, results) => {
     if (err) {
       console.error("Database select error:", err);
       return response.status(500).json({ error: 'Database error' });
     }
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'Organization not found' });
+      return response.status(400).json({ error: 'Product purchased not found' });
     }
 
     const userToDelete = results[0];
 
-    db.query("DELETE FROM DRS.sponsororganizations WHERE OrganizationID = ?", [OrganizationID], (deleteErr, deleteResults) => {
+    db.query("DELETE FROM DRS.productspurchased WHERE ProductPurchasedID = ? AND PurchaseAssociatedID = ?", [ProductPurchasedID, PurchaseAssociatedID], (deleteErr, deleteResults) => {
       if (deleteErr) {
         console.error("Database delete error:", deleteErr);
         return response.status(500).json({ error: 'Database delete error' });
       }
 
       return response.send({
-        message: 'Organization deleted',
+        message: 'Product purchase deleted',
         user: userToDelete
       });
     });
@@ -201,12 +222,12 @@ app.delete("/organization", (request, response) => {
 });
 
 /*
- * get user count
+ * get purchase count
  */
-app.get("/organization_count", (request, response) => {
+app.get("/productspurchased_count", (request, response) => {
 
     db.query(
-      "SELECT COUNT(*) AS count FROM DRS.sponsororganizations",
+      "SELECT COUNT(*) AS count FROM DRS.productspurchased",
       (err, results) => {
         if (err) {
           console.error("Database error:", err);

@@ -9,7 +9,6 @@ app.use(express.json());
 
 const validPointChangeActions = ["Add", "Subtract", "Set"];
 
-// not sure why but env vars arent working
 const db = mysql.createPool({
   host: process.env.DB_URL,
   user: process.env.DB_USER,
