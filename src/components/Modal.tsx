@@ -544,6 +544,7 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
       DriversEmail: email,
       DriversSponsorID: selectedOrg
     }
+    console.log(data);
     callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data);
     onClose();
   };
