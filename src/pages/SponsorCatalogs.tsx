@@ -102,6 +102,10 @@ export const SponsorCatalogs: React.FC = () => {
                 <img src={item.artworkUrl100} alt={item.trackName} />
                 <p>{item.trackName} - ${item.trackPrice} ({(item.trackPrice * priceToPointRatio).toFixed(2)} points)</p>
                 <div className="catalog-description">
+                  <p><strong>Artist:</strong> {item.artistName}</p>
+                  <p><strong>Collection:</strong> {item.collectionName}</p>
+                  <p><strong>Release Date:</strong> {new Date(item.releaseDate).toLocaleDateString()}</p>
+                  <p><strong>Genre:</strong> {item.primaryGenreName}</p>
                   <p>{item.longDescription || item.shortDescription || "No description available."}</p>
                 </div>
               </div>
