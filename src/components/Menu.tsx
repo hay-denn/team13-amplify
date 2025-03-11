@@ -18,12 +18,6 @@ export const MenuInfoSponsoredDriver = [
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
-  {
-    title: "User Manage Test",
-    url: "/usermanagetest",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
-  },
 
   /*
   removing for now since there's too many nav links with the sign in / sign out button on there
@@ -73,12 +67,6 @@ export const MenuInfoNewUser = [
     url: "/account",
     cName: "nav-links profile-link",
     profileImg: "/Images/DefaultProfile.png",
-  },
-  {
-    title: "User Manage Test",
-    url: "/usermanagetest",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
   },
 ];
 

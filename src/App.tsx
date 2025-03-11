@@ -11,7 +11,6 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { AccountSettings } from "./pages/AccountSettings";
 import APIDashboard from "./pages/APIDashboard.tsx";
 import APIRoutes from "./pages/APIRoutes.tsx";
-import UserManageTest from "./pages/UserManageTest";
 import { Manageusers } from "./pages/Manageusers.tsx";
 import { DriverManagement } from "./pages/DriverManagement.tsx";
 function App() {
@@ -48,7 +47,6 @@ function App() {
                 </>
               )}
               <Route path="/account" element={<AccountSettings />} />
-              <Route path="/usermanagetest" element={<UserManageTest />} />
             </>
           ) : (
             <Route path="/" element={<Home />} />
