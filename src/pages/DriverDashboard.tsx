@@ -31,6 +31,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
   const [sponsors, setSponsors] = useState<Application[]>([]);
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
+  const [sponsorNames, setSponsorNames] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     fetchOrganizations();
@@ -69,12 +70,12 @@ export const DriverDashBoard = ({ companyName }: Props) => {
         )}`
       );
       const data = (await response.json()) as Application[];
-
+  
       if (!Array.isArray(data)) {
         console.error("Unexpected response format:", data);
         return;
       }
-
+  
       const applicationsWithOrgNames = data.map((app) => {
         const org = organizations.find((org) => org.OrganizationID === app.ApplicationOrganization);
         return {
@@ -82,9 +83,17 @@ export const DriverDashBoard = ({ companyName }: Props) => {
           OrganizationName: org ? org.OrganizationName : "Unknown Organization",
         };
       });
-
+  
+      const sponsorNamesMap: { [key: string]: string } = {};
+      data.forEach((app) => {
+        if (app.ApplicationSponsorUser) {
+          sponsorNamesMap[app.ApplicationSponsorUser] = app.OrganizationName || "Unknown Sponsor";
+        }
+      });
+  
       setApplications(applicationsWithOrgNames);
-      setSponsors(data.filter((app) => app.ApplicationStatus.toLowerCase() === "approved"));
+      setSponsors(applicationsWithOrgNames.filter((app) => app.ApplicationStatus.toLowerCase() === "approved"));
+      setSponsorNames(sponsorNamesMap);
     } catch (error) {
       console.error("Error fetching applications:", error);
     }
@@ -212,7 +221,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                             })
                           : "N/A"}
                       </span>
-                      <p>{sponsor.OrganizationName || "N/A"}</p>
+                      <p>{sponsorNames[sponsor.ApplicationSponsorUser || ""] || "N/A"}</p>
                       <button
                         className="btn btn-danger cancel-button"
                         onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
