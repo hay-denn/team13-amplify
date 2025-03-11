@@ -541,16 +541,17 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
 
   const handleSaveChanges = async () => {
     const data = {
-      DriversEmail: email,
-      DriversSponsorID: selectedOrg
+      "DriversEmail": email,
+      "DriversSponsorID": selectedOrg.toString()
     }
-    console.log(data);
     callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data);
     onClose();
   };
 
   const handleRemoveOrganization = async (organizationID: number) => {
-    callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
+    const data = {
+    };
+    callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID.toString}`, "DELETE", data);
     onClose();
   };
 
