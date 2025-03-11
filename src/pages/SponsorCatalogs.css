@@ -53,3 +53,7 @@ form {
   position: relative;
   z-index: 10;
 }
+
+.btn.btn-primary.mt-3 {
+  margin-top: 10px;
+}

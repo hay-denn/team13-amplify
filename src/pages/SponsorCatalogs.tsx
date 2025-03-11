@@ -87,10 +87,11 @@ export const SponsorCatalogs: React.FC = () => {
                 <option value="audiobook">Audiobook</option>
               </select>
             </div>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary mt-3">
               Search
             </button>
           </form>
+          <br />
           {apiUrl && (
             <div className="mt-3">
               <h6>API Call:</h6>
