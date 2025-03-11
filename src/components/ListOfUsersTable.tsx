@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "./Modal";
 
 interface Driver {
@@ -40,45 +40,7 @@ export const ListOfUsersTable = ({
     email: string;
     userType: string;
     newUser: boolean;
-    emailList: string[];
   }>();
-  const [emails, setEmails] = useState<string[]>([]);
-  
-  useEffect(() => {
-    // Function to add more emails to the list from the tables
-    const addEmailsToList = () => {
-        const initialEmailList: string[] = [];
-
-        driverTable.forEach(driver => {
-            if (driver.DriverEmail) {
-                initialEmailList.push(driver.DriverEmail);
-            } else {
-                console.log(`Driver email attribute not found.`);
-            }
-        });
-
-        sponsorTable.forEach(sponsor => {
-            if (sponsor.UserEmail) {
-                initialEmailList.push(sponsor.UserEmail);
-            } else {
-                console.log(`Sponsor email attribute not found.`);
-            }
-        });
-
-        adminTable.forEach(admin => {
-            if (admin.AdminEmail) {
-                initialEmailList.push(admin.AdminEmail);
-            } else {
-                console.log(`Admin email attribute not found.`);
-            }
-        });
-
-        setEmails(initialEmailList);
-    }
-
-    // Adding emails from all tables when the component mounts
-    addEmailsToList();
-  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleEditUser = (
     pfirstName: string,
@@ -92,7 +54,6 @@ export const ListOfUsersTable = ({
       email: pemail,
       userType: puserType,
       newUser: false,
-      emailList: emails
     });
     setIsModalOpen(true);
   };

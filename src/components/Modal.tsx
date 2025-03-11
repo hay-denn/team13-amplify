@@ -99,14 +99,14 @@ interface ModalProps {
     email: string; 
     userType: string; 
     newUser: boolean; 
-    emailList: string[]
     org?: string;
     };
+  emailList?: string[];
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }) => {
 
   //Used to store user data attributes for user we're editing/creating
   const [firstName, setFirstName] = useState("");
@@ -268,8 +268,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
 
 //check if email matches an existing user
 const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
-  console.log('email list' + initialData?.emailList);
-  if (initialData?.emailList.includes(inputEmail) && inputEmail !== initialData?.email) {
+  console.log('email list' + emailList);
+  if (emailList?.includes(inputEmail) && inputEmail !== initialData?.email) {
       inputElement.setCustomValidity("This email matches an existing user.");
   } else {
       inputElement.setCustomValidity("");

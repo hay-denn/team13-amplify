@@ -26,6 +26,7 @@ export const Manageusers = () => {
   const [sponsorList, setSponsorList] = useState([]);
   const [adminList, setAdminList] = useState([]);
   const [organizationList, setOrganizationList] = useState([]);
+  const [emails, setEmails] = useState<string[]>([]);
 
   useEffect(() => {
     getDrivers();
@@ -34,10 +35,23 @@ export const Manageusers = () => {
     getOrganizations();
   }, []);
 
+  const addEmailsToList = (jsonArray: { [key: string]: string }[], emailAttribute: string) => {
+    const newEmails: string[] = [];
+    jsonArray.forEach(json => {
+        if (json[emailAttribute]) {
+            newEmails.push(json[emailAttribute]);
+        } else {
+            console.log(`Email attribute "${emailAttribute}" not found in one of the provided JSON objects.`);
+        }
+    });
+    setEmails(prevEmailList => [...prevEmailList, ...newEmails]);
+};
+
   const getDrivers = async () => {
     try {
       const response = await axios.get(`${url_drivers}/drivers`);
       setDriverList(response.data);
+      addEmailsToList(response.data, "DriverEmail");
     } catch (error) {
       console.error("Error fetching driver info:", error);
     }
@@ -47,6 +61,7 @@ export const Manageusers = () => {
     try {
       const response = await axios.get(`${url_sponsors}/sponsors`);
       setSponsorList(response.data);
+      addEmailsToList(response.data, "UserEmail");
     } catch (error) {
       console.error("Error fetching sponsor info:", error);
     }
@@ -56,6 +71,7 @@ export const Manageusers = () => {
     try {
       const response = await axios.get(`${url_admin}/admins`);
       setAdminList(response.data);
+      addEmailsToList(response.data, "AdminEmail");
     } catch (error) {
       console.error("Error fetching admin info:", error);
     }
@@ -125,6 +141,7 @@ export const Manageusers = () => {
             isOpen={isUserModalOpen}
             onClose={() => setIsUserModalOpen(false)}
             initialData={undefined}
+            emailList={emails}
           />
         </div>
       </div>
