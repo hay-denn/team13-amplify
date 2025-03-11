@@ -544,12 +544,12 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
       DriversEmail: email,
       DriversSponsorID: selectedOrg
     }
-    callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsors`, "POST", data);
+    callAPI(`${DRIVER_SPONSOR_URL}/driverssponsors`, "POST", data);
     onClose();
   };
 
   const handleRemoveOrganization = async (organizationID: number) => {
-    callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsors?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
+    callAPI(`${DRIVER_SPONSOR_URL}/driverssponsors?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
     onClose();
   };
 
