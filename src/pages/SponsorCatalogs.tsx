@@ -7,6 +7,7 @@ export const SponsorCatalogs: React.FC = () => {
   const [genre, setGenre] = useState("");
   const [type, setType] = useState("music");
   const [catalog, setCatalog] = useState<any[]>([]);
+  const [priceToPointRatio, setPriceToPointRatio] = useState(1);
 
   const handleSearch = async () => {
     try {
@@ -23,6 +24,24 @@ export const SponsorCatalogs: React.FC = () => {
 
   return (
     <div className="container manage-users-container py-3 m-5">
+      <div className="card manage-users-card mt-5">
+        <div className="card-body">
+          <h5 className="manage-users-title card-title">
+            Set Price to Point Conversion Ratio
+          </h5>
+          <p className="card-text">Set the conversion ratio for price to points.</p>
+          <div className="form-group">
+            <label>Price to Point Ratio:</label>
+            <input
+              type="number"
+              className="form-control"
+              value={priceToPointRatio}
+              onChange={(e) => setPriceToPointRatio(Number(e.target.value))}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">
@@ -81,7 +100,7 @@ export const SponsorCatalogs: React.FC = () => {
             {catalog.map((item) => (
               <div key={item.trackId} className="catalog-item">
                 <img src={item.artworkUrl100} alt={item.trackName} />
-                <p>{item.trackName}</p>
+                <p>{item.trackName} - ${item.trackPrice} ({(item.trackPrice * priceToPointRatio).toFixed(2)} points)</p>
               </div>
             ))}
           </div>
