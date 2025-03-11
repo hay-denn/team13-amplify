@@ -7,6 +7,11 @@ const USER_POOL_ID = "us-east-1_uN566DiPO";
 const API_SPONSOR_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 const API_DRIVER_SPONSOR_APP_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1"
 
+const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+
+
 async function getOrgs() {
   try {
     const response = await fetch(`${API_SPONSOR_URL}/organizations`);
@@ -17,6 +22,7 @@ async function getOrgs() {
     return [];
   }
 }
+    
 
 async function manageCognitoUser (
   action: "createUser" | "updateUser" | "deleteUser" | "resetPassword",
@@ -93,21 +99,32 @@ interface ModalProps {
     email: string; 
     userType: string; 
     newUser: boolean; 
-    org?: string };
+    emailList: string[]
+    org?: string;
+    };
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
+
+  //Used to store user data attributes for user we're editing/creating
   const [firstName, setFirstName] = useState("");
   const [familyName, setFamilyName] = useState("");
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState(userTypes[1]); // Default to "Driver"
   const [newUser, setNewUser] = useState(true);
+
+  //Auth component to get access_token, verify authentication of user, etc.
   const auth = useAuth();
+
+  //Selecting orgs (to be removed)
   const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
+
+  //Used to restrict admins from deleting other admins (demoing purposes)
   const [demoMode] = useState<boolean>(true);
+
   useEffect(() => {
     getOrgs().then(setOrgs);
   }, []);
@@ -141,9 +158,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   }, [initialData, isOpen, orgs]);
 
   const handleDeleteUser = async () => {
-    const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
-    const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-    const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
     if (!newUser) {    
       if (!auth.user?.access_token) {
         alert("Unable to make user edit. You are not signed in.");
@@ -176,9 +190,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
   };
 
   const handleSaveUser = async () => {
-    const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
-    const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-    const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
 
     if (!auth.user?.access_token) {
       alert("Unable to make user edit. You are not signed in.");
@@ -254,6 +265,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
     }
   };
 
+
+//check if email matches an existing user
+const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
+  if (initialData?.emailList.includes(inputEmail) && inputEmail !== initialData?.email) {
+      inputElement.setCustomValidity("This email matches an existing user.");
+  } else {
+      inputElement.setCustomValidity("");
+  }
+};
+
+//Handle updates to the email input element
+const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputEmail = e.target.value;
+    setEmail(e.target.value);
+    checkEmail(inputEmail, e.target);
+}
   if (!isOpen) return null;
 
   return (
@@ -281,7 +308,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData }) => {
           placeholder="Email"
           value={email}
           readOnly={!newUser} //i don't think it's possible to change the email in our db, so for now it's not editable for existing accounts
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleEmailChange}
           className="modal-input"
         />
         <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">

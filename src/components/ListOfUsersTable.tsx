@@ -40,7 +40,38 @@ export const ListOfUsersTable = ({
     email: string;
     userType: string;
     newUser: boolean;
+    emailList: string[];
   }>();
+  let emails: string[] = [];
+
+  // Add emails from user table parameters to emailList
+  const addEmailsToList = () => {
+      driverTable.forEach(driver => {
+          if (driver.DriverEmail) {
+            emails.push(driver.DriverEmail);
+          } else {
+              console.log(`Driver email attribute not found.`);
+          }
+      });
+  
+      sponsorTable.forEach(sponsor => {
+          if (sponsor.UserEmail) {
+            emails.push(sponsor.UserEmail);
+          } else {
+              console.log(`Sponsor email attribute not found.`);
+          }
+      });
+  
+      adminTable.forEach(admin => {
+          if (admin.AdminEmail) {
+            emails.push(admin.AdminEmail);
+          } else {
+              console.log(`Admin email attribute not found.`);
+          }
+      });
+  }
+  //Calling addEmailsToList
+  addEmailsToList();
 
   const handleEditUser = (
     pfirstName: string,
@@ -54,6 +85,7 @@ export const ListOfUsersTable = ({
       email: pemail,
       userType: puserType,
       newUser: false,
+      emailList: emails
     });
     setIsModalOpen(true);
   };
