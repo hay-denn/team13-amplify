@@ -47,3 +47,9 @@ form {
 .catalog-item:hover .catalog-description {
   display: block;
 }
+
+.form-group select {
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
