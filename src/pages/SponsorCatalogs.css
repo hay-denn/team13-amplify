@@ -13,9 +13,17 @@ form {
 .catalog-results {
   display: flex;
   flex-wrap: wrap;
+  gap: 20px;
 }
 
 .catalog-item {
-  margin: 10px;
+  flex: 1 1 calc(33.333% - 20px);
+  box-sizing: border-box;
   text-align: center;
+  margin-bottom: 20px;
+}
+
+.catalog-item img {
+  max-width: 100%;
+  height: auto;
 }

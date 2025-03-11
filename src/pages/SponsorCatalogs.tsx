@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Manageusers.css";
+import "./SponsorCatalogs.css";
 
 export const SponsorCatalogs: React.FC = () => {
   const [amount, setAmount] = useState(10);
@@ -10,6 +10,8 @@ export const SponsorCatalogs: React.FC = () => {
 
   const handleSearch = async () => {
     try {
+      setCatalog([]);
+      
       const response = await axios.get(
         `https://itunes.apple.com/search?term=${genre}&media=${type}&limit=${amount}`
       );
