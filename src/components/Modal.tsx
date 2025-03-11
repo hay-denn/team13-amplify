@@ -534,24 +534,35 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
   const [driverOrgs, setDriverOrgs] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<number | "">("");
 
+  const auth = useAuth();
+
   useEffect(() => {
     getOrgs().then(setOrgs);
     getDriverSponsors(email).then(setDriverOrgs);
   }, [email]);
 
   const handleSaveChanges = async () => {
-    const data = {
-      DriversEmail: email,
-      DriversSponsorID: selectedOrg
+    if (!auth.user?.access_token) {
+      alert("Cannot make change. Not authorized!"); 
+    } else {
+      const data = {
+        "DriversEmail": email,
+        "DriversSponsorID": selectedOrg.toString()
+      }
+      callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data);
+      onClose();
     }
-    console.log(data);
-    callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data);
-    onClose();
   };
 
   const handleRemoveOrganization = async (organizationID: number) => {
-    callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
-    onClose();
+    if (!auth.user?.access_token) {
+      alert("Cannot make change. Not authorized!"); 
+    } else {
+      const data = {
+      };
+      callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID.toString()}`, "DELETE", data);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
