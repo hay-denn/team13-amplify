@@ -118,7 +118,7 @@ export const MenuInfoSponsor = [
   },
   {
     title: "Catalogs",
-    url: "#",
+    url: "/catalogs",
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
