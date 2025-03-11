@@ -15,11 +15,10 @@ export const DriverManagement = () => {
   const url_getApplications =
     "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
 
-  const [driverList, setDriverList] = useState([]);
-  useEffect(() => {
-    getDrivers();
-  }, []);
+  const url_getSponsorID =
+    "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
+  const [driverList, setDriverList] = useState([]);
   const getDrivers = async () => {
     try {
       const response = await axios.get(`${url_drivers}/drivers`);
@@ -29,6 +28,18 @@ export const DriverManagement = () => {
     }
 
     console.log(driver_email);
+  };
+
+  const getCurrentSponsorOrganization = async () => {
+    try {
+      const response = await axios.get(
+        `${url_getSponsorID}/sponsor?UserEmail=${driver_email}`
+      );
+      console.log(response);
+      console.log(response.data.UserOrganization);
+    } catch (error) {
+      console.error("Error fetching driver info:", error);
+    }
   };
 
   const getApplications = async () => {
@@ -47,6 +58,8 @@ export const DriverManagement = () => {
 
   useEffect(() => {
     getApplications();
+    getCurrentSponsorOrganization();
+    getDrivers();
   }, []);
 
   return (
