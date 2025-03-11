@@ -81,6 +81,7 @@ export const SponsorCatalogs: React.FC = () => {
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               >
+                <option value="all">All</option>
                 <option value="music">Music</option>
                 <option value="movie">Movie</option>
                 <option value="podcast">Podcast</option>
