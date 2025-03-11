@@ -139,3 +139,20 @@ create table productspurchased(
     primary key(ProductPurchasedID, PuchaseAssociatedID),
     foreign key (ProductPurchasedID) references product(ProductID) on update cascade on delete cascade,
     foreign key (PuchaseAssociatedID) references purchases(PurchaseID) on update cascade on delete cascade);
+    
+-- Create store procedures to be used for reporting
+delimiter $
+
+create procedure AllDriversPointChanges(StartDate Date, EndDate Date)
+BEGIN
+	select PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction, PointChangeDate from DRS.pointchanges
+	where PointChangeDate between StartDate and EndDate order by PointChangeDate Desc;
+END$
+
+create procedure SpecificDriverPointChanges(StartDate Date, EndDate Date, Driver int)
+BEGIN
+	select PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction, PointChangeDate from DRS.pointchanges
+	where PointChangeDriver = Driver and PointChangeDate between StartDate and EndDate order by PointChangeDate Desc;
+END$
+
+delimiter ;
