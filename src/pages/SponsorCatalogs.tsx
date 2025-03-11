@@ -101,6 +101,9 @@ export const SponsorCatalogs: React.FC = () => {
               <div key={item.trackId} className="catalog-item">
                 <img src={item.artworkUrl100} alt={item.trackName} />
                 <p>{item.trackName} - ${item.trackPrice} ({(item.trackPrice * priceToPointRatio).toFixed(2)} points)</p>
+                <div className="catalog-description">
+                  <p>{item.longDescription || item.shortDescription || "No description available."}</p>
+                </div>
               </div>
             ))}
           </div>
