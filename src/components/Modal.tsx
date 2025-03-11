@@ -359,13 +359,17 @@ const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement
           onFocus={handleEmailChange}
           className="modal-input"
         />
-        <input
+        
+        {/* Don't show temp password field for existing user */}
+        {newUser && (
+          <input
           type="text"
           placeholder="Temporary Password"
           value={tempPassword}
           onChange={handlePasswordChange}
           className="modal-input"
-        />
+        />)}
+
         { userType === "Sponsor" && (
             <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
             <option value="" disabled>Select Organization</option>
@@ -393,8 +397,7 @@ const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement
           </button>
         )}
       
-        {/* Don't show temp password field for existing user */}
-        {newUser && (
+        {!newUser && (
           <button onClick={handlePasswordReset} className="modal-button delete">
             Reset User's Password
           </button>
