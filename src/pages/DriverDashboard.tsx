@@ -83,11 +83,11 @@ export const DriverDashBoard = ({ companyName }: Props) => {
           OrganizationName: org ? org.OrganizationName : "Unknown Organization",
         };
       });
-  
+
       const sponsorNamesMap: { [key: string]: string } = {};
-      data.forEach((app) => {
+      applicationsWithOrgNames.forEach((app) => {
         if (app.ApplicationSponsorUser) {
-          sponsorNamesMap[app.ApplicationSponsorUser] = app.OrganizationName || "Unknown Sponsor";
+          sponsorNamesMap[app.ApplicationSponsorUser] = app.ApplicationSponsorUser;
         }
       });
   
@@ -221,7 +221,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                             })
                           : "N/A"}
                       </span>
-                      <p>{sponsorNames[sponsor.ApplicationSponsorUser || ""] || "N/A"}</p>
+                      <p>{sponsorNames.ApplicationSponsorUser || "Unknown"}</p>
                       <button
                         className="btn btn-danger cancel-button"
                         onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
