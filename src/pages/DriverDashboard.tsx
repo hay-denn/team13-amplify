@@ -84,16 +84,16 @@ export const DriverDashBoard = ({ companyName }: Props) => {
         };
       });
 
-      const sponsorNamesMap: { [key: string]: string } = {};
-      applicationsWithOrgNames.forEach((app) => {
-        if (app.ApplicationSponsorUser) {
-          sponsorNamesMap[app.ApplicationSponsorUser] = app.ApplicationSponsorUser;
+      const sponsorsList = applicationsWithOrgNames.filter((app) => app.ApplicationStatus.toLowerCase() === "approved");
+      sponsorsList.forEach((sponsor) => {
+        if (sponsor.ApplicationSponsorUser) {
+          sponsorNames[sponsor.ApplicationSponsorUser] = sponsor.ApplicationSponsorUser;
         }
       });
   
       setApplications(applicationsWithOrgNames);
       setSponsors(applicationsWithOrgNames.filter((app) => app.ApplicationStatus.toLowerCase() === "approved"));
-      setSponsorNames(sponsorNamesMap);
+      setSponsorNames(sponsorNames);
     } catch (error) {
       console.error("Error fetching applications:", error);
     }
@@ -221,7 +221,11 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                             })
                           : "N/A"}
                       </span>
-                      <p>{sponsorNames.ApplicationSponsorUser || "Unknown"}</p>
+                      <p>
+                        {sponsor.ApplicationSponsorUser
+                            ? sponsorNames[sponsor.ApplicationSponsorUser] || sponsor.ApplicationSponsorUser
+                            : "N/A"}
+                      </p>
                       <button
                         className="btn btn-danger cancel-button"
                         onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
