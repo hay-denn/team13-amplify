@@ -268,12 +268,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
 
 //check if email matches an existing user
 const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
-  console.log('email list' + emailList);
   if (emailList?.includes(inputEmail) && inputEmail !== initialData?.email) {
-      inputElement.setCustomValidity("This email matches an existing user.");
+    console.log('match found for ' + inputEmail);
+    inputElement.setCustomValidity("This email matches an existing user.");
   } else {
       inputElement.setCustomValidity("");
   }
+  inputElement.reportValidity();
 };
 
 //Handle updates to the email input element
