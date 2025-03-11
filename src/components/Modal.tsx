@@ -16,7 +16,7 @@ const DRIVER_SPONSOR_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.c
 
 async function getDriverSponsors(driverEmail: string) {
   try {
-    const response = await fetch(`${DRIVER_SPONSOR_URL}/driverssponsors?DriversEmail${driverEmail}`);
+    const response = await fetch(`${DRIVER_SPONSOR_URL}/driverssponsors?DriversEmail=${driverEmail}`);
     if (!response.ok) throw new Error("Failed to fetch organizations");
     return await response.json();
   } catch (error) {
@@ -542,14 +542,14 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
   const handleSaveChanges = async () => {
     const data = {
       DriversEmail: email,
-      DriversSponsorId: selectedOrg
+      DriversSponsorID: selectedOrg
     }
     callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsors`, "POST", data);
     onClose();
   };
 
   const handleRemoveOrganization = async (organizationID: number) => {
-    callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
+    callAPI(`${API_DRIVER_SPONSOR_APP_URL}/driverssponsors?DriversEmail=${email}&DriversSponsorID=${organizationID}`, "DELETE", {});
     onClose();
   };
 
