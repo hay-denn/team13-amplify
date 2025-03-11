@@ -72,6 +72,7 @@ export const ListOfUsersTable = ({
   }
   //Calling addEmailsToList
   addEmailsToList();
+  console.log(emails);
 
   const handleEditUser = (
     pfirstName: string,

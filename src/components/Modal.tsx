@@ -277,6 +277,7 @@ const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
 
 //Handle updates to the email input element
 const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  console.log('change!');
     const inputEmail = e.target.value;
     setEmail(e.target.value);
     checkEmail(inputEmail, e.target);
