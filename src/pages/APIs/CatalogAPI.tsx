@@ -286,13 +286,19 @@ return (
 			onChange={(e) => setUpdateID(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
 		/>
-		<input
-			type="text"
-			placeholder="New Catalog Organization"
+		<select
 			value={updateOrganization}
 			onChange={(e) => setUpdateOrganization(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
-		/>
+		>
+			<option value="">Select Organization</option>
+			{organizations &&
+			organizations.map((org: any) => (
+				<option key={org} value={org}>
+				{org}
+				</option>
+			))}
+		</select>
 		<button
 			onClick={handleUpdateCatalog}
 			className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"

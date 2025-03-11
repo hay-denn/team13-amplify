@@ -29,7 +29,7 @@ app.get("/status", (request, response) => {
  *  Add driver sponsor relationship
  */
 app.post("/driverssponsor", (request, response) => {
-  const {DriversEmail, DriversSponsorID} = request.body;
+  const { DriversEmail, DriversSponsorID } = request.body;
 
   if (!DriversEmail || !DriversSponsorID) {
     return response.status(400).json({
@@ -37,33 +37,48 @@ app.post("/driverssponsor", (request, response) => {
     });
   }
 
-  db.query("SELECT * FROM DRS.driverssponsors WHERE DriversEmail = ? AND DriversSponsorID = ?", [DriversEmail, DriversSponsorID], (err, results) => {
-    if (err) {
-      console.error("Database select error:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
-
-    if (results.length > 0) {
-      return response.status(400).json({ error: 'Relationsip already exists' });
-    }
-
-    db.query(
-      "INSERT INTO DRS.driverssponsors (DriversEmail, DriversSponsorID) VALUES (?, ?)",
-      [DriversEmail, DriversSponsorID],
-      (err, insertResults) => {
-        if (err) {
-          console.error("Database insert error:", err);
-          return response.status(500).json({ error: 'Database insert error' });
-        }
-
-        response.status(201).json({
-          message: 'Relationship added',
-          user: { DriversEmail, DriversSponsorID, ProductPurchaseQuantity }
-        });
+  // Check if relationship already exists
+  db.query(
+    "SELECT * FROM DRS.driverssponsors WHERE DriversEmail = ? AND DriversSponsorID = ?",
+    [DriversEmail, DriversSponsorID],
+    (err, results) => {
+      if (err) {
+        console.error("Database select error:", err);
+        return response.status(500).json({ error: 'Database error on driverssponsors' });
       }
-    );
-  });
+
+      if (results.length > 0) {
+        return response.status(400).json({ error: 'Relationship already exists' });
+      }
+
+      db.query(
+        "INSERT INTO DRS.driverssponsors (DriversEmail, DriversSponsorID) VALUES (?, ?)",
+        [DriversEmail, DriversSponsorID],
+        (err, insertResults) => {
+          if (err) {
+            switch (err.code) {
+              case "ER_DUP_ENTRY":
+                return response.status(400).json({ error: "Relationship already exists (duplicate entry)." });
+              case "ER_NO_REFERENCED_ROW_2":
+                return response.status(400).json({ error: "Foreign key constraint fails: DriversEmail or DriversSponsorID does not exist." });
+              case "ER_ROW_IS_REFERENCED_2":
+                return response.status(400).json({ error: "Operation not allowed due to foreign key constraints." });
+              default:
+                console.error("Database insert error:", err);
+                return response.status(500).json({ error: "Database insert error", code: err.code });
+            }
+          }
+
+          return response.status(201).json({
+            message: 'Relationship added',
+            user: { DriversEmail, DriversSponsorID }
+          });
+        }
+      );
+    }
+  );
 });
+
 
 /*
  * get specific relationship

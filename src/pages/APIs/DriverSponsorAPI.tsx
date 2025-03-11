@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const API_BASE_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
 const DriverSponsorAPI: React.FC = () => {
 // States for /status & /driverssponsors_count
@@ -23,6 +24,27 @@ const [getError, setGetError] = useState<string | null>(null);
 const [deleteEmail, setDeleteEmail] = useState("");
 const [deleteSponsorID, setDeleteSponsorID] = useState("");
 const [deleteResult, setDeleteResult] = useState<string | null>(null);
+
+// get valid organizations
+const [organizations, setOrganizations] = useState<any>(null);
+
+// Fetch Organizations
+const fetchOrganizations = async () => {
+	try {
+		const res = await fetch(`${ORGANIZATIONS_API_URL}/organizations`);
+		if (!res.ok) {
+			throw new Error(`Organizations fetch failed: ${res.status}`);
+		}
+		const data = await res.json();
+		
+		// loop through the data and get the organization ids
+		const orgs = data.map((org: any) => org.OrganizationID);
+		setOrganizations(orgs);
+
+	} catch (err: any) {
+		setOrganizations(null);
+	}
+};
 
 /**
  * Fetch API status (GET /status)
@@ -132,6 +154,7 @@ try {
 useEffect(() => {
 fetchStatus();
 fetchRelationshipCount();
+fetchOrganizations();
 }, []);
 
 return (
@@ -176,13 +199,19 @@ return (
 			onChange={(e) => setCreateEmail(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
 		/>
-		<input
-			type="text"
-			placeholder="Sponsor ID"
+		<select
 			value={createSponsorID}
 			onChange={(e) => setCreateSponsorID(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
-		/>
+		>
+			<option value="">Select Organization</option>
+			{organizations &&
+			organizations.map((org: any) => (
+				<option key={org} value={org}>
+				{org}
+				</option>
+			))}
+		</select>
 		<button
 			onClick={handleCreateRelationship}
 			className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -205,13 +234,19 @@ return (
 			onChange={(e) => setGetEmail(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
 		/>
-		<input
-			type="text"
-			placeholder="Sponsor ID"
+		<select
 			value={getSponsorID}
 			onChange={(e) => setGetSponsorID(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
-		/>
+		>
+			<option value="">Select Organization</option>
+			{organizations &&
+			organizations.map((org: any) => (
+				<option key={org} value={org}>
+				{org}
+				</option>
+			))}
+		</select>
 		<button
 			onClick={handleGetRelationship}
 			className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -239,13 +274,19 @@ return (
 			onChange={(e) => setDeleteEmail(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
 		/>
-		<input
-			type="text"
-			placeholder="Sponsor ID"
+		<select
 			value={deleteSponsorID}
 			onChange={(e) => setDeleteSponsorID(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
-		/>
+		>
+			<option value="">Select Organization</option>
+			{organizations &&
+			organizations.map((org: any) => (
+				<option key={org} value={org}>
+				{org}
+				</option>
+			))}
+		</select>
 		<button
 			onClick={handleDeleteRelationship}
 			className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

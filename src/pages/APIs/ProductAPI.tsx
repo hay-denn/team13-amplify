@@ -1,34 +1,37 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 
 const API_BASE_URL = "https://0woutxiymc.execute-api.us-east-1.amazonaws.com/dev1";
 
-const ProductAPI: React.FC = () => {
-// States for /status & /product_count
+const ProductDashboard: React.FC = () => {
+// States for API status and product count
 const [status, setStatus] = useState<string | null>(null);
 const [productCount, setProductCount] = useState<number | null>(null);
 
-// States for Create Organization (POST /product)
-const [createName, setCreateName] = useState("");
+// States for creating a product
+const [productName, setProductName] = useState("");
+const [productDescription, setProductDescription] = useState("");
+const [productPrice, setProductPrice] = useState("");
+const [productInventory, setProductInventory] = useState("");
 const [createResult, setCreateResult] = useState<string | null>(null);
 
-// States for Get Organization (GET /product)
-const [getID, setGetID] = useState("");
+// States for getting a specific product
+const [getProductID, setGetProductID] = useState("");
 const [productData, setProductData] = useState<any>(null);
 const [getError, setGetError] = useState<string | null>(null);
 
-// States for Update Organization (PUT /products)
-const [updateID, setUpdateID] = useState("");
+// States for updating a product
+const [updateProductID, setUpdateProductID] = useState("");
 const [updateName, setUpdateName] = useState("");
+const [updateDescription, setUpdateDescription] = useState("");
+const [updatePrice, setUpdatePrice] = useState("");
+const [updateInventory, setUpdateInventory] = useState("");
 const [updateResult, setUpdateResult] = useState<string | null>(null);
 
-// States for Delete Organization (DELETE /products)
-const [deleteID, setDeleteID] = useState("");
+// States for deleting a product
+const [deleteProductID, setDeleteProductID] = useState("");
 const [deleteResult, setDeleteResult] = useState<string | null>(null);
 
-/**
- * Fetch API status (GET /status)
- */
+// Fetch API status from /status
 const fetchStatus = async () => {
 try {
 	const res = await fetch(`${API_BASE_URL}/status`);
@@ -42,9 +45,7 @@ try {
 }
 };
 
-/**
- * Fetch product count (GET /product_count)
- */
+// Fetch product count from /product_count
 const fetchProductCount = async () => {
 try {
 	const res = await fetch(`${API_BASE_URL}/product_count`);
@@ -58,42 +59,38 @@ try {
 }
 };
 
-/**
- * Create Organization (POST /product)
- * Expects body: { OrganizationName }
- */
+// Create a new product using POST /product
 const handleCreateProduct = async () => {
 try {
 	const response = await fetch(`${API_BASE_URL}/product`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
-		OrganizationName: createName,
+		ProductName: productName,
+		ProductDescription: productDescription,
+		ProductPrice: productPrice,
+		ProductInventory: productInventory,
 	}),
 	});
 	if (!response.ok) {
 	throw new Error(`Create failed: ${response.status}, ${await response.text()}`);
 	}
-	setCreateResult("Organization created successfully!");
-	setCreateName("");
-	// Refresh product count after creation
+	setCreateResult("Product created successfully!");
+	setProductName("");
+	setProductDescription("");
+	setProductPrice("");
+	setProductInventory("");
 	fetchProductCount();
 } catch (error: any) {
-	setCreateResult(`Error creating organization: ${error.message}`);
+	setCreateResult(`Error creating product: ${error.message}`);
 }
 };
 
-/**
- * Get Organization (GET /product)
- * Note: The API expects OrganizationID in the request body.
- */
+// Get a specific product using GET /product?ProductID=...
 const handleGetProduct = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/product`, {
-	method: "GET",
-	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify({ OrganizationID: getID }),
-	});
+	const url = `${API_BASE_URL}/product?ProductID=${encodeURIComponent(getProductID)}`;
+	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}, ${await response.text()}`);
 	}
@@ -102,60 +99,55 @@ try {
 	setGetError(null);
 } catch (error: any) {
 	setProductData(null);
-	setGetError(`Error fetching organization: ${error.message}`);
+	setGetError(`Error fetching product: ${error.message}`);
 }
 };
 
-/**
- * Update Organization (PUT /products)
- * Expects body: { OrganizationID, OrganizationName }
- */
+// Update an existing product using PUT /product
 const handleUpdateProduct = async () => {
 try {
-	const requestBody = {
-	OrganizationID: updateID,
-	OrganizationName: updateName,
-	};
-	const response = await fetch(`${API_BASE_URL}/products`, {
+	// Build the update body dynamically
+	const body: { [key: string]: any } = { ProductID: updateProductID };
+	if (updateName.trim() !== "") body.ProductName = updateName;
+	if (updateDescription.trim() !== "") body.ProductDescription = updateDescription;
+	if (updatePrice.trim() !== "") body.ProductPrice = updatePrice;
+	if (updateInventory.trim() !== "") body.ProductInventory = updateInventory;
+
+	const response = await fetch(`${API_BASE_URL}/product`, {
 	method: "PUT",
 	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify(requestBody),
+	body: JSON.stringify(body),
 	});
 	if (!response.ok) {
 	throw new Error(`Update failed: ${response.status}, ${await response.text()}`);
 	}
-	setUpdateResult("Organization updated successfully!");
-	setUpdateID("");
+	setUpdateResult("Product updated successfully!");
+	setUpdateProductID("");
 	setUpdateName("");
+	setUpdateDescription("");
+	setUpdatePrice("");
+	setUpdateInventory("");
 } catch (error: any) {
-	setUpdateResult(`Error updating organization: ${error.message}`);
+	setUpdateResult(`Error updating product: ${error.message}`);
 }
 };
 
-/**
- * Delete Organization (DELETE /products)
- * Expects body: { OrganizationID }
- */
+// Delete a product using DELETE /product?ProductID=...
 const handleDeleteProduct = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/products`, {
-	method: "DELETE",
-	headers: { "Content-Type": "application/json" },
-	body: JSON.stringify({ OrganizationID: deleteID }),
-	});
+	const url = `${API_BASE_URL}/product?ProductID=${encodeURIComponent(deleteProductID)}`;
+	const response = await fetch(url, { method: "DELETE" });
 	if (!response.ok) {
 	throw new Error(`Delete failed: ${response.status}, ${await response.text()}`);
 	}
-	setDeleteResult("Organization deleted successfully!");
-	setDeleteID("");
-	// Refresh product count after deletion
+	setDeleteResult("Product deleted successfully!");
+	setDeleteProductID("");
 	fetchProductCount();
 } catch (error: any) {
-	setDeleteResult(`Error deleting organization: ${error.message}`);
+	setDeleteResult(`Error deleting product: ${error.message}`);
 }
 };
 
-// Fetch status and product count on mount
 useEffect(() => {
 fetchStatus();
 fetchProductCount();
@@ -163,132 +155,78 @@ fetchProductCount();
 
 return (
 <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
-	<div className="max-w-2xl w-full bg-white p-6 rounded shadow space-y-6">
-	<h1 className="text-2xl font-bold text-center">Product API Dashboard</h1>
+	<div className="max-w-3xl w-full bg-white p-6 rounded shadow space-y-6">
+	<h1 className="text-2xl font-bold text-center">Product Dashboard</h1>
 
-	{/* SECTION: Status & Product Count */}
+	{/* Status & Count Section */}
 	<section>
 		<div className="space-y-2">
-		<p>
-			<strong>Status:</strong> {status !== null ? status : "Loading..."}
-		</p>
-		<p>
-			<strong>Product Count:</strong>{" "}
-			{productCount !== null ? productCount : "Loading..."}
-		</p>
-		<button
-			onClick={() => {
-			fetchStatus();
-			fetchProductCount();
-			}}
-			className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-		>
+		<p><strong>Status:</strong> {status !== null ? status : "Loading..."}</p>
+		<p><strong>Product Count:</strong> {productCount !== null ? productCount : "Loading..."}</p>
+		<button onClick={() => { fetchStatus(); fetchProductCount(); }} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
 			Refresh
 		</button>
 		</div>
 		<div>
-		{/* Link to see all organizations */}
-		<Link to={`${API_BASE_URL}/products`}>See All Organizations</Link>
+		<a href={`${API_BASE_URL}/products`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+			See All Products
+		</a>
 		</div>
 	</section>
 
-	{/* SECTION: Create Organization */}
+	{/* Create Product Section */}
 	<section>
 		<div className="space-y-2">
-		<input
-			type="text"
-			placeholder="Organization Name"
-			value={createName}
-			onChange={(e) => setCreateName(e.target.value)}
-			className="border border-gray-300 p-2 w-full rounded"
-		/>
-		<button
-			onClick={handleCreateProduct}
-			className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-		>
-			Create Organization
+		<input type="text" placeholder="Product Name" value={productName} onChange={(e) => setProductName(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<textarea placeholder="Product Description (optional)" value={productDescription} onChange={(e) => setProductDescription(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<input type="text" placeholder="Product Price" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<input type="text" placeholder="Product Inventory (optional)" value={productInventory} onChange={(e) => setProductInventory(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<button onClick={handleCreateProduct} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+			Create Product
 		</button>
-		{createResult && (
-			<p className="text-sm text-green-600">{createResult}</p>
-		)}
+		{createResult && <p className="text-sm text-green-600">{createResult}</p>}
 		</div>
 	</section>
 
-	{/* SECTION: Get Organization */}
+	{/* Get Specific Product Section */}
 	<section>
 		<div className="space-y-2">
-		<input
-			type="text"
-			placeholder="Organization ID"
-			value={getID}
-			onChange={(e) => setGetID(e.target.value)}
-			className="border border-gray-300 p-2 w-full rounded"
-		/>
-		<button
-			onClick={handleGetProduct}
-			className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-		>
-			Get Organization
+		<input type="text" placeholder="Product ID" value={getProductID} onChange={(e) => setGetProductID(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<button onClick={handleGetProduct} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+			Get Product
 		</button>
 		{productData && (
-			<div className="bg-gray-100 p-3 rounded mt-2 text-left">
-			<pre className="text-sm whitespace-pre-wrap">
-				{JSON.stringify(productData, null, 2)}
-			</pre>
+			<div className="bg-gray-100 p-3 rounded mt-2">
+			<pre className="text-sm whitespace-pre-wrap">{JSON.stringify(productData, null, 2)}</pre>
 			</div>
 		)}
 		{getError && <p className="text-sm text-red-600">{getError}</p>}
 		</div>
 	</section>
 
-	{/* SECTION: Update Organization */}
+	{/* Update Product Section */}
 	<section>
 		<div className="space-y-2">
-		<input
-			type="text"
-			placeholder="Organization ID"
-			value={updateID}
-			onChange={(e) => setUpdateID(e.target.value)}
-			className="border border-gray-300 p-2 w-full rounded"
-		/>
-		<input
-			type="text"
-			placeholder="New Organization Name"
-			value={updateName}
-			onChange={(e) => setUpdateName(e.target.value)}
-			className="border border-gray-300 p-2 w-full rounded"
-		/>
-		<button
-			onClick={handleUpdateProduct}
-			className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-		>
-			Update Organization
+		<input type="text" placeholder="Product ID" value={updateProductID} onChange={(e) => setUpdateProductID(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<input type="text" placeholder="New Product Name" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<textarea placeholder="New Product Description" value={updateDescription} onChange={(e) => setUpdateDescription(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<input type="text" placeholder="New Product Price" value={updatePrice} onChange={(e) => setUpdatePrice(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<input type="text" placeholder="New Product Inventory" value={updateInventory} onChange={(e) => setUpdateInventory(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<button onClick={handleUpdateProduct} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+			Update Product
 		</button>
-		{updateResult && (
-			<p className="text-sm text-green-600">{updateResult}</p>
-		)}
+		{updateResult && <p className="text-sm text-green-600">{updateResult}</p>}
 		</div>
 	</section>
 
-	{/* SECTION: Delete Organization */}
+	{/* Delete Product Section */}
 	<section>
 		<div className="space-y-2">
-		<input
-			type="text"
-			placeholder="Organization ID to Delete"
-			value={deleteID}
-			onChange={(e) => setDeleteID(e.target.value)}
-			className="border border-gray-300 p-2 w-full rounded"
-		/>
-		<button
-			onClick={handleDeleteProduct}
-			className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-		>
-			Delete Organization
+		<input type="text" placeholder="Product ID" value={deleteProductID} onChange={(e) => setDeleteProductID(e.target.value)} className="border border-gray-300 p-2 w-full rounded" />
+		<button onClick={handleDeleteProduct} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+			Delete Product
 		</button>
-		{deleteResult && (
-			<p className="text-sm text-green-600">{deleteResult}</p>
-		)}
+		{deleteResult && <p className="text-sm text-green-600">{deleteResult}</p>}
 		</div>
 	</section>
 	</div>
@@ -296,4 +234,4 @@ return (
 );
 };
 
-export default ProductAPI;
+export default ProductDashboard;
