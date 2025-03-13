@@ -52,21 +52,23 @@ export const SponsorCatalogs: React.FC = () => {
   // Fetch Catalog Data
   const fetchCatalogData = async (searchTerm: string, type: string, amount: number, maxPrice: number) => {
     try {
-      const url = `https://itunes.apple.com/search?term=${searchTerm}&media=${type}&limit=${amount}`;
-      setApiUrl(url);
+        // ✅ Replace direct iTunes call with your AWS Lambda API Gateway endpoint
+        const url = `https://b7tt4s7jl3.execute-api.us-east-1.amazonaws.com/dev1/itunes?term=${encodeURIComponent(searchTerm)}&media=${type}&limit=${amount}`;
 
-      const response = await axios.get(url);
+        const response = await axios.get(url, {
+            headers: { "Content-Type": "application/json" }, // ✅ Ensure correct headers
+        });
 
-      // ✅ Filter by max price
-      const filteredResults: CatalogItem[] = response.data.results.filter(
-        (item: CatalogItem) => item.trackPrice <= maxPrice
-      );
+        // ✅ Filter by max price
+        const filteredResults: CatalogItem[] = response.data.products.filter(
+            (item: CatalogItem) => item.trackPrice <= maxPrice
+        );
 
-      setCatalog(filteredResults);
+        setCatalog(filteredResults);
     } catch (error) {
-      console.error("Error fetching catalog data:", error);
+        console.error("Error fetching catalog data:", error);
     }
-  };
+};
 
   useEffect(() => {
     if (auth.isAuthenticated) {
