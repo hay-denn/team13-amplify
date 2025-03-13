@@ -39,8 +39,32 @@ export const SponsorCatalogs: React.FC = () => {
       );
       setOrganizationID(response.data.UserOrganization);
       setSearchTerm(response.data.SearchTerm || ""); // ✅ Ensure we fetch searchTerm from the DB
+      setPriceToPointRatio(response.data.PointDollarRatio || 1);
+      setAmount(response.data.AmountOfProducts || 10);
+      setType(response.data.ProductType || "music");
+      setMaxPrice(response.data.MaxPrice || 100);
+      fetchCatalogData(response.data.SearchTerm || "", response.data.ProductType || "music", response.data.AmountOfProducts || 10, response.data.MaxPrice || 100); // ✅ Fetch catalog data
     } catch (error) {
       console.error("Error fetching organization details:", error);
+    }
+  };
+
+  // Fetch Catalog Data
+  const fetchCatalogData = async (searchTerm: string, type: string, amount: number, maxPrice: number) => {
+    try {
+      const url = `https://itunes.apple.com/search?term=${searchTerm}&media=${type}&limit=${amount}`;
+      setApiUrl(url);
+
+      const response = await axios.get(url);
+
+      // ✅ Filter by max price
+      const filteredResults: CatalogItem[] = response.data.results.filter(
+        (item: CatalogItem) => item.trackPrice <= maxPrice
+      );
+
+      setCatalog(filteredResults);
+    } catch (error) {
+      console.error("Error fetching catalog data:", error);
     }
   };
 
@@ -196,6 +220,13 @@ export const SponsorCatalogs: React.FC = () => {
               <div key={item.trackId} className="catalog-item">
                 <img src={item.artworkUrl100} alt={item.trackName} />
                 <p>{item.trackName} - ${item.trackPrice} ({(item.trackPrice * priceToPointRatio).toFixed(2)} points)</p>
+                <div className="catalog-description">
+                  <p><strong>Artist:</strong> {item.artistName}</p>
+                  <p><strong>Collection:</strong> {item.collectionName}</p>
+                  <p><strong>Release Date:</strong> {new Date(item.releaseDate).toLocaleDateString()}</p>
+                  <p><strong>Genre:</strong> {item.primaryGenreName}</p>
+                  <p>{item.longDescription || item.shortDescription || "No description available."}</p>
+                </div>
               </div>
             ))}
           </div>
