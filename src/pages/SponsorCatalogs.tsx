@@ -68,8 +68,15 @@ export const SponsorCatalogs: React.FC = () => {
       );
 
       setCatalog(filteredResults);
+    } catch (error) {
+      console.error("Error fetching catalog:", error);
+    }
+  };
 
-      if (organizationID) {
+  // Save Catalog Information
+  const handleSaveCatalog = async () => {
+    if (organizationID) {
+      try {
         await axios.put(
           "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organization",
           {
@@ -80,11 +87,14 @@ export const SponsorCatalogs: React.FC = () => {
             MaxPrice: maxPrice,
           }
         );
-      } else {
-        console.error("Organization ID is not set");
+        alert("Catalog information saved successfully!");
+      } catch (error) {
+        console.error("Error saving catalog information:", error);
+        alert("Failed to save catalog information.");
       }
-    } catch (error) {
-      console.error("Error fetching catalog:", error);
+    } else {
+      console.error("Organization ID is not set");
+      alert("Organization ID is not set.");
     }
   };
 
@@ -187,6 +197,9 @@ export const SponsorCatalogs: React.FC = () => {
               </div>
             ))}
           </div>
+          <button className="btn btn-primary mt-3" onClick={handleSaveCatalog}>
+            Save Catalog
+          </button> {/* 📝 Added button to save catalog */}
         </div>
       </div>
     </div>
