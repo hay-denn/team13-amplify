@@ -21,16 +21,16 @@ export const SponsorCatalogs: React.FC = () => {
   const auth = useAuth();
 
   const [amount, setAmount] = useState(10);
-  const [genre, setGenre] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ Changed from genre to searchTerm
   const [type, setType] = useState("music");
-  const [catalog, setCatalog] = useState<CatalogItem[]>([]); // ✅ Apply Type
+  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
   const [maxPrice, setMaxPrice] = useState(100);
   const [apiUrl, setApiUrl] = useState("");
   const [organizationID, setOrganizationID] = useState<number | null>(null);
 
-  // Fetch Organization ID
-  const fetchOrganizationID = async (email: string) => {
+  // Fetch Organization ID and Details
+  const fetchOrganizationDetails = async (email: string) => {
     try {
       const encodedEmail = encodeURIComponent(email);
       const response = await axios.get(
@@ -38,8 +38,9 @@ export const SponsorCatalogs: React.FC = () => {
         { params: { UserEmail: encodedEmail } }
       );
       setOrganizationID(response.data.UserOrganization);
+      setSearchTerm(response.data.SearchTerm || ""); // ✅ Ensure we fetch searchTerm from the DB
     } catch (error) {
-      console.error("Error fetching organization ID:", error);
+      console.error("Error fetching organization details:", error);
     }
   };
 
@@ -47,7 +48,7 @@ export const SponsorCatalogs: React.FC = () => {
     if (auth.isAuthenticated) {
       const userEmail = auth.user?.profile.email;
       if (userEmail) {
-        fetchOrganizationID(userEmail);
+        fetchOrganizationDetails(userEmail);
       }
     }
   }, [auth]);
@@ -57,7 +58,7 @@ export const SponsorCatalogs: React.FC = () => {
     try {
       setCatalog([]);
 
-      const url = `https://itunes.apple.com/search?term=${genre}&media=${type}&limit=${amount}`;
+      const url = `https://itunes.apple.com/search?term=${searchTerm}&media=${type}&limit=${amount}`;
       setApiUrl(url);
 
       const response = await axios.get(url);
@@ -73,24 +74,25 @@ export const SponsorCatalogs: React.FC = () => {
     }
   };
 
-  // Save Catalog Information
-  const handleSaveCatalog = async () => {
+  // Save Organization Data (Including SearchTerm)
+  const handleSaveOrganization = async () => {
     if (organizationID) {
       try {
         await axios.put(
           "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organization",
           {
             OrganizationID: organizationID,
+            SearchTerm: searchTerm, // ✅ Now saving searchTerm instead of genre
             PointDollarRatio: priceToPointRatio,
             AmountOfProducts: amount,
             ProductType: type,
             MaxPrice: maxPrice,
           }
         );
-        alert("Catalog information saved successfully!");
+        alert("Organization information updated successfully!");
       } catch (error) {
-        console.error("Error saving catalog information:", error);
-        alert("Failed to save catalog information.");
+        console.error("Error updating organization:", error);
+        alert("Failed to update organization information.");
       }
     } else {
       console.error("Organization ID is not set");
@@ -149,12 +151,12 @@ export const SponsorCatalogs: React.FC = () => {
               />
             </div>
             <div className="form-group">
-              <label>Genre:</label>
+              <label>Search Term:</label> {/* ✅ Changed label from Genre to Search Term */}
               <input
                 type="text"
                 className="form-control"
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -197,9 +199,9 @@ export const SponsorCatalogs: React.FC = () => {
               </div>
             ))}
           </div>
-          <button className="btn btn-primary mt-3" onClick={handleSaveCatalog}>
-            Save Catalog
-          </button> {/* 📝 Added button to save catalog */}
+          <button className="btn btn-primary mt-3" onClick={handleSaveOrganization}>
+            Save Organization
+          </button>
         </div>
       </div>
     </div>
