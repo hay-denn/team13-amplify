@@ -3,7 +3,7 @@ import axios from "axios";
 import { useAuth } from "react-oidc-context";
 import "./SponsorCatalogs.css";
 
-// Define the Catalog Item Type
+// Define the interface for storing catalog item details
 interface CatalogItem {
   trackId: number;
   trackName: string;
@@ -21,7 +21,7 @@ export const SponsorCatalogs: React.FC = () => {
   const auth = useAuth();
 
   const [amount, setAmount] = useState(10);
-  const [searchTerm, setSearchTerm] = useState(""); // Will store sponsor's saved search term
+  const [searchTerm, setSearchTerm] = useState("");
   const [type, setType] = useState("music");
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
@@ -29,39 +29,24 @@ export const SponsorCatalogs: React.FC = () => {
   const [apiUrl, setApiUrl] = useState("");
   const [organizationID, setOrganizationID] = useState<number | null>(null);
 
-  // 1. Fetch Organization ID and Details (PointDollarRatio, AmountOfProducts, ProductType, MaxPrice, SearchTerm)
+  // Function to fetch organization details based on the logged-in user's email
   const fetchOrganizationDetails = async (email: string) => {
     try {
-      console.log("🔍 Fetching organization details for:", email);
-
       const encodedEmail = encodeURIComponent(email);
-      // This endpoint should return your sponsor's saved settings
       const response = await axios.get(
         "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsor",
         { params: { UserEmail: encodedEmail } }
       );
 
-      console.log("✅ Organization Details:", response.data);
-
-      // If your API returns data like:
-      // {
-      //   "UserOrganization": 123,
-      //   "PointDollarRatio": 2,
-      //   "AmountOfProducts": 5,
-      //   "ProductType": "movie",
-      //   "MaxPrice": 50,
-      //   "SearchTerm": "avengers"
-      // }
-      // Use them directly. If they don't exist, fallback to defaults.
-
+      // Set the organization parameters from the response
       setOrganizationID(response.data.UserOrganization);
-      setSearchTerm(response.data.SearchTerm?.trim() || "");      // Only set to empty string if no value
+      setSearchTerm(response.data.SearchTerm?.trim() || "");    
       setPriceToPointRatio(response.data.PointDollarRatio || 1);
       setAmount(response.data.AmountOfProducts || 10);
       setType(response.data.ProductType || "music");
       setMaxPrice(response.data.MaxPrice || 100);
 
-      // 2. Use these settings to immediately fetch a catalog
+      // Fetch catalog data based on the organization details if available
       if (response.data.SearchTerm) {
         fetchCatalogData(
           response.data.SearchTerm,
@@ -71,13 +56,11 @@ export const SponsorCatalogs: React.FC = () => {
         );
       }
     } catch (error) {
-      console.error("❌ Error fetching organization details:", error);
-      // If there's no existing data, you can simply not set anything,
-      // which will leave your defaults in place.
+      console.error("There was an error fetching organization details:", error);
     }
   };
 
-  // 3. Fetch Catalog Data from your iTunes proxy endpoint
+  // Function to fetch catalog data from the iTunes API
   const fetchCatalogData = async (
     searchTerm: string,
     type: string,
@@ -85,22 +68,18 @@ export const SponsorCatalogs: React.FC = () => {
     maxPrice: number
   ) => {
     if (!searchTerm.trim()) {
-      console.error("❌ Error: Search term cannot be empty.");
+      console.error("Error: Search term cannot be empty.");
       return;
     }
 
     try {
-      // This is your custom iTunes proxy API
       const url = `https://b7tt4s7jl3.execute-api.us-east-1.amazonaws.com/dev1/itunes?term=${encodeURIComponent(
         searchTerm
       )}&media=${type}&limit=${amount}`;
-      console.log("🔍 Fetching iTunes data from:", url);
 
       const response = await axios.get(url, {
         headers: { "Content-Type": "application/json" },
       });
-
-      console.log("✅ API Response:", response.data);
 
       if (!response.data.products || response.data.products.length === 0) {
         console.warn("⚠️ No results found.");
@@ -108,18 +87,18 @@ export const SponsorCatalogs: React.FC = () => {
         return;
       }
 
-      // Filter out any items above the maxPrice
+      // Filter the results based on the max price
       const filteredResults: CatalogItem[] = response.data.products.filter(
         (item: CatalogItem) => item.trackPrice <= maxPrice
       );
 
       setCatalog(filteredResults);
     } catch (error) {
-      console.error("❌ Error fetching catalog data:", error);
+      console.error("Error fetching catalog data:", error);
     }
   };
 
-  // 4. As soon as the user is authenticated, load the sponsor's settings from DB
+  // Fetch organization details based on the logged-in user's email
   useEffect(() => {
     if (auth.isAuthenticated) {
       const userEmail = auth.user?.profile.email;
@@ -129,19 +108,17 @@ export const SponsorCatalogs: React.FC = () => {
     }
   }, [auth]);
 
-  // Optionally fetch new catalog items with local search in the UI
+  // Function to handle search button click
   const handleSearch = async () => {
     try {
       setCatalog([]);
 
-      // This is a direct call to iTunes. If you prefer your iTunes proxy,
-      // you can switch it out here the same way as in fetchCatalogData.
       const url = `https://itunes.apple.com/search?term=${searchTerm}&media=${type}&limit=${amount}`;
       setApiUrl(url);
 
       const response = await axios.get(url);
 
-      // Filter by max price
+      // Filter the results based on the max price
       const filteredResults: CatalogItem[] = response.data.results.filter(
         (item: CatalogItem) => item.trackPrice <= maxPrice
       );
@@ -152,7 +129,7 @@ export const SponsorCatalogs: React.FC = () => {
     }
   };
 
-  // 5. Save Organization Data (Including SearchTerm) back to your DB
+  // Function to handle saving organization details
   const handleSaveOrganization = async () => {
     if (organizationID) {
       try {
@@ -160,7 +137,6 @@ export const SponsorCatalogs: React.FC = () => {
           "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organization",
           {
             OrganizationID: organizationID,
-            // Using updated state values:
             SearchTerm: searchTerm,
             PointDollarRatio: priceToPointRatio,
             AmountOfProducts: amount,
@@ -180,8 +156,9 @@ export const SponsorCatalogs: React.FC = () => {
   };
 
   return (
+
+    /* Point to Price & Max Price Form */
     <div className="container manage-users-container py-3 m-5">
-      {/* Price to Point Conversion Ratio */}
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">
@@ -209,7 +186,7 @@ export const SponsorCatalogs: React.FC = () => {
         </div>
       </div>
 
-      {/* Customize Your Product Catalog */}
+      {/* Catalog Search Form */}
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">
@@ -268,7 +245,7 @@ export const SponsorCatalogs: React.FC = () => {
         </div>
       </div>
 
-      {/* Display Catalog Results */}
+      {/* Catalog Results */}
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">Catalog Results</h5>
