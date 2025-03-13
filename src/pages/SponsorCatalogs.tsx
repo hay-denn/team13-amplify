@@ -3,7 +3,7 @@ import axios from "axios";
 import { useAuth } from "react-oidc-context";
 import "./SponsorCatalogs.css";
 
-// ✅ Define the Catalog Item Type
+// Define the Catalog Item Type
 interface CatalogItem {
   trackId: number;
   trackName: string;
@@ -21,7 +21,7 @@ export const SponsorCatalogs: React.FC = () => {
   const auth = useAuth();
 
   const [amount, setAmount] = useState(10);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ Changed from genre to searchTerm
+  const [searchTerm, setSearchTerm] = useState(""); // Changed from genre to searchTerm
   const [type, setType] = useState("music");
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
@@ -32,67 +32,64 @@ export const SponsorCatalogs: React.FC = () => {
   // Fetch Organization ID and Details
   const fetchOrganizationDetails = async (email: string) => {
     try {
-        console.log("🔍 Fetching organization details for:", email);
-        const encodedEmail = encodeURIComponent(email);
-        const response = await axios.get(
-            `https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsor`,
-            { params: { UserEmail: encodedEmail } }
-        );
-
-        console.log("✅ Organization Details:", response.data);
-
-        let term = response.data.SearchTerm?.trim() || "default";  // ✅ Prevent empty term
-        setOrganizationID(response.data.UserOrganization);
-        setSearchTerm(term);
-        setPriceToPointRatio(response.data.PointDollarRatio || 1);
-        setAmount(response.data.AmountOfProducts || 10);
-        setType(response.data.ProductType || "music");
-        setMaxPrice(response.data.MaxPrice || 100);
-
-        fetchCatalogData(term, response.data.ProductType || "music", response.data.AmountOfProducts || 10, response.data.MaxPrice || 100);
+      console.log("🔍 Fetching organization details for:", email);
+      const encodedEmail = encodeURIComponent(email);
+      const response = await axios.get(
+        `https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsor`,
+        { params: { UserEmail: encodedEmail } }
+      );
+  
+      console.log("✅ Organization Details:", response.data);
+  
+      const term = response.data.SearchTerm?.trim() || "default"; // Prevent empty term
+      setOrganizationID(response.data.UserOrganization);
+      setSearchTerm(term);
+      setPriceToPointRatio(response.data.PointDollarRatio || 1);
+      setAmount(response.data.AmountOfProducts || 10);
+      setType(response.data.ProductType || "music");
+      setMaxPrice(response.data.MaxPrice || 100);
+  
+      // Fetch catalog data using the search term from the database
+      fetchCatalogData(term, response.data.ProductType || "music", response.data.AmountOfProducts || 10, response.data.MaxPrice || 100);
     } catch (error) {
-        console.error("❌ Error fetching organization details:", error);
+      console.error("❌ Error fetching organization details:", error);
     }
-};
-
-
+  };
 
   // Fetch Catalog Data
   const fetchCatalogData = async (searchTerm: string, type: string, amount: number, maxPrice: number) => {
-    if (!searchTerm.trim()) {  // ✅ Ensure searchTerm is not empty
-        console.error("❌ Error: Search term cannot be empty.");
-        return;
+    if (!searchTerm.trim()) {
+      console.error("❌ Error: Search term cannot be empty.");
+      return;
     }
 
     try {
-        const url = `https://b7tt4s7jl3.execute-api.us-east-1.amazonaws.com/dev1/itunes?term=${encodeURIComponent(searchTerm)}&media=${type}&limit=${amount}`;
-        
-        console.log("🔍 Fetching iTunes data from:", url);  // ✅ Debugging log
-
-        const response = await axios.get(url, {
-            headers: { "Content-Type": "application/json" },
-        });
-
-        console.log("✅ API Response:", response.data); // ✅ Log response
-
-        if (!response.data.products || response.data.products.length === 0) {
-            console.warn("⚠️ No results found.");
-            setCatalog([]);
-            return;
-        }
-
-        const filteredResults: CatalogItem[] = response.data.products.filter(
-            (item: CatalogItem) => item.trackPrice <= maxPrice
-        );
-
-        setCatalog(filteredResults);
+      const url = `https://b7tt4s7jl3.execute-api.us-east-1.amazonaws.com/dev1/itunes?term=${encodeURIComponent(searchTerm)}&media=${type}&limit=${amount}`;
+      console.log("🔍 Fetching iTunes data from:", url);
+  
+      const response = await axios.get(url, {
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      console.log("✅ API Response:", response.data);
+  
+      if (!response.data.products || response.data.products.length === 0) {
+        console.warn("⚠️ No results found.");
+        setCatalog([]);
+        return;
+      }
+  
+      const filteredResults: CatalogItem[] = response.data.products.filter(
+        (item: CatalogItem) => item.trackPrice <= maxPrice
+      );
+  
+      setCatalog(filteredResults);
     } catch (error) {
-        console.error("❌ Error fetching catalog data:", error);
+      console.error("❌ Error fetching catalog data:", error);
     }
-};
+  };
 
-
-
+  // Automatically load the organization's details when authenticated
   useEffect(() => {
     if (auth.isAuthenticated) {
       const userEmail = auth.user?.profile.email;
@@ -102,27 +99,26 @@ export const SponsorCatalogs: React.FC = () => {
     }
   }, [auth]);
 
-  // Fetch Catalog Items
+  // Fetch Catalog Items manually via search
   const handleSearch = async () => {
     try {
       setCatalog([]);
-
+  
       const url = `https://itunes.apple.com/search?term=${searchTerm}&media=${type}&limit=${amount}`;
       setApiUrl(url);
-
+  
       const response = await axios.get(url);
-
-      // ✅ Filter by max price
+  
+      // Filter by max price
       const filteredResults: CatalogItem[] = response.data.results.filter(
         (item: CatalogItem) => item.trackPrice <= maxPrice
       );
-
+  
       setCatalog(filteredResults);
     } catch (error) {
       console.error("Error fetching catalog:", error);
     }
   };
-
 
   // Save Organization Data (Including SearchTerm)
   const handleSaveOrganization = async () => {
@@ -132,7 +128,7 @@ export const SponsorCatalogs: React.FC = () => {
           "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organization",
           {
             OrganizationID: organizationID,
-            SearchTerm: searchTerm, // ✅ Now saving searchTerm instead of genre
+            SearchTerm: searchTerm, // Now saving searchTerm instead of genre
             PointDollarRatio: priceToPointRatio,
             AmountOfProducts: amount,
             ProductType: type,
@@ -201,7 +197,7 @@ export const SponsorCatalogs: React.FC = () => {
               />
             </div>
             <div className="form-group">
-              <label>Search Term:</label> {/* ✅ Changed label from Genre to Search Term */}
+              <label>Search Term:</label>
               <input
                 type="text"
                 className="form-control"
@@ -245,13 +241,23 @@ export const SponsorCatalogs: React.FC = () => {
             {catalog.map((item: CatalogItem) => (
               <div key={item.trackId} className="catalog-item">
                 <img src={item.artworkUrl100} alt={item.trackName} />
-                <p>{item.trackName} - ${item.trackPrice} ({(item.trackPrice * priceToPointRatio).toFixed(2)} points)</p>
+                <p>
+                  {item.trackName} - ${item.trackPrice} (
+                  {(item.trackPrice * priceToPointRatio).toFixed(2)} points)
+                </p>
                 <div className="catalog-description">
                   <p><strong>Artist:</strong> {item.artistName}</p>
                   <p><strong>Collection:</strong> {item.collectionName}</p>
-                  <p><strong>Release Date:</strong> {new Date(item.releaseDate).toLocaleDateString()}</p>
+                  <p>
+                    <strong>Release Date:</strong>{" "}
+                    {new Date(item.releaseDate).toLocaleDateString()}
+                  </p>
                   <p><strong>Genre:</strong> {item.primaryGenreName}</p>
-                  <p>{item.longDescription || item.shortDescription || "No description available."}</p>
+                  <p>
+                    {item.longDescription ||
+                      item.shortDescription ||
+                      "No description available."}
+                  </p>
                 </div>
               </div>
             ))}
