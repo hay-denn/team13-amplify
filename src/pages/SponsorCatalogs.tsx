@@ -32,43 +32,66 @@ export const SponsorCatalogs: React.FC = () => {
   // Fetch Organization ID and Details
   const fetchOrganizationDetails = async (email: string) => {
     try {
-      const encodedEmail = encodeURIComponent(email);
-      const response = await axios.get(
-        `https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsor`,
-        { params: { UserEmail: encodedEmail } }
-      );
-      setOrganizationID(response.data.UserOrganization);
-      setSearchTerm(response.data.SearchTerm || ""); // ✅ Ensure we fetch searchTerm from the DB
-      setPriceToPointRatio(response.data.PointDollarRatio || 1);
-      setAmount(response.data.AmountOfProducts || 10);
-      setType(response.data.ProductType || "music");
-      setMaxPrice(response.data.MaxPrice || 100);
-      fetchCatalogData(response.data.SearchTerm || "", response.data.ProductType || "music", response.data.AmountOfProducts || 10, response.data.MaxPrice || 100); // ✅ Fetch catalog data
+        console.log("🔍 Fetching organization details for:", email);
+        const encodedEmail = encodeURIComponent(email);
+        const response = await axios.get(
+            `https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsor`,
+            { params: { UserEmail: encodedEmail } }
+        );
+
+        console.log("✅ Organization Details:", response.data);
+
+        let term = response.data.SearchTerm?.trim() || "default";  // ✅ Prevent empty term
+        setOrganizationID(response.data.UserOrganization);
+        setSearchTerm(term);
+        setPriceToPointRatio(response.data.PointDollarRatio || 1);
+        setAmount(response.data.AmountOfProducts || 10);
+        setType(response.data.ProductType || "music");
+        setMaxPrice(response.data.MaxPrice || 100);
+
+        fetchCatalogData(term, response.data.ProductType || "music", response.data.AmountOfProducts || 10, response.data.MaxPrice || 100);
     } catch (error) {
-      console.error("Error fetching organization details:", error);
+        console.error("❌ Error fetching organization details:", error);
     }
-  };
+};
+
+
 
   // Fetch Catalog Data
   const fetchCatalogData = async (searchTerm: string, type: string, amount: number, maxPrice: number) => {
+    if (!searchTerm.trim()) {  // ✅ Ensure searchTerm is not empty
+        console.error("❌ Error: Search term cannot be empty.");
+        return;
+    }
+
     try {
-        // ✅ Replace direct iTunes call with your AWS Lambda API Gateway endpoint
         const url = `https://b7tt4s7jl3.execute-api.us-east-1.amazonaws.com/dev1/itunes?term=${encodeURIComponent(searchTerm)}&media=${type}&limit=${amount}`;
+        
+        console.log("🔍 Fetching iTunes data from:", url);  // ✅ Debugging log
 
         const response = await axios.get(url, {
-            headers: { "Content-Type": "application/json" }, // ✅ Ensure correct headers
+            headers: { "Content-Type": "application/json" },
         });
 
-        // ✅ Filter by max price
+        console.log("✅ API Response:", response.data); // ✅ Log response
+
+        if (!response.data.products || response.data.products.length === 0) {
+            console.warn("⚠️ No results found.");
+            setCatalog([]);
+            return;
+        }
+
         const filteredResults: CatalogItem[] = response.data.products.filter(
             (item: CatalogItem) => item.trackPrice <= maxPrice
         );
 
         setCatalog(filteredResults);
     } catch (error) {
-        console.error("Error fetching catalog data:", error);
+        console.error("❌ Error fetching catalog data:", error);
     }
 };
+
+
 
   useEffect(() => {
     if (auth.isAuthenticated) {
@@ -99,6 +122,7 @@ export const SponsorCatalogs: React.FC = () => {
       console.error("Error fetching catalog:", error);
     }
   };
+
 
   // Save Organization Data (Including SearchTerm)
   const handleSaveOrganization = async () => {
