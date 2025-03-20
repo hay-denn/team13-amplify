@@ -63,9 +63,18 @@ export const DriverManagement = () => {
   const [applicationList, setApplicaitonList] = useState([]);
 
   useEffect(() => {
-    getApplications();
     getCurrentSponsorOrganization();
-    getDrivers();
+  }, []);
+
+  //Makes sure the drivers are called after the current logged in sponsor's id is set.
+  useEffect(() => {
+    if (currentSponsorId) {
+      getDrivers();
+    }
+  }, [currentSponsorId]);
+
+  useEffect(() => {
+    getApplications();
   }, []);
 
   return (
