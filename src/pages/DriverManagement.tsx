@@ -19,9 +19,14 @@ export const DriverManagement = () => {
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
   const [driverList, setDriverList] = useState([]);
+
+  const [currentSponsorId, setCurrentSponsorId] = useState("");
+
   const getDrivers = async () => {
     try {
-      const response = await axios.get(`${url_drivers}/drivers`);
+      const response = await axios.get(
+        `${url_drivers}/drivers?OrganizationID=${currentSponsorId}'`
+      );
       setDriverList(response.data);
     } catch (error) {
       console.error("Error fetching driver info:", error);
@@ -37,6 +42,7 @@ export const DriverManagement = () => {
       );
       console.log(response);
       console.log(response.data.UserOrganization);
+      setCurrentSponsorId(response.data.UserOrganization);
     } catch (error) {
       console.error("Error fetching driver info:", error);
     }
