@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useEffect } from "react";
+import { useAuth } from "react-oidc-context";
 
 const url_updateApplication =
   "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
@@ -19,6 +20,10 @@ interface Props {
 }
 
 export const ApplicationTable = ({ applicationTable }: Props) => {
+  const auth = useAuth();
+
+  const [driver_email] = useState(auth.user?.profile.email || "");
+
   //Variable that stores a copy of the current table
   const [applist, setApps] = useState<Application[]>(applicationTable);
 
@@ -51,6 +56,7 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            ApplicationSponsorUser: driver_email,
             ApplicationID: selectedApp.ApplicationID,
             ApplicationStatus: newStatus,
           }),
