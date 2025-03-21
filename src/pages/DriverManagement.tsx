@@ -91,10 +91,6 @@ export const DriverManagement = () => {
             <ApplicationTable
               applicationTable={applicationList}
             ></ApplicationTable>
-
-            <a href="#" className="btn btn-primary">
-              Add user
-            </a>
           </div>
         </div>
 

@@ -73,7 +73,11 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
     setApps((prevApps) =>
       prevApps.map((app) =>
         app.ApplicationID === selectedApp.ApplicationID
-          ? { ...app, ApplicationStatus: newStatus }
+          ? {
+              ...app,
+              ApplicationStatus: newStatus,
+              ApplicationSponsorUser: driver_email,
+            }
           : app
       )
     );
