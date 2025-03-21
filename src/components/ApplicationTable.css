@@ -1,28 +1,25 @@
-/* ApplicationTable.css */
 
-/* Make a nice container around the table */
 .table-container {
     max-width: 1100px;
-    margin: 2rem auto; /* centers the container on the page */
+    margin: 2rem auto;
     padding: 1rem;
-    background-color: #f8f9fa; /* light gray background */
+    background-color: #f8f9fa; 
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
-  
-  /* Table heading styling */
+
   .table thead th {
-    background-color: #e2e6ea; /* a little darker than default bootstrap gray */
+    background-color: #e2e6ea; 
     text-transform: uppercase;
     font-weight: 600;
   }
   
-  /* Slight hover effect for rows */
+
   .table tbody tr:hover {
     background-color: #f1f1f1;
   }
   
-  /* Make the Actions button stand out a bit more */
+
   .btn-primary {
     background-color: #007bff;
     border-color: #007bff;
@@ -33,7 +30,6 @@
     border-color: #005dc0;
   }
   
-  /* Optional: Style the modal title for better contrast */
   .modal-title {
     font-weight: 600;
     color: #333;
