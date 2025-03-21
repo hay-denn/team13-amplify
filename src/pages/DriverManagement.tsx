@@ -42,7 +42,7 @@ export const DriverManagement = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            DriversEmail: driver_email,
+            DriversEmail: newDriverEmail,
             DriversSponsorID: currentSponsorId,
           }),
         }
