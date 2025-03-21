@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
+import "./ApplicationTable.css";
 
 const url_updateApplication =
   "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
@@ -151,6 +152,7 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
                 value={newStatus}
                 onChange={handleStatusChange}
               >
+                <option value="Submitted">Change Status</option>
                 <option value="Approved">Approved</option>
                 <option value="Rejected">Rejected</option>
               </select>
