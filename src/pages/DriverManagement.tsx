@@ -155,7 +155,11 @@ export const DriverManagement = () => {
 
             <p className="card-text">Users Associated With Your Organization</p>
 
-            <ListOfUsersTable driverTable={driverList}></ListOfUsersTable>
+            <ListOfUsersTable
+              driverTable={driverList}
+              isSponsor={true}
+            ></ListOfUsersTable>
+
             <Button variant="primary" onClick={handleShowAddUserModal}>
               Add A New Sponsor
             </Button>

@@ -26,12 +26,14 @@ interface Props {
   driverTable: Driver[];
   sponsorTable?: Sponsor[];
   adminTable?: Admin[];
+  isSponsor?: boolean;
 }
 
 export const ListOfUsersTable = ({
   driverTable,
   sponsorTable = [],
   adminTable = [],
+  isSponsor = false,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalData, setModalData] = useState<{
@@ -44,7 +46,6 @@ export const ListOfUsersTable = ({
 
   const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
   const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
- 
 
   const handleEditUser = (
     pfirstName: string,
@@ -77,8 +78,8 @@ export const ListOfUsersTable = ({
             <th scope="col">First</th>
             <th scope="col">Last</th>
             <th scope="col">Email</th>
-            <th scope="col">Organization</th>
-            <th scope="col">Actions</th>
+            {!isSponsor && <th scope="col">Organization</th>}
+            {!isSponsor && <th scope="col">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -91,13 +92,9 @@ export const ListOfUsersTable = ({
               <td>{driver.DriverEmail}</td>
               <td>
                 <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      handleViewOrg(
-                        driver.DriverEmail
-                      )
-                    }
-                  >
+                  className="btn btn-primary"
+                  onClick={() => handleViewOrg(driver.DriverEmail)}
+                >
                   View
                 </button>
               </td>
