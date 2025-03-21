@@ -90,29 +90,33 @@ export const ListOfUsersTable = ({
               <td>{driver.DriverFName}</td>
               <td>{driver.DriverLName}</td>
               <td>{driver.DriverEmail}</td>
-              <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleViewOrg(driver.DriverEmail)}
-                >
-                  View
-                </button>
-              </td>
-              <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() =>
-                    handleEditUser(
-                      driver.DriverFName,
-                      driver.DriverLName,
-                      driver.DriverEmail,
-                      "Driver"
-                    )
-                  }
-                >
-                  Edit
-                </button>
-              </td>
+              {!isSponsor && (
+                <td>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleViewOrg(driver.DriverEmail)}
+                  >
+                    View
+                  </button>
+                </td>
+              )}
+              {!isSponsor && (
+                <td>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleEditUser(
+                        driver.DriverFName,
+                        driver.DriverLName,
+                        driver.DriverEmail,
+                        "Driver"
+                      )
+                    }
+                  >
+                    Edit
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
 
