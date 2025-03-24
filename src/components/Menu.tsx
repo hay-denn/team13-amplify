@@ -14,7 +14,7 @@ export const MenuInfoSponsoredDriver = [
   },
   {
     title: "Catalog",
-    url: "#",
+    url: "/drivercatalogs",
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
@@ -30,7 +30,7 @@ export const MenuInfoSponsoredDriver = [
 
   */
   {
-    title: "My Sponsor",
+    title: "My Sponsors",
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-sitemap",
@@ -43,32 +43,32 @@ export const MenuInfoSponsoredDriver = [
   },
 ];
 
-export const MenuInfoNewUser = [
-  {
-    title: "Home",
-    url: "/",
-    cName: "nav-links",
-    icon: "fa-solid fa-house-user",
-  },
-  {
-    title: "About",
-    url: "/about",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
-  },
-  {
-    title: "My Applications",
-    url: "#",
-    cName: "nav-links",
-    icon: "fa-solid fa-store",
-  },
-  {
-    title: "My Account",
-    url: "/account",
-    cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
-  },
-];
+// export const MenuInfoNewUser = [
+//   {
+//     title: "Home",
+//     url: "/",
+//     cName: "nav-links",
+//     icon: "fa-solid fa-house-user",
+//   },
+//   {
+//     title: "About",
+//     url: "/about",
+//     cName: "nav-links",
+//     icon: "fa-solid fa-circle-user",
+//   },
+//   {
+//     title: "My Applications",
+//     url: "#",
+//     cName: "nav-links",
+//     icon: "fa-solid fa-store",
+//   },
+//   {
+//     title: "My Account",
+//     url: "/account",
+//     cName: "nav-links profile-link",
+//     profileImg: "/Images/DefaultProfile.png",
+//   },
+// ];
 
 export const MenuAdmin = [
   {

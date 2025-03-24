@@ -2,7 +2,6 @@ import { LoginButton } from "./LoginButton";
 import {
   MenuInfoSponsoredDriver,
   MenuInfoSponsor,
-  MenuInfoNewUser,
   MenuAdmin,
   MenuInfoGuest,
 } from "./Menu";
@@ -11,31 +10,26 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 interface Props {
-  companyName?: string;
   userType: string;
   userFName?: string;
 }
 
-function getNavbarClass(userType: string, companyName: any) {
+function getNavbarClass(userType: string) {
   if (userType === "Admin") {
     return MenuAdmin;
   } else if (userType === "Sponsor") {
     return MenuInfoSponsor;
   } else if (userType === "Driver") {
-    if (companyName) {
-      return MenuInfoSponsoredDriver;
-    } else {
-      return MenuInfoNewUser;
-    }
+    return MenuInfoSponsoredDriver;
   } else {
     return MenuInfoGuest;
   }
 }
 
-export const Navbar = ({ companyName, userType }: Props) => {
+export const Navbar = ({ userType }: Props) => {
   const [clicked, setClicked] = useState(false);
 
-  const [menuItems] = useState(getNavbarClass(userType, companyName));
+  const [menuItems] = useState(getNavbarClass(userType));
 
   const handleClick = () => {
     setClicked(!clicked);
@@ -44,16 +38,7 @@ export const Navbar = ({ companyName, userType }: Props) => {
     <>
       <nav className="NavbarItems">
         <h1 className="logo">
-          {companyName ? (
-            <>
-              {companyName}
-              <i className="fa-brands fa-amazon"></i>
-            </>
-          ) : userType === "Admin" ? (
-            "Admin Panel"
-          ) : (
-            "Become Sponsored Today!"
-          )}
+          {userType === "Admin" ? "Admin Panel" : "Become Sponsored Today!"}
         </h1>
         <div className="menu-icons" onClick={handleClick}>
           <i className={clicked ? "fas fa-times" : "fas fa-bars"}></i>
