@@ -189,6 +189,19 @@ export const DriverDashBoard = () => {
     }
   };
 
+  const [selectedOrganizationID, setSelectedOrganizationID] = useState<number | null>(
+    currentOrganizations.length > 0 ? currentOrganizations[0].DriversSponsorID : null
+  );
+  
+  const handleOrganizationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOrganizationID(Number(event.target.value));
+  };
+  
+  const selectedOrganization = currentOrganizations.find(
+    (org) => org.DriversSponsorID === selectedOrganizationID
+  );
+  
+
   return (
     <>
       <h1 className="welcome">Good Afternoon, {userFName}!</h1>
@@ -201,10 +214,15 @@ export const DriverDashBoard = () => {
           <div className="box box2">
             {currentOrganizations.length > 0 && (
               <>
-                <b>Current Point Balance: {currentOrganizations[0].DriversPoints}</b>
+                <b>Current Point Balance: {selectedOrganization?.DriversPoints || "N/A"}</b>
                 <br />
                 <label htmlFor="organizationDropdown">Select Organization: </label>
-                <select id="organizationDropdown" className="form-control">
+                <select
+                  id="organizationDropdown"
+                  className="form-control"
+                  value={selectedOrganizationID || ""}
+                  onChange={handleOrganizationChange}
+                >
                   {currentOrganizations.map((org) => {
                     const organization = organizations.find(
                       (o) => o.OrganizationID === org.DriversSponsorID
