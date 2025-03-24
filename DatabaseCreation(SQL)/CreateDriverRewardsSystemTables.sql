@@ -158,7 +158,7 @@ END$
 create procedure AllSponsorInvoice(StartDate Date, EndDate Date)
 BEGIN
 	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
-	from DRS.purchases join DRS.productspurchased join product;
+	from DRS.purchases join DRS.productspurchased join DRS.product;
 END$
 
 delimiter ;
