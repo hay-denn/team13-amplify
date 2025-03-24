@@ -223,6 +223,7 @@ export const DriverDashBoard = () => {
                   value={selectedOrganizationID || ""}
                   onChange={handleOrganizationChange}
                 >
+                  <option value="" disabled>Select an Organization</option>
                   {currentOrganizations.map((org) => {
                     const organization = organizations.find(
                       (o) => o.OrganizationID === org.DriversSponsorID
