@@ -14,6 +14,8 @@ import APIRoutes from "./pages/APIRoutes.tsx";
 import { Manageusers } from "./pages/Manageusers.tsx";
 import { DriverManagement } from "./pages/DriverManagement.tsx";
 import SponsorCatalogs from "./pages/SponsorCatalogs.tsx";
+import { CartPage, CartProvider } from "./pages/CartContext";
+
 
 function App() {
   const auth = useAuth();
@@ -25,13 +27,17 @@ function App() {
   if (auth.error) return <div>Encountering error... {auth.error.message}</div>;
 
   return (
+    <CartProvider>
     <Router>
       <Layout userType={userGroup}>
         <Routes>
           {auth.isAuthenticated ? (
             <>
               {userGroup === "Driver" && (
+                <>
                 <Route path="/" element={<DriverDashBoard />} />
+                <Route path="/cart" element={<CartPage />} />
+                </>
               )}
               {userGroup === "Sponsor" && (
                 <>
@@ -60,6 +66,7 @@ function App() {
         <APIRoutes />
       </Layout>
     </Router>
+    </CartProvider>
   );
 }
 
