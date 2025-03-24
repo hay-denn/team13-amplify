@@ -17,7 +17,8 @@ export const DriverDashBoard = () => {
   const [showModal, setShowModal] = useState(false);
 
   //The list of sponsors the driver is a part of
-  const [currentOrganizations, setCurrentOrganizations] = useState([]);
+  const [currentOrganizations, setCurrentOrganizations] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);
+  
 
   interface Application {
     ApplicationID: number;
@@ -198,7 +199,25 @@ export const DriverDashBoard = () => {
             <TopBox />
           </div>
           <div className="box box2">
-            <b>Current Point Balance</b>
+            {currentOrganizations.length > 0 && (
+              <>
+                <b>Current Point Balance: {currentOrganizations[0].DriversPoints}</b>
+                <br />
+                <label htmlFor="organizationDropdown">Select Organization: </label>
+                <select id="organizationDropdown" className="form-control">
+                  {currentOrganizations.map((org) => {
+                    const organization = organizations.find(
+                      (o) => o.OrganizationID === org.DriversSponsorID
+                    );
+                    return (
+                      <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
+                        {organization ? organization.OrganizationName : "Unknown Organization"}
+                      </option>
+                    );
+                  })}
+                </select>
+              </>
+            )}
           </div>
           <div className="box box3">Placeholder Item</div>
           <div className="box box4">Placeholder Item</div>
