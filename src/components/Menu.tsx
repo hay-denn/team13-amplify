@@ -39,36 +39,36 @@ export const MenuInfoSponsoredDriver = [
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 
-// export const MenuInfoNewUser = [
-//   {
-//     title: "Home",
-//     url: "/",
-//     cName: "nav-links",
-//     icon: "fa-solid fa-house-user",
-//   },
-//   {
-//     title: "About",
-//     url: "/about",
-//     cName: "nav-links",
-//     icon: "fa-solid fa-circle-user",
-//   },
-//   {
-//     title: "My Applications",
-//     url: "#",
-//     cName: "nav-links",
-//     icon: "fa-solid fa-store",
-//   },
-//   {
-//     title: "My Account",
-//     url: "/account",
-//     cName: "nav-links profile-link",
-//     profileImg: "/Images/DefaultProfile.png",
-//   },
-// ];
+export const MenuInfoNewUser = [
+  {
+    title: "Home",
+    url: "/",
+    cName: "nav-links",
+    icon: "fa-solid fa-house-user",
+  },
+  {
+    title: "About",
+    url: "/about",
+    cName: "nav-links",
+    icon: "fa-solid fa-circle-user",
+  },
+  {
+    title: "My Applications",
+    url: "#",
+    cName: "nav-links",
+    icon: "fa-solid fa-file-signature",
+  },
+  {
+    title: "My Account",
+    url: "/account",
+    cName: "nav-links profile-link",
+    icon: "fa-solid fa-user-gear",
+  },
+];
 
 export const MenuAdmin = [
   {
@@ -93,13 +93,13 @@ export const MenuAdmin = [
     title: "Auditing information",
     url: "#",
     cName: "nav-links",
-    icon: "fa-solid fa-store",
+    icon: "fa-solid fa-file-lines",
   },
   {
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 
@@ -132,7 +132,7 @@ export const MenuInfoSponsor = [
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 

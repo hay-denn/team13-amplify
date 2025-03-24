@@ -4,7 +4,7 @@
     align-items: center;
     font-size: 1.2rem;
     padding: 0 30px;
-    background-color: #4682B4;
+    background-color: #3e729a; /* or whatever color you want */
     box-shadow: 0 5px 15px rgba(0,0, 0, 0.25);
     width: 95%;
     height: 80px;
@@ -15,6 +15,66 @@
     transform: translate(-50%);
     z-index: 1000;
 }
+
+
+/* Align the dropdown container to the right */
+.nav-dropdown-wrapper {
+    position: relative;
+}
+
+/* Style the dropdown */
+.nav-dropdown {
+position: relative;
+display: inline-block;
+}
+
+/* Dropdown button */
+.dropdown-toggle {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 1rem;
+padding: 10px;
+}
+
+/* Initially hide the menu */
+.dropdown-menu {
+display: none;
+position: absolute;
+right: 0;
+top: 100%;
+background-color: white;
+min-width: 200px;
+box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+z-index: 1000;
+list-style: none;
+padding: 0;
+margin: 0;
+border-radius: 5px;
+}
+
+/* Show dropdown on hover */
+.nav-dropdown:hover .dropdown-menu {
+display: block;
+}
+
+/* Style each dropdown item */
+.dropdown-menu li {
+padding: 10px;
+}
+
+.dropdown-menu li:hover {
+background-color: #f1f1f1;
+}
+
+/* Make sure links fill the li and look clean */
+.dropdown-menu a {
+text-decoration: none;
+color: black;
+display: block;
+width: 100%;
+}
+
 
 .profile-link img {
     width: 30px;
