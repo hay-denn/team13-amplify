@@ -131,8 +131,8 @@ create table purchases(
     PurchaseDate date NOT NULL,
     PurchaseStatus varchar(20) NOT NULL,
     PurchaseSponsorID int NOT NULL,
-    foreign key (PurchaseDriver) references drivers(DriverEmail) on update cascade on delete cascade),
-    foreign key (PurchaseSponsorID) references sponsororganizations(OrganizationID);
+    foreign key (PurchaseDriver) references drivers(DriverEmail) on update cascade on delete cascade,
+    foreign key (PurchaseSponsorID) references sponsororganizations(OrganizationID) on update cascade on delete cascade);
     
 create table productspurchased(
 	ProductPurchasedID int,
