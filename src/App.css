@@ -34,4 +34,6 @@
 /* Fix body spacing to prevent content from being covered by navbar */
 body {
   padding-top: 70px; /* Adjust based on navbar height */
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  font-family: 'Inter', sans-serif;
 }

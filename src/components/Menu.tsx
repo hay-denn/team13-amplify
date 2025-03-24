@@ -39,7 +39,7 @@ export const MenuInfoSponsoredDriver = [
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 
@@ -60,13 +60,13 @@ export const MenuInfoNewUser = [
     title: "My Applications",
     url: "#",
     cName: "nav-links",
-    icon: "fa-solid fa-store",
+    icon: "fa-solid fa-file-signature",
   },
   {
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 
@@ -93,13 +93,13 @@ export const MenuAdmin = [
     title: "Auditing information",
     url: "#",
     cName: "nav-links",
-    icon: "fa-solid fa-store",
+    icon: "fa-solid fa-file-lines",
   },
   {
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 
@@ -132,7 +132,7 @@ export const MenuInfoSponsor = [
     title: "My Account",
     url: "/account",
     cName: "nav-links profile-link",
-    profileImg: "/Images/DefaultProfile.png",
+    icon: "fa-solid fa-user-gear",
   },
 ];
 
