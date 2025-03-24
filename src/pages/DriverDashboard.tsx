@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect} from "react";
+import { useState, useContext, useEffect } from "react";
 import "./HomeStyles.css";
 import { TopBox } from "../components/TopBox/TopBox";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -6,16 +6,18 @@ import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
 
-interface Props {
-  userFName?: string;
-  companyName?: string;
-}
+// interface Props {
+//   userFName?: string;
+// }
 
-export const DriverDashBoard = ({ companyName }: Props) => {
+export const DriverDashBoard = () => {
   const authContext = useContext(AuthContext);
   const userFName = authContext?.user?.profile?.given_name || "";
   const userEmail = authContext?.user?.profile?.email || "";
   const [showModal, setShowModal] = useState(false);
+
+  //The list of sponsors the driver is a part of
+  const [currentOrganizations, setCurrentOrganizations] = useState([]);
 
   interface Application {
     ApplicationID: number;
@@ -29,13 +31,26 @@ export const DriverDashBoard = ({ companyName }: Props) => {
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [sponsors, setSponsors] = useState<Application[]>([]);
-  const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [organizations, setOrganizations] = useState<
+    { OrganizationID: number; OrganizationName: string }[]
+  >([]);
   const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
-  const [sponsorNames, setSponsorNames] = useState<{ [key: string]: string }>({});
+  const [sponsorNames, setSponsorNames] = useState<{ [key: string]: string }>(
+    {}
+  );
+
+  const driverRelationshipURL =
+    "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
 
   useEffect(() => {
     fetchOrganizations();
   }, []);
+
+  useEffect(() => {
+    if (userEmail) {
+      getDriverRelationships();
+    }
+  }, [userEmail]);
 
   useEffect(() => {
     if (userEmail && organizationsLoaded) {
@@ -48,7 +63,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
       const response = await fetch(
         "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"
       );
-      const data = (await response.json());
+      const data = await response.json();
 
       if (!Array.isArray(data)) {
         console.error("Unexpected response format:", data);
@@ -62,6 +77,25 @@ export const DriverDashBoard = ({ companyName }: Props) => {
     }
   };
 
+  const getDriverRelationships = async () => {
+    try {
+      const response = await fetch(
+        `${driverRelationshipURL}/driverssponsors?DriversEmail=${encodeURIComponent(
+          userEmail
+        )}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      setCurrentOrganizations(data);
+    } catch (error) {
+      console.error("Error getting the driver's relationships:", error);
+    }
+  };
+
   const fetchApplications = async (): Promise<void> => {
     try {
       const response = await fetch(
@@ -70,29 +104,38 @@ export const DriverDashBoard = ({ companyName }: Props) => {
         )}`
       );
       const data = (await response.json()) as Application[];
-  
+
       if (!Array.isArray(data)) {
         console.error("Unexpected response format:", data);
         return;
       }
-  
+
       const applicationsWithOrgNames = data.map((app) => {
-        const org = organizations.find((org) => org.OrganizationID === app.ApplicationOrganization);
+        const org = organizations.find(
+          (org) => org.OrganizationID === app.ApplicationOrganization
+        );
         return {
           ...app,
           OrganizationName: org ? org.OrganizationName : "Unknown Organization",
         };
       });
 
-      const sponsorsList = applicationsWithOrgNames.filter((app) => app.ApplicationStatus.toLowerCase() === "approved");
+      const sponsorsList = applicationsWithOrgNames.filter(
+        (app) => app.ApplicationStatus.toLowerCase() === "approved"
+      );
       sponsorsList.forEach((sponsor) => {
         if (sponsor.ApplicationSponsorUser) {
-          sponsorNames[sponsor.ApplicationSponsorUser] = sponsor.ApplicationSponsorUser;
+          sponsorNames[sponsor.ApplicationSponsorUser] =
+            sponsor.ApplicationSponsorUser;
         }
       });
-  
+
       setApplications(applicationsWithOrgNames);
-      setSponsors(applicationsWithOrgNames.filter((app) => app.ApplicationStatus.toLowerCase() === "approved"));
+      setSponsors(
+        applicationsWithOrgNames.filter(
+          (app) => app.ApplicationStatus.toLowerCase() === "approved"
+        )
+      );
       setSponsorNames(sponsorNames);
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -111,7 +154,9 @@ export const DriverDashBoard = ({ companyName }: Props) => {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to delete application. Status: ${response.status}`);
+        throw new Error(
+          `Failed to delete application. Status: ${response.status}`
+        );
       }
 
       console.log("Application deleted successfully!");
@@ -147,7 +192,7 @@ export const DriverDashBoard = ({ companyName }: Props) => {
     <>
       <h1 className="welcome">Good Afternoon, {userFName}!</h1>
 
-      {companyName ? (
+      {currentOrganizations.length > 0 ? (
         <div className="home">
           <div className="box box1">
             <TopBox />
@@ -168,7 +213,10 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                 Now that you have completed registration as a driver, it is time
                 for you to start applying to a sponsor of your choice.
               </p>
-              <button className="btn btn-primary mb-3" onClick={() => setShowModal(true)}>
+              <button
+                className="btn btn-primary mb-3"
+                onClick={() => setShowModal(true)}
+              >
                 Apply Now!
               </button>
 
@@ -181,21 +229,27 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                     <div key={app.ApplicationID} className="application-card">
                       <span className="application-date">
                         {app.ApplicationDateSubmitted
-                          ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                          ? new Date(
+                              app.ApplicationDateSubmitted
+                            ).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
                             })
                           : "N/A"}
                       </span>
-                      <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
+                      <span
+                        className={`application-status ${app.ApplicationStatus.toLowerCase()}`}
+                      >
                         {app.ApplicationStatus}
                       </span>
                       <p>{app.OrganizationName || "N/A"}</p>
                       {app.ApplicationStatus.toLowerCase() === "submitted" && (
                         <button
                           className="btn btn-danger cancel-button"
-                          onClick={() => handleCancelApplication(app.ApplicationID)}
+                          onClick={() =>
+                            handleCancelApplication(app.ApplicationID)
+                          }
                         >
                           Cancel
                         </button>
@@ -211,10 +265,15 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                   <p>No sponsors found.</p>
                 ) : (
                   sponsors.map((sponsor) => (
-                    <div key={sponsor.ApplicationID} className="application-card">
+                    <div
+                      key={sponsor.ApplicationID}
+                      className="application-card"
+                    >
                       <span className="application-date">
                         {sponsor.ApplicationDateSubmitted
-                          ? new Date(sponsor.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                          ? new Date(
+                              sponsor.ApplicationDateSubmitted
+                            ).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
@@ -223,12 +282,15 @@ export const DriverDashBoard = ({ companyName }: Props) => {
                       </span>
                       <p>
                         {sponsor.ApplicationSponsorUser
-                            ? sponsorNames[sponsor.ApplicationSponsorUser] || sponsor.ApplicationSponsorUser
-                            : "N/A"}
+                          ? sponsorNames[sponsor.ApplicationSponsorUser] ||
+                            sponsor.ApplicationSponsorUser
+                          : "N/A"}
                       </p>
                       <button
                         className="btn btn-danger cancel-button"
-                        onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
+                        onClick={() =>
+                          handleRemoveSponsor(sponsor.ApplicationID)
+                        }
                       >
                         Remove
                       </button>
