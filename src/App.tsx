@@ -18,7 +18,7 @@ import { CartPage, CartProvider } from "./pages/CartContext";
 import { SponsorExplore } from "./pages/SponsorExplore.tsx";
 import { SponsorProfile } from "./pages/SponsorProfile.tsx";
 import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
-import { Reports } from "./pages/Reports.tsx";
+import  Reports  from "./pages/Reports.tsx";
 import { OrganizationSettings } from "./pages/OrganizationSettings.tsx";
 import { DriverCatalogsTest } from "./pages/DriverCatalogsTest.tsx";
 
@@ -89,6 +89,7 @@ function App() {
 
             <Route path="/about" element={<About />} />
             <Route path="/api_dashboard" element={<APIDashboard />} />
+            <Route path="/reports" element={<Reports />} />
           </Routes>
 
           <APIRoutes />
