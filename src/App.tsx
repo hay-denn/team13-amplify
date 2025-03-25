@@ -15,6 +15,8 @@ import { Manageusers } from "./pages/Manageusers.tsx";
 import { DriverManagement } from "./pages/DriverManagement.tsx";
 import SponsorCatalogs from "./pages/SponsorCatalogs.tsx";
 import { CartPage, CartProvider } from "./pages/CartContext";
+import { SponsorExplore } from "./pages/SponsorExplore.tsx";
+import { SponsorProfile } from "./pages/SponsorProfile.tsx";
 
 
 function App() {
@@ -22,9 +24,10 @@ function App() {
   const cognitoGroups: string[] =
     (auth.user?.profile?.["cognito:groups"] as string[]) || [];
   const userGroup = cognitoGroups[0];
-
+  
   if (auth.isLoading) return <div>Loading...</div>;
   if (auth.error) return <div>Encountering error... {auth.error.message}</div>;
+
 
   return (
     <CartProvider>
@@ -37,6 +40,9 @@ function App() {
                 <>
                 <Route path="/" element={<DriverDashBoard />} />
                 <Route path="/cart" element={<CartPage />} />
+                <Route path="/sponsors" element={<SponsorExplore />} />
+                <Route path="/sponsors/:id" element={<SponsorProfile />} />
+
                 </>
               )}
               {userGroup === "Sponsor" && (

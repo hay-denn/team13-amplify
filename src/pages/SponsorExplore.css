@@ -1,0 +1,38 @@
+.sponsor-explore {
+padding: 70px 20px;
+max-width: 1000px;
+margin: 0 auto;
+}
+
+.sponsor-explore h1 {
+text-align: center;
+margin-bottom: 30px;
+}
+
+.sponsor-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+gap: 20px;
+}
+
+.sponsor-card {
+background: white;
+border-radius: 10px;
+padding: 20px;
+text-align: center;
+text-decoration: none;
+color: black;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+transition: transform 0.2s ease;
+}
+
+.sponsor-card:hover {
+transform: translateY(-4px);
+}
+
+.sponsor-card img {
+width: 80px;
+height: 80px;
+object-fit: contain;
+margin-bottom: 10px;
+}

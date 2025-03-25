@@ -18,6 +18,13 @@ export const MenuInfoSponsoredDriver = [
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
+  {
+    title: "Sponsors",
+    url: "/sponsors",
+    cName: "nav-links",
+    icon: "fa-solid fa-building"
+  },
+  
 
   /*
   removing for now since there's too many nav links with the sign in / sign out button on there
@@ -68,6 +75,12 @@ export const MenuInfoNewUser = [
     cName: "nav-links profile-link",
     icon: "fa-solid fa-user-gear",
   },
+  {
+    title: "Explore Sponsors",
+    url: "/sponsors",
+    cName: "nav-links",
+    icon: "fa-solid fa-building"
+  }
 ];
 
 export const MenuAdmin = [

@@ -1,0 +1,40 @@
+.sponsor-profile-container {
+	max-width: 800px;
+	margin: 80px auto 60px; /* top margin to clear navbar */
+	padding: 40px;
+	background-color: white;
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+	text-align: center;
+}
+
+.sponsor-profile-container h1 {
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+	color: #1a1a1a;
+}
+
+.sponsor-profile-description {
+	font-size: 1rem;
+	color: #555;
+	margin-bottom: 2rem;
+}
+
+.sponsor-profile-details {
+	font-size: 1rem;
+	color: #333;
+	text-align: left;
+	line-height: 1.8;
+	display: inline-block;
+	text-align: left;
+}
+
+.sponsor-profile-details p {
+	margin: 0.4rem 0;
+}
+
+.sponsor-profile-details strong {
+	font-weight: 600;
+	color: #111;
+}
