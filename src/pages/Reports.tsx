@@ -34,6 +34,9 @@ const Reports: React.FC = () => {
 
   return (
     <div className="p-6">
+        <br />
+        <br /> 
+        <br />
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
       <div className="flex items-center gap-4 mb-4">
         <FormControl>
