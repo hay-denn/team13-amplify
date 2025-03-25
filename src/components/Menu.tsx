@@ -14,9 +14,16 @@ export const MenuInfoSponsoredDriver = [
   },
   {
     title: "Catalog",
-    url: "/drivercatalogs",
+    url: "/catalog",
     cName: "nav-links",
     icon: "fa-solid fa-store",
+  },
+
+  {
+    title: "Cart",
+    url: "/cart",
+    cName: "nav-links",
+    icon: "fa-solid fa-cart",
   },
 
   /*

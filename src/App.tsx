@@ -16,6 +16,7 @@ import { DriverManagement } from "./pages/DriverManagement.tsx";
 import SponsorCatalogs from "./pages/SponsorCatalogs.tsx";
 import { CartPage, CartProvider } from "./pages/CartContext";
 import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
+
 function App() {
   const auth = useAuth();
   const cognitoGroups: string[] =
@@ -28,7 +29,7 @@ function App() {
   return (
     <CartProvider>
       <Router>
-        <Layout userType={userGroup}>
+        <Layout userType={userGroup} userEmail={auth.user?.profile.email || ""}>
           <Routes>
             {auth.isAuthenticated ? (
               <>
@@ -36,10 +37,7 @@ function App() {
                   <>
                     <Route path="/" element={<DriverDashBoard />} />
                     <Route path="/cart" element={<CartPage />} />
-                    <Route
-                      path="/drivercatalogs"
-                      element={<DriverCatalogs />}
-                    />
+                    <Route path="/catalog" element={<DriverCatalogs />} />
                   </>
                 )}
                 {userGroup === "Sponsor" && (

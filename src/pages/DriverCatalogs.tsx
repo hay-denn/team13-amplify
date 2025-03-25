@@ -1,3 +1,7 @@
 export const DriverCatalogs = () => {
-  return <div>DriverCatalogs</div>;
+  return (
+    <div>
+      <p>WIP</p>
+    </div>
+  );
 };

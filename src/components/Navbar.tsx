@@ -11,49 +11,71 @@ import "./Navbarstyle.css";
 interface Props {
   userType: string;
   userFName?: string;
+  userEmail: string;
 }
 
-const getNavbarMenu = (userType: string, companyName?: string) => {
+const getNavbarMenu = (userType: string, numOrgs: number) => {
   switch (userType) {
     case "Admin":
       return MenuAdmin;
     case "Sponsor":
       return MenuInfoSponsor;
     case "Driver":
-      return companyName ? MenuInfoSponsoredDriver : MenuInfoNewUser;
+      if (numOrgs > 0) {
+        return MenuInfoSponsoredDriver;
+      } else return MenuInfoNewUser;
     default:
       return MenuInfoGuest;
   }
 };
 
-export const Navbar = ({ companyName, userType }: Props) => {
-  const menuItems = getNavbarMenu(userType, companyName);
+export const Navbar = ({ userType }: Props) => {
+  const numOrgs = 1;
+  const menuItems = getNavbarMenu(userType, numOrgs);
 
   return (
-    <nav className="NavbarItems">
-      <h1 className="logo">
-        {companyName ||
-          (userType === "Admin" ? "Admin Panel" : "Become Sponsored Today!")}
-        {companyName && <i className="fa-brands fa-amazon"></i>}
-      </h1>
-
-      <div className="nav-dropdown-wrapper" style={{ marginLeft: "auto" }}>
-        <div className="nav-dropdown">
-          <button className="dropdown-toggle">Menu</button>
-          <ul className="dropdown-menu">
-            {menuItems.map((item, index) => (
-              <li key={index}>
-                <Link to={item.url} className={item.cName}>
-                  <i className={item.icon}></i> {item.title}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <LoginButton />
-            </li>
-          </ul>
+    <>
+      <nav className="Topbar">
+        <div className="topbar-left">
+          <Link to="/about" className="topbar-link">
+            About Us
+          </Link>
         </div>
-      </div>
-    </nav>
+        <div className="topbar-center">
+          <span className="topbar-tagline">
+            Unlock exclusive perks from top-rated sponsors
+          </span>
+        </div>
+        <div className="topbar-right">
+          <button className="topbar-button">🇺🇸 EN</button>
+          <LoginButton />
+        </div>
+      </nav>
+
+      <nav className="NavbarItems">
+        <div className="nav-left" />
+
+        <Link to="/" className="site-name">
+          MoneyMiles
+        </Link>
+
+        <div className="nav-right">
+          <div className="nav-dropdown">
+            <button className="dropdown-toggle">
+              <i className="fa-solid fa-bars fa-lg"></i>
+            </button>
+            <ul className="dropdown-menu">
+              {menuItems.map((item, index) => (
+                <li key={index}>
+                  <Link to={item.url} className={item.cName}>
+                    <i className={item.icon}></i> {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 };

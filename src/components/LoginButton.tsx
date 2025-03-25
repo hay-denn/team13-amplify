@@ -27,7 +27,7 @@ export const LoginButton = () => {
 		}}
 		className="nav-links"
 	>
-		<i className="fa-solid fa-sign-out-alt"></i> Sign out
+		Sign Out
 	</Link>
 	) : (
 	<Link
@@ -38,7 +38,7 @@ export const LoginButton = () => {
 		}}
 		className="nav-links"
 	>
-		<i className="fa-solid fa-sign-in-alt"></i> Sign in
+		Sign In
 	</Link>
 	);
 };
