@@ -14,7 +14,7 @@ export const MenuInfoSponsoredDriver = [
   },
   {
     title: "Catalog",
-    url: "#",
+    url: "/catalog",
     cName: "nav-links",
     icon: "fa-solid fa-store",
   },
@@ -25,6 +25,13 @@ export const MenuInfoSponsoredDriver = [
     icon: "fa-solid fa-building"
   },
   
+
+  {
+    title: "Cart",
+    url: "/cart",
+    cName: "nav-links",
+    icon: "fa-solid fa-cart-shopping",
+  },
 
   /*
   removing for now since there's too many nav links with the sign in / sign out button on there
@@ -103,10 +110,10 @@ export const MenuAdmin = [
     icon: "fa-solid fa-store",
   },
   {
-    title: "Auditing information",
-    url: "#",
+    title: "Reports",
+    url: "/reports",
     cName: "nav-links",
-    icon: "fa-solid fa-file-lines",
+    icon: "fa-solid fa-chart-simple",
   },
   {
     title: "My Account",
@@ -140,6 +147,12 @@ export const MenuInfoSponsor = [
     url: "/DriverManagement",
     cName: "nav-links",
     icon: "fa-solid fa-car",
+  },
+  {
+    title: "Reports",
+    url: "/reports",
+    cName: "nav-links",
+    icon: "fa-solid fa-chart-simple",
   },
   {
     title: "My Account",

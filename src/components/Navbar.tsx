@@ -13,23 +13,28 @@ interface Props {
   companyName?: string;
   userType: string;
   userFName?: string;
+  userEmail: string;
 }
 
-const getNavbarMenu = (userType: string, companyName?: string) => {
+const getNavbarMenu = (userType: string, numOrgs: number) => {
   switch (userType) {
     case "Admin":
       return MenuAdmin;
     case "Sponsor":
       return MenuInfoSponsor;
     case "Driver":
-      return companyName ? MenuInfoSponsoredDriver : MenuInfoNewUser;
+      if (numOrgs > 0) {
+        return MenuInfoSponsoredDriver
+      } else return MenuInfoNewUser;
     default:
       return MenuInfoGuest;
   }
 };
 
-export const Navbar = ({ companyName, userType }: Props) => {
-  const menuItems = getNavbarMenu(userType, companyName);
+export const Navbar = ({ userType }: Props) => {
+
+  const numOrgs = 1;
+  const menuItems = getNavbarMenu(userType, numOrgs);
 
   return (
     <>

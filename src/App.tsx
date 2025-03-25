@@ -17,6 +17,8 @@ import SponsorCatalogs from "./pages/SponsorCatalogs.tsx";
 import { CartPage, CartProvider } from "./pages/CartContext";
 import { SponsorExplore } from "./pages/SponsorExplore.tsx";
 import { SponsorProfile } from "./pages/SponsorProfile.tsx";
+import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
+import { Reports } from "./pages/Reports.tsx";
 
 
 function App() {
@@ -32,7 +34,7 @@ function App() {
   return (
     <CartProvider>
     <Router>
-      <Layout userType={userGroup}>
+      <Layout userType={userGroup} userEmail={auth.user?.profile.email || ""}>
         <Routes>
           {auth.isAuthenticated ? (
             <>
@@ -42,7 +44,7 @@ function App() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/sponsors" element={<SponsorExplore />} />
                 <Route path="/sponsors/:id" element={<SponsorProfile />} />
-
+                <Route path="/catalog" element={<DriverCatalogs />} />
                 </>
               )}
               {userGroup === "Sponsor" && (
@@ -52,6 +54,7 @@ function App() {
                     path="/DriverManagement"
                     element={<DriverManagement />}
                   />
+                  <Route path="/reports" element={<Reports />} />
                   <Route path="/catalogs" element={<SponsorCatalogs />} />
                 </>
               )}
@@ -59,6 +62,7 @@ function App() {
                 <>
                   <Route path="/" element={<AdminDashboard />} />
                   <Route path="/manageusers" element={<Manageusers />} />
+                  <Route path="/reports" element={<Reports />} />
                 </>
               )}
               <Route path="/account" element={<AccountSettings />} />
