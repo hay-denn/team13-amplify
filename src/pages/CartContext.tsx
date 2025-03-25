@@ -140,15 +140,28 @@ export const CartPage: React.FC = () => {
           <p>Your cart is empty.</p>
         ) : (
           <ul>
-            {filteredCart.map((item, index) => (
-              <li key={index} className="flex justify-between items-center border-b p-2">
+          {filteredCart.map((item) => {
+            const itemIndex = cart.findIndex(
+              (cartItem) =>
+                cartItem.name === item.name &&
+                cartItem.org === item.org &&
+                cartItem.quantity === item.quantity &&
+                cartItem.cost === item.cost
+            );
+
+            return (
+              <li key={itemIndex} className="flex justify-between items-center border-b p-2">
                 <span>{item.name} (x{item.quantity}) - {item.cost * item.quantity} Points</span>
-                <button className="text-black px-2 py-1 rounded" onClick={() => removeFromCart(index)}>
+                <button
+                  className="text-black px-2 py-1 rounded"
+                  onClick={() => removeFromCart(itemIndex)}
+                >
                   Remove
                 </button>
               </li>
-            ))}
-          </ul>
+            );
+          })}
+        </ul>
         )}
         <h2 className="text-xl font-bold mt-4">Total: {totalCost.toFixed(2)} Points</h2>
       </div>
