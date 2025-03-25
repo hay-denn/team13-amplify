@@ -151,7 +151,7 @@ BEGIN
 	where PointChangeDate between StartDate and EndDate order by PointChangeDate Desc;
 END$
 
-create procedure SpecificDriverPointChanges(StartDate Date, EndDate Date, Driver int)
+create procedure SpecificDriverPointChanges(StartDate Date, EndDate Date, Driver varchar(50))
 BEGIN
 	select PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction, PointChangeDate from DRS.pointchanges
 	where PointChangeDriver = Driver and PointChangeDate between StartDate and EndDate order by PointChangeDate Desc;
@@ -168,6 +168,35 @@ BEGIN
 	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
 	from DRS.purchases join DRS.productspurchased join DRS.product
     where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+END$
+
+create procedure AllDriverApplications(StartDate Date, EndDate Date)
+BEGIN
+	select ApplicationDriver, ApplicationOrganization, ApplicationStatus, ApplicationDateSubmitted
+	from DRS.driversponsorapplications order by ApplicationDateSubmitted desc;
+END$
+
+create procedure SpecificSponsorPurchasees(StartDate Date, EndDate Date, SponsorID int)
+BEGIN
+	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
+	from DRS.purchases join DRS.productspurchased join DRS.product
+    where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+END$
+
+create procedure SpecificDriverAllSponsorPurchasees(StartDate Date, EndDate Date, DriversEmail varchar(50))
+BEGIN
+	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
+	from DRS.purchases join DRS.productspurchased join DRS.product
+    where PurchaseDriver = DriversEmail and PurchaseDate between StartDate and EndDate
+    order by PurchaseDate Desc;
+END$
+
+create procedure SpecificDriverSpecificSponsorPurchasees(StartDate Date, EndDate Date, DriversEmail varchar(50), SponsorID int)
+BEGIN
+	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
+	from DRS.purchases join DRS.productspurchased join DRS.product
+    where PurchaseDriver = DriversEmail and PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
+    order by PurchaseDate Desc;
 END$
 
 delimiter ;
