@@ -170,10 +170,10 @@ BEGIN
     where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
 END$
 
-create procedure AllDriverApplications(StartDate Date, EndDate Date)
+create procedure AllDriverApplications(StartDate Date, EndDate Date, SponsorID int)
 BEGIN
 	select ApplicationDriver, ApplicationOrganization, ApplicationStatus, ApplicationDateSubmitted
-	from DRS.driversponsorapplications order by ApplicationDateSubmitted desc;
+	from DRS.driversponsorapplications where ApplicationOrganization = SponsorID order by ApplicationDateSubmitted desc;
 END$
 
 create procedure SpecificSponsorPurchasees(StartDate Date, EndDate Date, SponsorID int)
