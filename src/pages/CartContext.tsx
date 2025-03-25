@@ -115,35 +115,40 @@ export const CartPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <br /><br /><br />
-      <h1 className="text-2xl font-bold">Shopping Cart</h1>
-      <label htmlFor="organizationDropdown">Select Organization: </label>
-      <select id="organizationDropdown" className="form-control" value={selectedOrganizationID || ""} onChange={handleOrganizationChange}>
-        <option value="" disabled>Select an Organization</option>
-        {currentOrganizations.map((org) => {
-          const organization = organizations.find((o) => o.OrganizationID === org.DriversSponsorID);
-          return (
-            <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-              {organization ? organization.OrganizationName : "Unknown Organization"}
-            </option>
-          );
-        })}
-      </select>
-      {filteredCart.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <ul>
-          {filteredCart.map((item, index) => (
-            <li key={index} className="flex justify-between items-center border-b p-2">
-              <span>{item.name} (x{item.quantity}) - ${item.cost * item.quantity}</span>
-              <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => removeFromCart(index)}>
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <h2 className="text-xl font-bold mt-4">Total: ${totalCost.toFixed(2)}</h2>
+      <div className="bg-white shadow-lg rounded-lg p-4 mb-4">
+        <h1 className="text-2xl font-bold mb-2">Shopping Cart</h1>
+        <div className="flex items-center">
+          <label htmlFor="organizationDropdown" className="mr-2">Select Organization:</label>
+          <select id="organizationDropdown" className="form-control w-auto" value={selectedOrganizationID || ""} onChange={handleOrganizationChange}>
+            <option value="" disabled>Select an Organization</option>
+            {currentOrganizations.map((org) => {
+              const organization = organizations.find((o) => o.OrganizationID === org.DriversSponsorID);
+              return (
+                <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
+                  {organization ? organization.OrganizationName : "Unknown Organization"}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      </div>
+      <div className="bg-white shadow-lg rounded-lg p-4">
+        {filteredCart.length === 0 ? (
+          <p>Your cart is empty.</p>
+        ) : (
+          <ul>
+            {filteredCart.map((item, index) => (
+              <li key={index} className="flex justify-between items-center border-b p-2">
+                <span>{item.name} (x{item.quantity}) - ${item.cost * item.quantity}</span>
+                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => removeFromCart(index)}>
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <h2 className="text-xl font-bold mt-4">Total: ${totalCost.toFixed(2)}</h2>
+      </div>
     </div>
   );
 };

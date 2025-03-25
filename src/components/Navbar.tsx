@@ -13,23 +13,46 @@ interface Props {
   companyName?: string;
   userType: string;
   userFName?: string;
+  userEmail: string;
 }
 
-const getNavbarMenu = (userType: string, companyName?: string) => {
+const getNavbarMenu = (userType: string, numOrgs: number) => {
   switch (userType) {
     case "Admin":
       return MenuAdmin;
     case "Sponsor":
       return MenuInfoSponsor;
     case "Driver":
-      return companyName ? MenuInfoSponsoredDriver : MenuInfoNewUser;
+      if (numOrgs > 0) {
+        return MenuInfoSponsoredDriver
+      } else return MenuInfoNewUser;
     default:
       return MenuInfoGuest;
   }
 };
 
-export const Navbar = ({ companyName, userType }: Props) => {
-  const menuItems = getNavbarMenu(userType, companyName);
+export const Navbar = async ({ userType, userEmail }: Props) => {
+
+  const getDriverSponsorCount = async () => {
+    if (userType === "Driver") {
+      try {
+        const driverRelationshipURL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+        const response = await fetch(`${driverRelationshipURL}/driverssponsors_count?DriversEmail=${encodeURIComponent(userEmail)}`);
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+        const sponsorCount =  parseFloat(data['SponsorCount']);
+        return isNaN(sponsorCount) ? 0 : sponsorCount;
+      } catch (error) {
+        console.error("Error getting the driver's relationships:", error);
+        return 0;
+      }
+    } else return 0;
+  };
+
+  const numOrgs = await getDriverSponsorCount();
+  const menuItems = getNavbarMenu(userType, numOrgs);
 
   return (
     <>
