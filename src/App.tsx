@@ -20,6 +20,7 @@ import { SponsorProfile } from "./pages/SponsorProfile.tsx";
 import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
 import { Reports } from "./pages/Reports.tsx";
 import { OrganizationSettings } from "./pages/OrganizationSettings.tsx";
+import { DriverCatalogsTest } from "./pages/DriverCatalogsTest.tsx";
 
 function App() {
   const auth = useAuth();
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/sponsors" element={<SponsorExplore />} />
                     <Route path="/sponsors/:id" element={<SponsorProfile />} />
                     <Route path="/catalog" element={<DriverCatalogs />} />
+                    <Route path="/catalog-test" element={<DriverCatalogsTest />} />
                   </>
                 )}
 
