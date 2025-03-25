@@ -31,27 +31,9 @@ const getNavbarMenu = (userType: string, numOrgs: number) => {
   }
 };
 
-export const Navbar = async ({ userType, userEmail }: Props) => {
+export const Navbar = ({ userType }: Props) => {
 
-  const getDriverSponsorCount = async () => {
-    if (userType === "Driver") {
-      try {
-        const driverRelationshipURL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
-        const response = await fetch(`${driverRelationshipURL}/driverssponsors_count?DriversEmail=${encodeURIComponent(userEmail)}`);
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
-        }
-        const data = await response.json();
-        const sponsorCount =  parseFloat(data['SponsorCount']);
-        return isNaN(sponsorCount) ? 0 : sponsorCount;
-      } catch (error) {
-        console.error("Error getting the driver's relationships:", error);
-        return 0;
-      }
-    } else return 0;
-  };
-
-  const numOrgs = await getDriverSponsorCount();
+  const numOrgs = 0;
   const menuItems = getNavbarMenu(userType, numOrgs);
 
   return (
