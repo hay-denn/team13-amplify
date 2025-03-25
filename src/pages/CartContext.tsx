@@ -121,7 +121,7 @@ export const CartPage: React.FC = () => {
         <div className="card-body">
         <h1 className="text-2xl font-bold mb-2">Shopping Cart</h1>
         <label htmlFor="organizationDropdown" className="mr-2">Select Organization:</label>
-        <select id="organizationDropdown" className="form-control w-auto" value={selectedOrganizationID || ""} onChange={handleOrganizationChange}>
+        <select id="organizationDropdown" value={selectedOrganizationID || ""} onChange={handleOrganizationChange}>
         <option value="" disabled>Select an Organization</option>
         {currentOrganizations.map((org) => {
             const organization = organizations.find((o) => o.OrganizationID === org.DriversSponsorID);
