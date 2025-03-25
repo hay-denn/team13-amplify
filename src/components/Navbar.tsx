@@ -33,7 +33,7 @@ const getNavbarMenu = (userType: string, numOrgs: number) => {
 
 export const Navbar = ({ userType }: Props) => {
 
-  const numOrgs = 0;
+  const numOrgs = 1;
   const menuItems = getNavbarMenu(userType, numOrgs);
 
   return (
