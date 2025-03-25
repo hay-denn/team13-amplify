@@ -16,9 +16,13 @@ const SponsorOrganizationsAPI: React.FC = () => {
   const [createMaxPrice, setCreateMaxPrice] = useState("");
   const [createSearchTerm, setCreateSearchTerm] = useState("");
 
-  // New fields
+  // Existing new fields
   const [createHideDescription, setCreateHideDescription] = useState(false);
   const [createLogoUrl, setCreateLogoUrl] = useState("");
+
+  // NEW fields for website
+  const [createWebsiteUrl, setCreateWebsiteUrl] = useState("");
+  const [createHideWebsiteUrl, setCreateHideWebsiteUrl] = useState(false);
 
   const [createResult, setCreateResult] = useState<string | null>(null);
 
@@ -37,9 +41,13 @@ const SponsorOrganizationsAPI: React.FC = () => {
   const [updateMaxPrice, setUpdateMaxPrice] = useState("");
   const [updateSearchTerm, setUpdateSearchTerm] = useState("");
 
-  // New fields
+  // Existing new fields
   const [updateHideDescription, setUpdateHideDescription] = useState("");
   const [updateLogoUrl, setUpdateLogoUrl] = useState("");
+
+  // NEW fields for website
+  const [updateWebsiteUrl, setUpdateWebsiteUrl] = useState("");
+  const [updateHideWebsiteUrl, setUpdateHideWebsiteUrl] = useState("");
 
   const [updateResult, setUpdateResult] = useState<string | null>(null);
 
@@ -47,7 +55,9 @@ const SponsorOrganizationsAPI: React.FC = () => {
   const [deleteID, setDeleteID] = useState("");
   const [deleteResult, setDeleteResult] = useState<string | null>(null);
 
-  // Fetch API status (GET /status)
+  // ===========================================
+  // Fetch Status & Organization Count
+  // ===========================================
   const fetchStatus = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/status`);
@@ -61,7 +71,6 @@ const SponsorOrganizationsAPI: React.FC = () => {
     }
   };
 
-  // Fetch org count (GET /organization_count)
   const fetchOrganizationCount = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/organization_count`);
@@ -75,7 +84,9 @@ const SponsorOrganizationsAPI: React.FC = () => {
     }
   };
 
-  // CREATE ORG (POST /organization)
+  // ===========================================
+  // CREATE Organization
+  // ===========================================
   const handleCreateOrganization = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/organization`, {
@@ -91,6 +102,8 @@ const SponsorOrganizationsAPI: React.FC = () => {
           SearchTerm: createSearchTerm,
           HideDescription: createHideDescription,
           LogoUrl: createLogoUrl || null,
+          WebsiteUrl: createWebsiteUrl || null,
+          HideWebsiteUrl: createHideWebsiteUrl,
         }),
       });
 
@@ -99,7 +112,6 @@ const SponsorOrganizationsAPI: React.FC = () => {
       }
 
       setCreateResult("Organization created successfully!");
-
       // Clear inputs
       setCreateName("");
       setCreateDescription("");
@@ -110,15 +122,19 @@ const SponsorOrganizationsAPI: React.FC = () => {
       setCreateSearchTerm("");
       setCreateHideDescription(false);
       setCreateLogoUrl("");
+      setCreateWebsiteUrl("");
+      setCreateHideWebsiteUrl(false);
 
-      // Optionally refresh organizationCount
+      // Optionally refresh org count
       fetchOrganizationCount();
     } catch (error: any) {
       setCreateResult(`Error creating organization: ${error.message}`);
     }
   };
 
-  // GET ORG (GET /organization)
+  // ===========================================
+  // GET Organization
+  // ===========================================
   const handleGetOrganization = async () => {
     try {
       const url = `${API_BASE_URL}/organization?OrganizationID=${encodeURIComponent(getID)}`;
@@ -135,11 +151,14 @@ const SponsorOrganizationsAPI: React.FC = () => {
     }
   };
 
-  // UPDATE ORG (PUT /organization)
+  // ===========================================
+  // UPDATE Organization
+  // ===========================================
   const handleUpdateOrganization = async () => {
     try {
-      // Construct the body, only including fields if they've been filled in
-      const requestBody: { [key: string]: any } = { OrganizationID: updateID };
+      const requestBody: { [key: string]: any } = {
+        OrganizationID: updateID,
+      };
 
       if (updateName.trim()) requestBody.OrganizationName = updateName;
       if (updateDescription.trim()) requestBody.OrganizationDescription = updateDescription;
@@ -149,12 +168,21 @@ const SponsorOrganizationsAPI: React.FC = () => {
       if (updateMaxPrice.trim()) requestBody.MaxPrice = updateMaxPrice;
       if (updateSearchTerm.trim()) requestBody.SearchTerm = updateSearchTerm;
 
-      // For HideDescription: parse string to boolean if needed
+      // For HideDescription
       if (updateHideDescription.trim()) {
         requestBody.HideDescription =
           updateHideDescription.toLowerCase() === "true" ? true : false;
       }
+      // For LogoUrl
       if (updateLogoUrl.trim()) requestBody.LogoUrl = updateLogoUrl;
+
+      // NEW: For WebsiteUrl
+      if (updateWebsiteUrl.trim()) requestBody.WebsiteUrl = updateWebsiteUrl;
+      // For HideWebsiteUrl
+      if (updateHideWebsiteUrl.trim()) {
+        requestBody.HideWebsiteUrl =
+          updateHideWebsiteUrl.toLowerCase() === "true" ? true : false;
+      }
 
       const response = await fetch(`${API_BASE_URL}/organization`, {
         method: "PUT",
@@ -167,6 +195,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
       }
 
       setUpdateResult("Organization updated successfully!");
+
       // Clear inputs
       setUpdateID("");
       setUpdateName("");
@@ -178,19 +207,21 @@ const SponsorOrganizationsAPI: React.FC = () => {
       setUpdateSearchTerm("");
       setUpdateHideDescription("");
       setUpdateLogoUrl("");
+      setUpdateWebsiteUrl("");
+      setUpdateHideWebsiteUrl("");
+
     } catch (error: any) {
       setUpdateResult(`Error updating organization: ${error.message}`);
     }
   };
 
-  // DELETE ORG (DELETE /organization)
+  // ===========================================
+  // DELETE Organization
+  // ===========================================
   const handleDeleteOrganization = async () => {
     try {
       const url = `${API_BASE_URL}/organization?OrganizationID=${encodeURIComponent(deleteID)}`;
-
-      const response = await fetch(url, {
-        method: "DELETE",
-      });
+      const response = await fetch(url, { method: "DELETE" });
 
       if (!response.ok) {
         throw new Error(`Delete failed: ${response.status}, ${await response.text()}`);
@@ -199,14 +230,16 @@ const SponsorOrganizationsAPI: React.FC = () => {
       setDeleteResult("Organization deleted successfully!");
       setDeleteID("");
 
-      // Optionally refresh organizationCount
+      // Optionally refresh org count
       fetchOrganizationCount();
     } catch (error: any) {
       setDeleteResult(`Error deleting organization: ${error.message}`);
     }
   };
 
-  // Initial load: get status & org count
+  // ===========================================
+  // Initialize on mount
+  // ===========================================
   useEffect(() => {
     fetchStatus();
     fetchOrganizationCount();
@@ -253,6 +286,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
         <section>
           <h2 className="font-semibold text-lg">Create Organization</h2>
           <div className="space-y-2">
+            {/* Basic Fields */}
             <input
               type="text"
               placeholder="Organization Name"
@@ -303,7 +337,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
               className="border border-gray-300 p-2 w-full rounded"
             />
 
-            {/* New Fields */}
+            {/* HideDescription Toggle */}
             <div className="flex items-center space-x-2">
               <label>Hide Description?</label>
               <input
@@ -312,6 +346,8 @@ const SponsorOrganizationsAPI: React.FC = () => {
                 onChange={(e) => setCreateHideDescription(e.target.checked)}
               />
             </div>
+
+            {/* LogoUrl */}
             <input
               type="text"
               placeholder="LogoUrl (optional)"
@@ -319,6 +355,25 @@ const SponsorOrganizationsAPI: React.FC = () => {
               onChange={(e) => setCreateLogoUrl(e.target.value)}
               className="border border-gray-300 p-2 w-full rounded"
             />
+
+            {/* NEW WebsiteUrl */}
+            <input
+              type="text"
+              placeholder="WebsiteUrl (optional)"
+              value={createWebsiteUrl}
+              onChange={(e) => setCreateWebsiteUrl(e.target.value)}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
+
+            {/* HideWebsiteUrl */}
+            <div className="flex items-center space-x-2">
+              <label>Hide WebsiteUrl?</label>
+              <input
+                type="checkbox"
+                checked={createHideWebsiteUrl}
+                onChange={(e) => setCreateHideWebsiteUrl(e.target.checked)}
+              />
+            </div>
 
             <button
               onClick={handleCreateOrganization}
@@ -422,7 +477,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
               className="border border-gray-300 p-2 w-full rounded"
             />
 
-            {/* New Fields */}
+            {/* HideDescription (true/false) */}
             <input
               type="text"
               placeholder="HideDescription (true/false)"
@@ -430,11 +485,31 @@ const SponsorOrganizationsAPI: React.FC = () => {
               onChange={(e) => setUpdateHideDescription(e.target.value)}
               className="border border-gray-300 p-2 w-full rounded"
             />
+
+            {/* LogoUrl */}
             <input
               type="text"
               placeholder="LogoUrl"
               value={updateLogoUrl}
               onChange={(e) => setUpdateLogoUrl(e.target.value)}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
+
+            {/* WebsiteUrl */}
+            <input
+              type="text"
+              placeholder="WebsiteUrl"
+              value={updateWebsiteUrl}
+              onChange={(e) => setUpdateWebsiteUrl(e.target.value)}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
+
+            {/* HideWebsiteUrl (true/false) */}
+            <input
+              type="text"
+              placeholder="HideWebsiteUrl (true/false)"
+              value={updateHideWebsiteUrl}
+              onChange={(e) => setUpdateHideWebsiteUrl(e.target.value)}
               className="border border-gray-300 p-2 w-full rounded"
             />
 

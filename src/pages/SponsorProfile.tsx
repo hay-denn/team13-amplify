@@ -15,6 +15,8 @@ interface Sponsor {
   SearchTerm: string | null;
   HideDescription: boolean;
   LogoUrl: string | null;
+  WebsiteUrl: string | null;
+  HideWebsiteUrl: boolean;
 }
 
 export const SponsorProfile = () => {
@@ -45,7 +47,6 @@ export const SponsorProfile = () => {
 
   return (
     <div className="sponsor-profile-container">
-      {/* If there's a logo, display it at 80×80 */}
       {sponsor.LogoUrl && (
         <img
           src={sponsor.LogoUrl}
@@ -56,7 +57,6 @@ export const SponsorProfile = () => {
 
       <h1>{sponsor.OrganizationName}</h1>
 
-      {/* Only show description if HideDescription is false */}
       {!sponsor.HideDescription && (
         <p className="sponsor-profile-description">
           {sponsor.OrganizationDescription || "No description available."}
@@ -64,21 +64,24 @@ export const SponsorProfile = () => {
       )}
 
       <div className="sponsor-profile-details">
-        <p>
-          <strong>Point-to-Dollar Ratio:</strong> {sponsor.PointDollarRatio}
-        </p>
-        <p>
-          <strong>Number of Products:</strong> {sponsor.AmountOfProducts}
-        </p>
-        <p>
-          <strong>Product Type:</strong> {sponsor.ProductType}
-        </p>
-        <p>
-          <strong>Maximum Price:</strong> ${sponsor.MaxPrice}
-        </p>
+        <p><strong>Point-to-Dollar Ratio:</strong> {sponsor.PointDollarRatio}</p>
+        <p><strong>Number of Products:</strong> {sponsor.AmountOfProducts}</p>
+        <p><strong>Product Type:</strong> {sponsor.ProductType}</p>
+        <p><strong>Maximum Price:</strong> ${sponsor.MaxPrice}</p>
         {sponsor.SearchTerm && (
+          <p><strong>Search Term:</strong> {sponsor.SearchTerm}</p>
+        )}
+
+        {sponsor.WebsiteUrl && !sponsor.HideWebsiteUrl && (
           <p>
-            <strong>Search Term:</strong> {sponsor.SearchTerm}
+            <strong>Website:</strong>{" "}
+            <a
+              href={sponsor.WebsiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {sponsor.WebsiteUrl}
+            </a>
           </p>
         )}
       </div>
