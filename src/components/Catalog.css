@@ -1,0 +1,59 @@
+.sponsor-catalogs {
+    padding: 20px;
+  }
+  
+  nav {
+    margin-bottom: 20px;
+  }
+  
+  form {
+    margin-bottom: 20px;
+  }
+  
+  .catalog-results {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .catalog-item {
+    flex: 1 1 calc(33.333% - 20px);
+    box-sizing: border-box;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .catalog-item img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .catalog-description {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 10px;
+    box-sizing: border-box;
+    text-align: left;
+    overflow-y: auto;
+  }
+  
+  .catalog-item:hover .catalog-description {
+    display: block;
+  }
+  
+  .form-group select {
+    width: 100%;
+    position: relative;
+    z-index: 10;
+  }
+  
+  .btn.btn-primary.mt-3 {
+    margin-top: 10px;
+  }
