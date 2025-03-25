@@ -19,13 +19,11 @@ export const MenuInfoSponsoredDriver = [
     icon: "fa-solid fa-store",
   },
   {
-    title: "Sponsors",
+    title: "Explore Sponsors",
     url: "/sponsors",
     cName: "nav-links",
     icon: "fa-solid fa-building"
   },
-  
-
   {
     title: "Cart",
     url: "/cart",
@@ -159,6 +157,12 @@ export const MenuInfoSponsor = [
     url: "/account",
     cName: "nav-links profile-link",
     icon: "fa-solid fa-user-gear",
+  },
+  {
+    title: "Organization Settings",
+    url: "/organization/settings",
+    cName: "nav-links",
+    icon: "fa-solid fa-cog",
   },
 ];
 

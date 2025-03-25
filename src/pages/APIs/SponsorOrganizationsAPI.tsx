@@ -16,6 +16,10 @@ const SponsorOrganizationsAPI: React.FC = () => {
   const [createMaxPrice, setCreateMaxPrice] = useState("");
   const [createSearchTerm, setCreateSearchTerm] = useState("");
 
+  // New fields
+  const [createHideDescription, setCreateHideDescription] = useState(false);
+  const [createLogoUrl, setCreateLogoUrl] = useState("");
+
   const [createResult, setCreateResult] = useState<string | null>(null);
 
   // -- GET ORG
@@ -32,6 +36,10 @@ const SponsorOrganizationsAPI: React.FC = () => {
   const [updateProductType, setUpdateProductType] = useState("");
   const [updateMaxPrice, setUpdateMaxPrice] = useState("");
   const [updateSearchTerm, setUpdateSearchTerm] = useState("");
+
+  // New fields
+  const [updateHideDescription, setUpdateHideDescription] = useState("");
+  const [updateLogoUrl, setUpdateLogoUrl] = useState("");
 
   const [updateResult, setUpdateResult] = useState<string | null>(null);
 
@@ -81,6 +89,8 @@ const SponsorOrganizationsAPI: React.FC = () => {
           ProductType: createProductType,
           MaxPrice: createMaxPrice,
           SearchTerm: createSearchTerm,
+          HideDescription: createHideDescription,
+          LogoUrl: createLogoUrl || null,
         }),
       });
 
@@ -89,6 +99,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
       }
 
       setCreateResult("Organization created successfully!");
+
       // Clear inputs
       setCreateName("");
       setCreateDescription("");
@@ -97,6 +108,8 @@ const SponsorOrganizationsAPI: React.FC = () => {
       setCreateProductType("");
       setCreateMaxPrice("");
       setCreateSearchTerm("");
+      setCreateHideDescription(false);
+      setCreateLogoUrl("");
 
       // Optionally refresh organizationCount
       fetchOrganizationCount();
@@ -136,6 +149,13 @@ const SponsorOrganizationsAPI: React.FC = () => {
       if (updateMaxPrice.trim()) requestBody.MaxPrice = updateMaxPrice;
       if (updateSearchTerm.trim()) requestBody.SearchTerm = updateSearchTerm;
 
+      // For HideDescription: parse string to boolean if needed
+      if (updateHideDescription.trim()) {
+        requestBody.HideDescription =
+          updateHideDescription.toLowerCase() === "true" ? true : false;
+      }
+      if (updateLogoUrl.trim()) requestBody.LogoUrl = updateLogoUrl;
+
       const response = await fetch(`${API_BASE_URL}/organization`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -156,6 +176,8 @@ const SponsorOrganizationsAPI: React.FC = () => {
       setUpdateProductType("");
       setUpdateMaxPrice("");
       setUpdateSearchTerm("");
+      setUpdateHideDescription("");
+      setUpdateLogoUrl("");
     } catch (error: any) {
       setUpdateResult(`Error updating organization: ${error.message}`);
     }
@@ -195,7 +217,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
       <div className="max-w-2xl w-full bg-white p-6 rounded shadow space-y-6">
         <h1 className="text-2xl font-bold text-center">Sponsor Organizations API</h1>
 
-        {/* STATUS & COUNT */}
+        {/* SECTION: Status & Count */}
         <section>
           <div className="space-y-2">
             <p>
@@ -227,7 +249,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
           </div>
         </section>
 
-        {/* CREATE */}
+        {/* SECTION: Create Organization */}
         <section>
           <h2 className="font-semibold text-lg">Create Organization</h2>
           <div className="space-y-2">
@@ -281,6 +303,23 @@ const SponsorOrganizationsAPI: React.FC = () => {
               className="border border-gray-300 p-2 w-full rounded"
             />
 
+            {/* New Fields */}
+            <div className="flex items-center space-x-2">
+              <label>Hide Description?</label>
+              <input
+                type="checkbox"
+                checked={createHideDescription}
+                onChange={(e) => setCreateHideDescription(e.target.checked)}
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="LogoUrl (optional)"
+              value={createLogoUrl}
+              onChange={(e) => setCreateLogoUrl(e.target.value)}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
+
             <button
               onClick={handleCreateOrganization}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -294,7 +333,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
           </div>
         </section>
 
-        {/* GET */}
+        {/* SECTION: Get Organization */}
         <section>
           <h2 className="font-semibold text-lg">Get Organization</h2>
           <div className="space-y-2">
@@ -322,7 +361,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
           </div>
         </section>
 
-        {/* UPDATE */}
+        {/* SECTION: Update Organization */}
         <section>
           <h2 className="font-semibold text-lg">Update Organization</h2>
           <div className="space-y-2">
@@ -383,6 +422,22 @@ const SponsorOrganizationsAPI: React.FC = () => {
               className="border border-gray-300 p-2 w-full rounded"
             />
 
+            {/* New Fields */}
+            <input
+              type="text"
+              placeholder="HideDescription (true/false)"
+              value={updateHideDescription}
+              onChange={(e) => setUpdateHideDescription(e.target.value)}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
+            <input
+              type="text"
+              placeholder="LogoUrl"
+              value={updateLogoUrl}
+              onChange={(e) => setUpdateLogoUrl(e.target.value)}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
+
             <button
               onClick={handleUpdateOrganization}
               className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
@@ -395,7 +450,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
           </div>
         </section>
 
-        {/* DELETE */}
+        {/* SECTION: Delete Organization */}
         <section>
           <h2 className="font-semibold text-lg">Delete Organization</h2>
           <div className="space-y-2">

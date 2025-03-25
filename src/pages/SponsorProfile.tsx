@@ -13,50 +13,75 @@ interface Sponsor {
   ProductType: string;
   MaxPrice: string;
   SearchTerm: string | null;
+  HideDescription: boolean;
+  LogoUrl: string | null;
 }
 
 export const SponsorProfile = () => {
-	const { id } = useParams<{ id: string }>();
-	const [sponsor, setSponsor] = useState<Sponsor | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [sponsor, setSponsor] = useState<Sponsor | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		fetch(`${API_BASE_URL}/organization?OrganizationID=${id}`)
-			.then((res) => {
-				if (!res.ok) throw new Error("Failed to load sponsor");
-				return res.json();
-			})
-			.then((data) => {
-				setSponsor(data);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
-	}, [id]);
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/organization?OrganizationID=${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load sponsor");
+        return res.json();
+      })
+      .then((data) => {
+        setSponsor(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [id]);
 
-	if (loading) return <div className="p-8 text-center">Loading...</div>;
-	if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-	if (!sponsor) return <div className="p-8 text-center">Sponsor not found.</div>;
+  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (!sponsor) return <div className="p-8 text-center">Sponsor not found.</div>;
 
-	return (
-		<div className="sponsor-profile-container">
-			<h1>{sponsor.OrganizationName}</h1>
-			<p className="sponsor-profile-description">
-				{sponsor.OrganizationDescription || "No description available."}
-			</p>
-	
-			<div className="sponsor-profile-details">
-				<p><strong>Point-to-Dollar Ratio:</strong> {sponsor.PointDollarRatio}</p>
-				<p><strong>Number of Products:</strong> {sponsor.AmountOfProducts}</p>
-				<p><strong>Product Type:</strong> {sponsor.ProductType}</p>
-				<p><strong>Maximum Price:</strong> ${sponsor.MaxPrice}</p>
-				{sponsor.SearchTerm && (
-					<p><strong>Search Term:</strong> {sponsor.SearchTerm}</p>
-				)}
-			</div>
-		</div>
-	);
+  return (
+    <div className="sponsor-profile-container">
+      {/* If there's a logo, display it at 80×80 */}
+      {sponsor.LogoUrl && (
+        <img
+          src={sponsor.LogoUrl}
+          alt={`${sponsor.OrganizationName} Logo`}
+          className="sponsor-profile-logo"
+        />
+      )}
+
+      <h1>{sponsor.OrganizationName}</h1>
+
+      {/* Only show description if HideDescription is false */}
+      {!sponsor.HideDescription && (
+        <p className="sponsor-profile-description">
+          {sponsor.OrganizationDescription || "No description available."}
+        </p>
+      )}
+
+      <div className="sponsor-profile-details">
+        <p>
+          <strong>Point-to-Dollar Ratio:</strong> {sponsor.PointDollarRatio}
+        </p>
+        <p>
+          <strong>Number of Products:</strong> {sponsor.AmountOfProducts}
+        </p>
+        <p>
+          <strong>Product Type:</strong> {sponsor.ProductType}
+        </p>
+        <p>
+          <strong>Maximum Price:</strong> ${sponsor.MaxPrice}
+        </p>
+        {sponsor.SearchTerm && (
+          <p>
+            <strong>Search Term:</strong> {sponsor.SearchTerm}
+          </p>
+        )}
+      </div>
+    </div>
+  );
 };

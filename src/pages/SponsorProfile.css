@@ -38,3 +38,50 @@
 	font-weight: 600;
 	color: #111;
 }
+
+.sponsor-profile-container {
+	max-width: 700px;
+	margin: 120px auto 60px;
+	padding: 40px;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+	text-align: center;
+}
+
+.sponsor-profile-logo {
+	width: 160px;
+	height: 160px;
+	object-fit: cover;
+	border-radius: 8px;
+	margin-bottom: 20px;
+}
+
+.sponsor-profile-container h1 {
+	font-size: 1.75rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+}
+
+.sponsor-profile-description {
+	font-size: 1rem;
+	color: #555;
+	margin-bottom: 1.5rem;
+}
+
+.sponsor-profile-details {
+	font-size: 1rem;
+	color: #333;
+	text-align: left;
+	line-height: 1.8;
+	display: inline-block;
+	margin-top: 1rem;
+}
+
+.sponsor-profile-details p {
+margin: 0.5rem 0;
+}
+
+.sponsor-profile-details strong {
+	font-weight: 600;
+}

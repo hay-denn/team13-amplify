@@ -19,6 +19,7 @@ import { SponsorExplore } from "./pages/SponsorExplore.tsx";
 import { SponsorProfile } from "./pages/SponsorProfile.tsx";
 import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
 import { Reports } from "./pages/Reports.tsx";
+import { OrganizationSettings } from "./pages/OrganizationSettings.tsx";
 
 
 function App() {
@@ -26,10 +27,9 @@ function App() {
   const cognitoGroups: string[] =
     (auth.user?.profile?.["cognito:groups"] as string[]) || [];
   const userGroup = cognitoGroups[0];
-  
+
   if (auth.isLoading) return <div>Loading...</div>;
   if (auth.error) return <div>Encountering error... {auth.error.message}</div>;
-
 
   return (
     <CartProvider>
@@ -56,6 +56,7 @@ function App() {
                   />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/catalogs" element={<SponsorCatalogs />} />
+                  <Route path="/organization/settings" element={<OrganizationSettings />} />
                 </>
               )}
               {userGroup === "Admin" && (

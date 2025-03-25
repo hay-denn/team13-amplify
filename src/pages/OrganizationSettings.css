@@ -1,0 +1,64 @@
+.org-settings-page {
+	max-width: 700px;
+	margin: 70px auto 60px;
+	padding: 40px;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.org-settings-page h2 {
+	font-size: 1.75rem;
+	margin-bottom: 1.5rem;
+	text-align: center;
+}
+
+.status-message {
+	text-align: center;
+	color: #1f7d1f;
+	margin-bottom: 1rem;
+}
+
+.org-form label {
+	display: block;
+	margin-bottom: 1rem;
+	font-weight: 500;
+}
+
+.org-form input,
+.org-form textarea {
+	width: 100%;
+	padding: 10px;
+	margin-top: 0.3rem;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font-size: 1rem;
+}
+
+.org-form textarea {
+	height: 80px;
+	resize: vertical;
+}
+
+.org-form button {
+	margin-top: 1.5rem;
+	padding: 12px 24px;
+	background-color: #3e729a;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.org-form button:hover {
+	background-color: #345f7f;
+}
+
+.checkbox-toggle {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 1rem;
+	font-weight: 500;
+}
