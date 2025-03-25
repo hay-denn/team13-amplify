@@ -163,4 +163,11 @@ BEGIN
 	from DRS.purchases join DRS.productspurchased join DRS.product;
 END$
 
+create procedure SpecificSponsorInvoice(StartDate Date, EndDate Date, SponsorID int)
+BEGIN
+	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
+	from DRS.purchases join DRS.productspurchased join DRS.product
+    where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+END$
+
 delimiter ;
