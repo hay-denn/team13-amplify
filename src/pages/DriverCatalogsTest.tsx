@@ -64,9 +64,9 @@ export const DriverCatalogsTest = () => {
 
       const handleTestAddItems = () => {
         const testItems = [
-          { name: "Item A", cost: 10, quantity: 1, org: 19 },
+          { name: "Item A", cost: 10, quantity: 1, org: 4 },
           { name: "Item B", cost: 15, quantity: 1, org: 7 },
-          { name: "Item C", cost: 20, quantity: 1, org: 10 },
+          { name: "Item C", cost: 20, quantity: 1, org: 4 },
           { name: "Item D", cost: 5, quantity: 1, org: 7 },
         ];
         testItems.forEach(addToCart);

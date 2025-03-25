@@ -142,15 +142,15 @@ export const CartPage: React.FC = () => {
           <ul>
             {filteredCart.map((item, index) => (
               <li key={index} className="flex justify-between items-center border-b p-2">
-                <span>{item.name} (x{item.quantity}) - ${item.cost * item.quantity}</span>
-                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => removeFromCart(index)}>
+                <span>{item.name} (x{item.quantity}) - {item.cost * item.quantity} Points</span>
+                <button className="text-black px-2 py-1 rounded" onClick={() => removeFromCart(index)}>
                   Remove
                 </button>
               </li>
             ))}
           </ul>
         )}
-        <h2 className="text-xl font-bold mt-4">Total: ${totalCost.toFixed(2)}</h2>
+        <h2 className="text-xl font-bold mt-4">Total: {totalCost.toFixed(2)} Points</h2>
       </div>
       </div>
     </div>
