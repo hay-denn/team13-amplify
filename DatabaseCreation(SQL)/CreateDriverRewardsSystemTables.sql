@@ -9,10 +9,21 @@ create table admins(
     AdminFName varchar(30) NOT NULL,
     AdminLName varchar(30) NOT NULL);
 
+describe DRS.sponsororganizations;
+
 -- Table stores all information about the sponsorship companies
 create table sponsororganizations(
 	OrganizationID int auto_increment Primary Key,
-    OrganizationName varchar(30) NOT NULL UNIQUE);
+    OrganizationName varchar(30) NOT NULL UNIQUE,
+    OrganizationDescription varchar(1024) NOT NULL default "",
+    PointDollarRatio decimal(3,2) NOT NULL default 1.00,
+    AmountOfProducts int NOT NULL default 10,
+    ProductType varchar(20) NOT NULL default "All",
+    SearchTerm varchar(255),
+    HideDescription tinyint(1) default 0,
+    LogoUrl varchar(1024),
+    WebsiteUrl varchar(1024),
+    HideWebsiteUrl tinyint(1) default 0);
 
 -- Table stores all information about sponsorship users
 create table sponsorusers(
