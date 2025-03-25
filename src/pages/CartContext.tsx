@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { AuthContext } from "react-oidc-context";
+import "./Manageusers.css";
+
 
 // Define item type
 interface CartItem {
@@ -114,40 +116,55 @@ export const CartPage: React.FC = () => {
   const totalCost = filteredCart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
 
   return (
-    <div className="p-6">
-      <div className="bg-white shadow-lg rounded-lg p-4 mb-4">
+    <div className="container manage-users-container py-3 m-5">
+      <div className="card manage-users-card mt-5">
+        <div className="card-body">
         <h1 className="text-2xl font-bold mb-2">Shopping Cart</h1>
-        <div className="flex items-center">
-          <label htmlFor="organizationDropdown" className="mr-2">Select Organization:</label>
-          <select id="organizationDropdown" className="form-control w-auto" value={selectedOrganizationID || ""} onChange={handleOrganizationChange}>
-            <option value="" disabled>Select an Organization</option>
-            {currentOrganizations.map((org) => {
-              const organization = organizations.find((o) => o.OrganizationID === org.DriversSponsorID);
-              return (
-                <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-                  {organization ? organization.OrganizationName : "Unknown Organization"}
-                </option>
-              );
-            })}
-          </select>
+        <label htmlFor="organizationDropdown" className="mr-2">Select Organization:</label>
+        <select id="organizationDropdown" value={selectedOrganizationID || ""} onChange={handleOrganizationChange}>
+        <option value="" disabled>Select an Organization</option>
+        {currentOrganizations.map((org) => {
+            const organization = organizations.find((o) => o.OrganizationID === org.DriversSponsorID);
+            return (
+            <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
+                {organization ? organization.OrganizationName : "Unknown Organization"}
+            </option>
+            );
+        })}
+        </select>
         </div>
       </div>
-      <div className="bg-white shadow-lg rounded-lg p-4">
+      <div className="card manage-users-card mt-5">
+      <div className="card-body">
         {filteredCart.length === 0 ? (
           <p>Your cart is empty.</p>
         ) : (
           <ul>
-            {filteredCart.map((item, index) => (
-              <li key={index} className="flex justify-between items-center border-b p-2">
-                <span>{item.name} (x{item.quantity}) - ${item.cost * item.quantity}</span>
-                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => removeFromCart(index)}>
+          {filteredCart.map((item) => {
+            const itemIndex = cart.findIndex(
+              (cartItem) =>
+                cartItem.name === item.name &&
+                cartItem.org === item.org &&
+                cartItem.quantity === item.quantity &&
+                cartItem.cost === item.cost
+            );
+
+            return (
+              <li key={itemIndex} className="flex justify-between items-center border-b p-2">
+                <span>{item.name} (x{item.quantity}) - {item.cost * item.quantity} Points</span>
+                <button
+                  className="text-black px-2 py-1 rounded"
+                  onClick={() => removeFromCart(itemIndex)}
+                >
                   Remove
                 </button>
               </li>
-            ))}
-          </ul>
+            );
+          })}
+        </ul>
         )}
-        <h2 className="text-xl font-bold mt-4">Total: ${totalCost.toFixed(2)}</h2>
+        <h2 className="text-xl font-bold mt-4">Total: {totalCost.toFixed(2)} Points</h2>
+      </div>
       </div>
     </div>
   );
