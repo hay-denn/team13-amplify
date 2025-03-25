@@ -79,6 +79,11 @@ font-size: 0.9rem;
     font-weight: 700;
     color: white;
     letter-spacing: 0.5px;
+    text-decoration: none;
+}
+
+.site-name:hover {
+text-decoration: underline;
 }
 
 
