@@ -1,8 +1,7 @@
-// OrganizationSettings.tsx
 import { useEffect, useState } from "react";
 import "./OrganizationSettings.css";
 
-const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const ORGANIZATION_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
 interface Organization {
@@ -16,35 +15,58 @@ interface Organization {
 }
 
 interface OrganizationSettingsProps {
-  userEmail: string; // Provided by App.tsx
+  userEmail: string; 
 }
 
 export const OrganizationSettings = ({ userEmail }: OrganizationSettingsProps) => {
   const [organization, setOrganization] = useState<Organization | null>(null);
+  const [orgID, setOrgID] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // 1) Fetch sponsor’s org by email
-    //    Suppose the response is the full org data, e.g. { OrganizationID, OrganizationName, ... }
+    // 1) Fetch the sponsor's org ID by email
     fetch(`${SPONSOR_BASE_URL}/sponsor?UserEmail=${encodeURIComponent(userEmail)}`)
       .then((res) => {
         if (!res.ok) {
-          throw new Error(`Failed to fetch: ${res.status}`);
+          throw new Error(`Failed to fetch sponsor: ${res.status}`);
         }
         return res.json();
       })
       .then((data) => {
-        setOrganization(data);
+        if (!data?.UserOrganization) {
+          throw new Error("Sponsor does not have an OrganizationID.");
+        }
+        setOrgID(data.UserOrganization);
+      })
+      .catch((err) => {
+        console.error("Error fetching sponsor:", err);
+        setMessage("Error finding sponsor's organization.");
+        setLoading(false);
+      });
+  }, [userEmail]);
+
+  useEffect(() => {
+    if (!orgID) return;
+
+    fetch(`${ORGANIZATION_BASE_URL}/organization?OrganizationID=${orgID}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch organization: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((orgData) => {
+        setOrganization(orgData);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error loading organization:", err);
-        setMessage("Error loading organization.");
+        setMessage("Error loading organization data.");
         setLoading(false);
       });
-  }, [userEmail]);
+  }, [orgID]);
 
   // Handle text changes
   const handleChange = (
@@ -77,7 +99,7 @@ export const OrganizationSettings = ({ userEmail }: OrganizationSettingsProps) =
     if (!organization) return;
     setSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/organization`, {
+      const response = await fetch(`${ORGANIZATION_BASE_URL}/organization`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -92,8 +114,10 @@ export const OrganizationSettings = ({ userEmail }: OrganizationSettingsProps) =
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to save org: ${response.status} - ${errorText}`);
       }
+
       setMessage("Changes saved successfully.");
     } catch (err) {
       console.error(err);
@@ -104,7 +128,14 @@ export const OrganizationSettings = ({ userEmail }: OrganizationSettingsProps) =
   };
 
   if (loading) return <div className="org-settings-page">Loading...</div>;
-  if (!organization) return <div className="org-settings-page">No organization found.</div>;
+
+  if (!orgID) {
+    return <div className="org-settings-page">No organization ID found for this sponsor.</div>;
+  }
+
+  if (!organization) {
+    return <div className="org-settings-page">No organization data available.</div>;
+  }
 
   return (
     <div className="org-settings-page">
