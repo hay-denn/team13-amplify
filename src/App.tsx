@@ -16,6 +16,7 @@ import { DriverManagement } from "./pages/DriverManagement.tsx";
 import SponsorCatalogs from "./pages/SponsorCatalogs.tsx";
 import { CartPage, CartProvider } from "./pages/CartContext";
 import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
+import { Reports } from "./pages/Reports.tsx";
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
                     path="/DriverManagement"
                     element={<DriverManagement />}
                   />
+                  <Route path="/reports" element={<Reports />} />
                   <Route path="/catalogs" element={<SponsorCatalogs />} />
                 </>
               )}
@@ -55,6 +57,7 @@ function App() {
                 <>
                   <Route path="/" element={<AdminDashboard />} />
                   <Route path="/manageusers" element={<Manageusers />} />
+                  <Route path="/reports" element={<Reports />} />
                 </>
               )}
               <Route path="/account" element={<AccountSettings />} />
