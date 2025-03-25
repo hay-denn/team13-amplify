@@ -5,6 +5,7 @@ import {
   MenuInfoSponsor,
   MenuAdmin,
   MenuInfoGuest,
+  MenuInfoNewUser
 } from "./Menu";
 import "./Navbarstyle.css";
 
