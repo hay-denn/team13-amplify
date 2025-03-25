@@ -5,7 +5,7 @@ export default function Home() {
 
   return (
     <div className ="home-page">
-      <h1>Welcome to Drive Rewards!</h1>
+      <h1>Welcome!</h1>
       {/* Displays the welcome text with a button to sign in */}
       <p>
         <a
@@ -18,7 +18,7 @@ export default function Home() {
         >
           Create your account
         </a> 
-        &nbsp;to unlock exclusive perks from top-rated sponsors.
+        &nbsp;
       </p>
     </div>
   );

@@ -1,20 +1,86 @@
-.NavbarItems{
+.NavbarItems {
+    position: fixed;
+    top: 40px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #3e729a;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 1.2rem;
     padding: 0 30px;
-    background-color: #3e729a; /* or whatever color you want */
-    box-shadow: 0 5px 15px rgba(0,0, 0, 0.25);
-    width: 95%;
-    height: 80px;
-    border-radius: 13px;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translate(-50%);
+    border-radius: 0;
     z-index: 1000;
 }
+
+.topbar-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    position: absolute;
+    right: 20px;
+}
+
+.topbar-button {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+
+.topbar-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.topbar-center {
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.topbar-link:hover {
+text-decoration: underline;
+}
+
+.topbar-left {
+    position: absolute;
+    left: 20px;
+}
+
+.Topbar {
+    background-color: black;
+    color: white;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+}
+
+.topbar-content {
+font-size: 0.9rem;
+}
+
+
+.site-name {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.5px;
+}
+
 
 
 /* Align the dropdown container to the right */
