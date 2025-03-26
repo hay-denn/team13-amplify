@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Modal as BootstrapModal, Button, Form } from "react-bootstrap";
+import "./Modal.css";
 import { useAuth } from "react-oidc-context";
 
 const USER_POOL_ID = "us-east-1_uN566DiPO";
 const API_SPONSOR_ORG_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
-const API_DRIVER_SPONSOR_APP_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
+const API_DRIVER_SPONSOR_APP_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1"
+
 const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+
 const DRIVER_SPONSOR_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+
 
 async function getDriverSponsors(driverEmail: string) {
   try {
@@ -31,12 +35,13 @@ async function getOrgs() {
     return [];
   }
 }
+    
 
 async function manageCognitoUser (
   action: "createUser" | "updateUser" | "deleteUser" | "resetPassword",
   userPoolId: string,
   username: string,
-  accessToken: string,
+  accessToken: string, // The access token from OIDC authentication
   attributes?: Record<string, string>,
   password?: string,
   userGroup?: string
@@ -51,12 +56,13 @@ async function manageCognitoUser (
         action,
         userPoolId,
         username,
-        accessToken,
+        accessToken, // Pass the access token to validate
         attributes,
         password,
         userGroup
       }),
     });
+
     const data = await response.json();
     if (response.ok) {
       if (action === "resetPassword") {
@@ -69,61 +75,76 @@ async function manageCognitoUser (
   } catch (error) {
     console.error(`Error performing ${action}:`, error);
   }
-}
+};
+
 
 async function callAPI(url: string, methodType: string, data: object): Promise<void> {
-  try {
-    const response = await fetch(url, {
-      method: methodType,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    if (response.ok) {
-      const responseData = await response.json();
-      console.log('Success: ' + JSON.stringify(responseData));
-      alert('User edit successful!');
-    } else {
-      alert('Unable to make user edit - Error: ' + response.status + ' - ' + response.statusText);
+    try {
+      const response = await fetch(url, {
+        method: methodType, // HTTP method
+        headers: {
+          'Content-Type': 'application/json', // Content type header
+        },
+        body: JSON.stringify(data), // Convert the data to JSON string
+      });
+      if (response.ok) {
+        // If the request was successful
+        const responseData = await response.json();
+        console.log('Success: ' + JSON.stringify(responseData))
+        alert('User edit successful!'); // Display success alert with response data
+      } else {
+        // Handle error if response status is not OK
+        alert('Unable to make user edit - Error: ' + response.status + ' - ' + response.statusText); // Display error alert with status and message
+      }
+    } catch (error) {
+      // Catch any network or other errors
+      alert('Unable to make user edit - Network Error: ' + error); // Display network error alert
     }
-  } catch (error) {
-    alert('Unable to make user edit - Network Error: ' + error);
-  }
 }
+
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: {
-    firstName: string;
-    familyName: string;
-    email: string;
-    userType: string;
-    newUser: boolean;
+  initialData?: { 
+    firstName: string; 
+    familyName: string; 
+    email: string; 
+    userType: string; 
+    newUser: boolean; 
     org?: string;
-  };
+    };
   emailList?: string[];
 }
 
 const userTypes = ["Admin", "Driver", "Sponsor"];
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }) => {
+
+  //Used to store user data attributes for user we're editing/creating
   const [firstName, setFirstName] = useState("");
   const [familyName, setFamilyName] = useState("");
   const [email, setEmail] = useState("");
-  const [userType, setUserType] = useState(userTypes[1]);
+  const [userType, setUserType] = useState(userTypes[1]); // Default to "Driver"
   const [newUser, setNewUser] = useState(true);
   const [tempPassword, setTempPassword] = useState("");
+
+  //Auth component to get access_token, verify authentication of user, etc.
   const auth = useAuth();
+
+  //Used to restrict admins from deleting other admins (demoing purposes)
   const [demoMode] = useState<boolean>(true);
-  const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
+
+    //Selecting orgs (to be removed)
+    const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+    const [selectedOrg, setSelectedOrg] = useState<number | null>(null);
 
   useEffect(() => {
     getOrgs().then(setOrgs);
   }, []);
 
+
+  // Populate form fields when initialData changes
   useEffect(() => {
     if (initialData) {
       setFirstName(initialData.firstName);
@@ -131,43 +152,49 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
       setEmail(initialData.email);
       setUserType(initialData.userType);
       setNewUser(initialData.newUser);
-      setTempPassword("Temppass123@");
+      setTempPassword("Temppass123@"); //default temp password
       if (initialData.org) {
+        //The org is passed in as the name. This code gets the orgID from the passed in name and sets the selected org to that ID.
+        //That way we can make edits to the sponsor org of a driver or sponsor
         const matchedOrg = orgs.find(org => org.OrganizationName === initialData.org);
-        const orgId = matchedOrg ? matchedOrg.OrganizationID : null;
+        const orgId = matchedOrg ? matchedOrg.OrganizationID : null; // Returns the ID if found, otherwise null
         if (orgId) {
           setSelectedOrg(orgId);
+
         }
       }
     } else {
       setFirstName("");
       setFamilyName("");
       setEmail("");
-      setUserType(userTypes[1]);
+      setUserType(userTypes[1]); // Reset to default
       setNewUser(true);
     }
   }, [initialData, isOpen, orgs]);
 
   const handleDeleteUser = async () => {
-    if (!newUser) {
+    if (!newUser) {    
       if (!auth.user?.access_token) {
         alert("Unable to make user edit. You are not signed in.");
       } else {
-        if (!demoMode || userType !== "Admin") {
+        if (!demoMode || userType != "Admin") {
           await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
         } else {
           alert("Admin account deletion is not allowed from Manage Users page.");
         }
-        if (userType === "Driver") {
-          const data = {};
-          callAPI(`${DRIVER_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
-        } else if (userType === "Admin") {
-          const data = {};
+        if (userType == "Driver") {
+            const data = {
+            };
+            callAPI(`${DRIVER_URL}/driver?DriverEmail=${encodeURIComponent(email)}`, "DELETE", data);
+        } else if (userType == "Admin") {
+          const data = {
+          };
           if (!demoMode) {
             callAPI(`${ADMIN_URL}/admin?AdminEmail=${encodeURIComponent(email)}`, "DELETE", data);
           }
-        } else if (userType === "Sponsor") {
-          const data = {};
+        } else if (userType == "Sponsor") {
+          const data = {
+          };
           callAPI(`${SPONSOR_URL}/sponsor?UserEmail=${encodeURIComponent(email)}`, "DELETE", data);
         } else {
           alert("Invalid user type!");
@@ -178,66 +205,71 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
   };
 
   const handleSaveUser = async () => {
+
     if (!auth.user?.access_token) {
       alert("Unable to make user edit. You are not signed in.");
     } else {
       if (newUser) {
-        await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, tempPassword, userType);
-        if (userType === "Driver") {
+      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, tempPassword, userType);
+        //create new user
+        if (userType == "Driver") {
+            const data = {
+                "DriverEmail": email,
+                "DriverFName": firstName,
+                "DriverLName": familyName,
+            };
+            callAPI(`${DRIVER_URL}/driver`, "POST", data);
+        } else if (userType == "Admin") {
+
           const data = {
-            DriverEmail: email,
-            DriverFName: firstName,
-            DriverLName: familyName,
-          };
-          callAPI(`${DRIVER_URL}/driver`, "POST", data);
-        } else if (userType === "Admin") {
-          const data = {
-            AdminEmail: email,
-            AdminFName: firstName,
-            AdminLName: familyName
+               "AdminEmail": email,
+               "AdminFName": firstName,
+               "AdminLName": familyName
           };
           callAPI(`${ADMIN_URL}/admin`, "POST", data);
-        } else if (userType === "Sponsor") {
+        } else if (userType == "Sponsor") {
           const data = {
-            UserEmail: email,
-            UserFName: firstName,
-            UserLName: familyName,
-            UserOrganization: selectedOrg
-          };
-          callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
+            "UserEmail": email,
+            "UserFName": firstName,
+            "UserLName": familyName,
+            "UserOrganization": selectedOrg
+       };
+       callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
         } else {
           alert("Invalid user type!");
         }
+    } else {
+      //update an exisitng user
+      await manageCognitoUser("updateUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
+      if (userType == "Driver") {
+        const data = {
+            "DriverEmail": email,
+            "DriverFName": firstName,
+            "DriverLName": familyName,
+        };
+        callAPI(`${DRIVER_URL}/driver`, "PUT", data);
+      } else if (userType == "Admin") {
+        const data = {
+             "AdminEmail": email,
+             "AdminFName": firstName,
+             "AdminLName": familyName
+        };
+        callAPI(`${ADMIN_URL}/admin`, "PUT", data);
+      } else if (userType == "Sponsor") {
+        const data = {
+          "UserEmail": email,
+          "UserFName": firstName,
+          "UserLName": familyName,
+          "UserOrganization": selectedOrg //this is temporary until sponsor organizations are implemented
+        };
+        callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
       } else {
-        await manageCognitoUser("updateUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
-        if (userType === "Driver") {
-          const data = {
-            DriverEmail: email,
-            DriverFName: firstName,
-            DriverLName: familyName,
-          };
-          callAPI(`${DRIVER_URL}/driver`, "PUT", data);
-        } else if (userType === "Admin") {
-          const data = {
-            AdminEmail: email,
-            AdminFName: firstName,
-            AdminLName: familyName
-          };
-          callAPI(`${ADMIN_URL}/admin`, "PUT", data);
-        } else if (userType === "Sponsor") {
-          const data = {
-            UserEmail: email,
-            UserFName: firstName,
-            UserLName: familyName,
-            UserOrganization: selectedOrg
-          };
-          callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
-        } else {
-          alert("Invalid user type!");
-        }
+        alert("Invalid user type!");
       }
     }
-    onClose();
+    }
+
+    onClose(); // Close the modal
   };
 
   const handlePasswordReset = async () => {
@@ -248,47 +280,53 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
     }
   };
 
-  const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
-    if (emailList?.includes(inputEmail) && inputEmail !== initialData?.email) {
-      inputElement.setCustomValidity("This email matches an existing user.");
-      inputElement.reportValidity();
-    } else {
-      inputElement.setCustomValidity("");
-    }
-  };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//check if email matches an existing user
+const checkEmail = (inputEmail: string, inputElement: HTMLInputElement) => {
+  if (emailList?.includes(inputEmail) && inputEmail !== initialData?.email) {
+    console.log('match found for ' + inputEmail);
+    inputElement.setCustomValidity("This email matches an existing user.");
+    inputElement.reportValidity();
+  } else {
+      inputElement.setCustomValidity("");
+  }
+};
+
+//Handle updates to the email input element
+const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputEmail = e.target.value;
     setEmail(inputEmail);
     checkEmail(inputEmail, e.target);
-  };
+}
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputPassword = e.target.value;
-    setTempPassword(inputPassword);
-    checkPassword(inputPassword, e.target);
-  };
+//Handle temp password changes
+const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const inputPassword = e.target.value;
+  setTempPassword(inputPassword);
+  checkPassword(inputPassword, e.target);
+}
 
-  const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement) => {
-    let validationMsg = "";
-    if (!/\d/.test(inputTempPassword)) {
-      validationMsg += "Missing a number\n";
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(inputTempPassword)) {
-      validationMsg += "Missing a special character\n";
-    }
-    if (!/[A-Z]/.test(inputTempPassword)) {
-      validationMsg += "Missing uppercase letter\n";
-    }
-    if (!/[a-z]/.test(inputTempPassword)) {
-      validationMsg += "Missing lowercase letter\n";
-    }
-    if (inputTempPassword.length < 8) {
-      validationMsg += "Password must be 8 characters or longer\n";
-    }
-    inputElement.setCustomValidity(validationMsg);
-    inputElement.reportValidity();
-  };
+//check password validation
+const checkPassword = (inputTempPassword: string, inputElement: HTMLInputElement) => {
+  let validationMsg = "";
+  if (!(/\d/.test(inputTempPassword))) {
+    validationMsg += "Missing a number\n";
+  }
+  if (!(/[!@#$%^&*(),.?":{}|<>]/.test(inputTempPassword))) {
+    validationMsg += "Missing a special character\n";
+  }
+  if (!(/[A-Z]/.test(inputTempPassword))) {
+    validationMsg += "Missing uppercase letter\n";
+  }
+  if (!(/[a-z]/.test(inputTempPassword))) {
+    validationMsg += "Missing lowercase letter\n";
+  }
+  if (inputTempPassword.length < 8) {
+    validationMsg += "Password must be 8 characters or longer\n";
+  }
+  inputElement.setCustomValidity(validationMsg);
+  inputElement.reportValidity();
+}
 
   if (!isOpen) return null;
 
@@ -297,6 +335,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
       <div className="modal-content">
         <button onClick={onClose} className="modal-close-btn">✖</button>
         <h2>{newUser ? "Create User" : "Edit User"}</h2>
+
         <input
           type="text"
           placeholder="First Name"
@@ -315,22 +354,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
           type="email"
           placeholder="Email"
           value={email}
-          readOnly={!newUser}
+          readOnly={!newUser} //i don't think it's possible to change the email in our db, so for now it's not editable for existing accounts
           onChange={handleEmailChange}
           onFocus={handleEmailChange}
           className="modal-input"
         />
+        
+        {/* Don't show temp password field for existing user */}
         {newUser && (
           <input
-            type="text"
-            placeholder="Temporary Password"
-            value={tempPassword}
-            onChange={handlePasswordChange}
-            className="modal-input"
-          />
-        )}
-        {userType === "Sponsor" && (
-          <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
+          type="text"
+          placeholder="Temporary Password"
+          value={tempPassword}
+          onChange={handlePasswordChange}
+          className="modal-input"
+        />)}
+
+        { userType === "Sponsor" && (
+            <select value={selectedOrg ?? ""} onChange={(e) => setSelectedOrg(Number(e.target.value))} className="modal-select">
             <option value="" disabled>Select Organization</option>
             {orgs.map((org) => (
               <option key={org.OrganizationID} value={org.OrganizationID}>
@@ -339,6 +380,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
             ))}
           </select>
         )}
+
+
         <select value={userType} onChange={(e) => setUserType(e.target.value)} className="modal-select">
           {userTypes.map((type) => (
             <option key={type} value={type}>
@@ -346,16 +389,20 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
             </option>
           ))}
         </select>
+
+        {/* Show delete button only when editing an existing user */}
         {!newUser && (
           <button onClick={handleDeleteUser} className="modal-button delete">
             Delete User
           </button>
         )}
+      
         {!newUser && (
           <button onClick={handlePasswordReset} className="modal-button delete">
             Reset User's Password
           </button>
         )}
+
         <button onClick={handleSaveUser} className="modal-button">
           {newUser ? "Create User" : "Save Changes"}
         </button>
@@ -364,20 +411,20 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
   );
 };
 
+// Sponsor Apply Modal added below
 export const SponsorApplyModal = ({
-  show,
-  handleClose,
-  driverEmail,
-  fetchApplications
-}: {
-  show: boolean;
-  handleClose: () => void;
-  driverEmail: string;
-  fetchApplications: () => void;
-}) => {
+  show, 
+  handleClose, 
+  driverEmail, 
+  fetchApplications}: { 
+    show: boolean; 
+    handleClose: () => void; 
+    driverEmail: string; 
+    fetchApplications: () => void;
+  }) => {
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedOrg, setSelectedOrgID] = useState<number | null>(null);
-
+  
   useEffect(() => {
     if (show) {
       fetch(`${API_SPONSOR_ORG_URL}/organizations`)
@@ -392,9 +439,10 @@ export const SponsorApplyModal = ({
         .catch((error) => console.error("Error fetching organizations:", error));
     }
   }, [show]);
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (!driverEmail.trim()) {
       alert("Driver email is required.");
       return;
@@ -403,17 +451,20 @@ export const SponsorApplyModal = ({
       alert("Please select a sponsor.");
       return;
     }
+
     const applicationData = {
       ApplicationDriver: driverEmail,
       ApplicationOrganization: selectedOrg,
       ApplicationStatus: "Submitted",
     };
+
     try {
       const response = await fetch(`${API_DRIVER_SPONSOR_APP_URL}/driversponsorapplication`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(applicationData),
       });
+
       if (response.ok) {
         alert("Application submitted successfully!");
         setSelectedOrgID(null);
@@ -429,49 +480,57 @@ export const SponsorApplyModal = ({
   };
 
   return (
-    <BootstrapModal show={show} onHide={handleClose} centered backdrop="static">
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Apply for a Sponsor</BootstrapModal.Title>
-      </BootstrapModal.Header>
-      <BootstrapModal.Body>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Label>Driver Email</Form.Label>
-            <Form.Control
-              type="email"
-              value={driverEmail}
-              readOnly
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Select Sponsor</Form.Label>
-            <Form.Select
-              value={selectedOrg ?? ""}
-              onChange={(e) => setSelectedOrgID(Number(e.target.value))}
-              required
-            >
-              <option value="" disabled>
-                -- Select a Sponsor --
-              </option>
-              {organizations.map((sponsor) => (
-                <option
-                  key={sponsor.OrganizationID}
-                  value={sponsor.OrganizationID}
-                >
-                  {sponsor.OrganizationName}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-          <Button variant="primary" type="submit">
-            Submit Application
-          </Button>
-        </Form>
-      </BootstrapModal.Body>
-    </BootstrapModal>
+      <BootstrapModal show={show} onHide={handleClose} centered backdrop="static">
+          <BootstrapModal.Header closeButton>
+              <BootstrapModal.Title>Apply for a Sponsor</BootstrapModal.Title>
+          </BootstrapModal.Header>
+          <BootstrapModal.Body>
+              <Form onSubmit={handleSubmit}>
+                  {/* Driver's Email (Pre-filled) */}
+                  <Form.Group className="mb-3">
+                      <Form.Label>Driver Email</Form.Label>
+                      <Form.Control
+                          type="email"
+                          value={driverEmail}
+                          readOnly
+                      />
+                  </Form.Group>
+
+                  {/* Organization */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Select Sponsor</Form.Label>
+                    <Form.Select
+                      value={selectedOrg ?? ""}
+                      onChange={(e) => setSelectedOrgID(Number(e.target.value))}
+                      required
+                    >
+                      <option value="" disabled>
+                        -- Select a Sponsor --
+                      </option>
+                      {organizations.map((sponsor) => (
+                        <option
+                          key={sponsor.OrganizationID}
+                          value={sponsor.OrganizationID}
+                        >
+                          {sponsor.OrganizationName}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+
+                  {/* Submit Button */}
+                  <Button variant="primary" type="submit">
+                      Submit Application
+                  </Button>
+              </Form>
+          </BootstrapModal.Body>
+      </BootstrapModal>
   );
 };
 
+
+
+//Modal to view the organizations for a Driver
 interface ViewOrgProps {
   isOpen: boolean;
   onClose: () => void;
@@ -482,6 +541,7 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
   const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [driverOrgs, setDriverOrgs] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<number | "">("");
+
   const auth = useAuth();
 
   useEffect(() => {
@@ -491,12 +551,12 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
 
   const handleSaveChanges = async () => {
     if (!auth.user?.access_token) {
-      alert("Cannot make change. Not authorized!");
+      alert("Cannot make change. Not authorized!"); 
     } else {
       const data = {
-        DriversEmail: email,
-        DriversSponsorID: selectedOrg.toString()
-      };
+        "DriversEmail": email,
+        "DriversSponsorID": selectedOrg.toString()
+      }
       callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data);
       onClose();
     }
@@ -504,9 +564,10 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
 
   const handleRemoveOrganization = async (organizationID: number) => {
     if (!auth.user?.access_token) {
-      alert("Cannot make change. Not authorized!");
+      alert("Cannot make change. Not authorized!"); 
     } else {
-      const data = {};
+      const data = {
+      };
       callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID.toString()}`, "DELETE", data);
       onClose();
     }
@@ -514,7 +575,10 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
 
   if (!isOpen) return null;
 
+  // Get the list of driver organization IDs
   const driverOrgIDs = new Set(driverOrgs.map((org) => org.DriversSponsorID));
+  
+  // Filter organizations to get the ones not in driverOrgs
   const availableOrgs = orgs.filter((org) => !driverOrgIDs.has(org.OrganizationID));
 
   return (
@@ -527,12 +591,14 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
             const org = orgs.find((o) => o.OrganizationID === driverOrg.DriversSponsorID);
             return org ? (
               <li key={org.OrganizationID}>
-                {org.OrganizationName}
+                {org.OrganizationName} 
                 <button onClick={() => handleRemoveOrganization(org.OrganizationID)} className="modal-remove-button">Remove</button>
               </li>
             ) : null;
           })}
         </ul>
+        
+        {/* Dropdown to select an organization not currently associated with the driver */}
         <select className="modal-select" value={selectedOrg} onChange={(e) => setSelectedOrg(Number(e.target.value) || "")}>
           <option value="">Select an organization</option>
           {availableOrgs.map((org) => (
@@ -541,33 +607,8 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
             </option>
           ))}
         </select>
+        
         <button onClick={handleSaveChanges} className="modal-button">Add</button>
-      </div>
-    </div>
-  );
-};
-
-// 😎 NEW CODE - "View As Driver" modal
-interface ViewAsDriverProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-export const ViewAsDriverModal: React.FC<ViewAsDriverProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <button onClick={onClose} className="modal-close-btn">✖</button>
-        <h2>Actions</h2>
-        <Button
-          className="modal-button"
-          onClick={() => {
-            console.log("View site as driver clicked");
-            onClose();
-          }}
-        >
-          View site as driver
-        </Button>
       </div>
     </div>
   );

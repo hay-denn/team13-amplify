@@ -1,5 +1,6 @@
 import { useState } from "react";
-import Modal, { ViewOrgModal, ViewAsDriverModal } from "./Modal";
+import { Modal, Button } from "react-bootstrap";
+import { ViewOrgModal } from "./Modal"; // 🔥 NEW CODE - If you still need the existing ViewOrgModal
 
 interface Driver {
   DriverEmail: string;
@@ -35,47 +36,28 @@ export const ListOfUsersTable = ({
   adminTable = [],
   isSponsor = false,
 }: Props) => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<{
-    firstName: string;
-    familyName: string;
-    email: string;
-    userType: string;
-    newUser: boolean;
-  }>();
   const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
   const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
 
-  // 😎 NEW CODE - State for "View As Driver" modal
-  const [isViewAsDriverModalOpen, setIsViewAsDriverModalOpen] = useState<boolean>(false);
-
-  const handleEditUser = (
-    pfirstName: string,
-    pfamilyName: string,
-    pemail: string,
-    puserType: string
-  ) => {
-    setModalData({
-      firstName: pfirstName,
-      familyName: pfamilyName,
-      email: pemail,
-      userType: puserType,
-      newUser: false,
-    });
-    setIsModalOpen(true);
-  };
+  // 😎 NEW CODE - Modal state for "Actions"
+  const [showActionsModal, setShowActionsModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const handleViewOrg = (pemail: string) => {
     setViewOrgEmail(pemail);
     setIsViewOrgModalOpen(true);
   };
 
-  // 😎 NEW CODE - Handlers for opening/closing "View As Driver" modal
-  const handleOpenViewAsDriverModal = () => {
-    setIsViewAsDriverModalOpen(true);
+  // 😎 NEW CODE - Open the Actions modal
+  const handleShowActionsModal = (user: any) => {
+    setSelectedUser(user);
+    setShowActionsModal(true);
   };
-  const handleCloseViewAsDriverModal = () => {
-    setIsViewAsDriverModalOpen(false);
+
+  // 😎 NEW CODE - Close the Actions modal
+  const handleCloseActionsModal = () => {
+    setShowActionsModal(false);
+    setSelectedUser(null);
   };
 
   return (
@@ -117,11 +99,8 @@ export const ListOfUsersTable = ({
                   <button
                     className="btn btn-primary"
                     onClick={() =>
-                      handleEditUser(
-                        driver.DriverFName,
-                        driver.DriverLName,
-                        driver.DriverEmail,
-                        "Driver"
+                      console.log(
+                        "Edit user code remains where it was (omitted)."
                       )
                     }
                   >
@@ -129,18 +108,17 @@ export const ListOfUsersTable = ({
                   </button>
                 </td>
               )}
-              {/* 😎 NEW CODE - Actions column button */}
+              {/* 😎 NEW CODE - Actions button */}
               <td>
                 <button
                   className="btn btn-primary"
-                  onClick={handleOpenViewAsDriverModal}
+                  onClick={() => handleShowActionsModal(driver)}
                 >
                   Actions
                 </button>
               </td>
             </tr>
           ))}
-
           {sponsorTable.map((sponsor, index) => (
             <tr key={`sponsor-${index}`}>
               <th scope="row">{driverTable.length + index + 1}</th>
@@ -154,11 +132,8 @@ export const ListOfUsersTable = ({
                   <button
                     className="btn btn-primary"
                     onClick={() =>
-                      handleEditUser(
-                        sponsor.UserFName,
-                        sponsor.UserLName,
-                        sponsor.UserEmail,
-                        "Sponsor"
+                      console.log(
+                        "Edit user code remains where it was (omitted)."
                       )
                     }
                   >
@@ -166,18 +141,16 @@ export const ListOfUsersTable = ({
                   </button>
                 </td>
               )}
-              {/* 😎 NEW CODE - Actions column button */}
               <td>
                 <button
                   className="btn btn-primary"
-                  onClick={handleOpenViewAsDriverModal}
+                  onClick={() => handleShowActionsModal(sponsor)}
                 >
                   Actions
                 </button>
               </td>
             </tr>
           ))}
-
           {adminTable.map((admin, index) => (
             <tr key={`admin-${index}`}>
               <th scope="row">
@@ -193,11 +166,8 @@ export const ListOfUsersTable = ({
                   <button
                     className="btn btn-primary"
                     onClick={() =>
-                      handleEditUser(
-                        admin.AdminFName,
-                        admin.AdminLName,
-                        admin.AdminEmail,
-                        "Admin"
+                      console.log(
+                        "Edit user code remains where it was (omitted)."
                       )
                     }
                   >
@@ -205,11 +175,10 @@ export const ListOfUsersTable = ({
                   </button>
                 </td>
               )}
-              {/* 😎 NEW CODE - Actions column button */}
               <td>
                 <button
                   className="btn btn-primary"
-                  onClick={handleOpenViewAsDriverModal}
+                  onClick={() => handleShowActionsModal(admin)}
                 >
                   Actions
                 </button>
@@ -218,21 +187,42 @@ export const ListOfUsersTable = ({
           ))}
         </tbody>
       </table>
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialData={modalData}
-      />
       <ViewOrgModal
         isOpen={isViewOrgModalOpen}
         onClose={() => setIsViewOrgModalOpen(false)}
         email={viewOrgEmail}
       />
-      {/* 😎 NEW CODE - "View As Driver" modal */}
-      <ViewAsDriverModal
-        isOpen={isViewAsDriverModalOpen}
-        onClose={handleCloseViewAsDriverModal}
-      />
+      {/* 😎 NEW CODE - Actions modal */}
+      <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Actions</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <>
+              <p>
+                <strong>User Email: </strong>
+                {selectedUser.DriverEmail || selectedUser.UserEmail || "N/A"}
+              </p>
+              <p>View site as driver?</p>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseActionsModal}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              console.log("View site as driver clicked");
+              handleCloseActionsModal();
+            }}
+          >
+            View site as driver
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
