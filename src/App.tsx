@@ -49,6 +49,8 @@ function App() {
               <>
                 {/* Route for viewing driver dashboard when logged in as a sponsor */}
                 <Route path="/driver-dashboard" element={<DriverDashBoard />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/catalog" element={<DriverCatalogs />} />
 
                 {userGroup === "Driver" && (
                   <>
