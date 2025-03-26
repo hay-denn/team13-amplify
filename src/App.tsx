@@ -35,7 +35,7 @@ function App() {
 
   // overwrites for testing, comment out for production
   /* start testing block */
-  // const userGroup = "Driver";
+  // const userGroup = "Sponsor";
   // const userEmail = "noahamn@gmail.com";
   // auth.isAuthenticated = true;
   /* end testing block */
