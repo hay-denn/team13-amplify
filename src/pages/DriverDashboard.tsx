@@ -12,6 +12,7 @@ export const DriverDashBoard = () => {
   const authContext = useContext(AuthContext);
   const userFName = authContext?.user?.profile?.given_name || "";
   const userEmail = impersonatingDriver || authContext?.user?.profile?.email || "";
+  console.log("Current Driver Email: ", userEmail);
   const [showModal, setShowModal] = useState(false);
 
   //The list of sponsors the driver is a part of
