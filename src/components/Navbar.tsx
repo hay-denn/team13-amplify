@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LoginButton } from "./LoginButton";
 import {
   MenuInfoSponsoredDriver,
@@ -36,6 +36,15 @@ export const Navbar = ({ userType }: Props) => {
   const menuItems = getNavbarMenu(userType, numOrgs);
   const { cart } = useCart();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const navigate = useNavigate();
+
+  const handleReturnToSponsor = () => {
+    localStorage.removeItem("impersonatingDriver");
+    navigate("/");
+  };
+
+  // Only show the "Return to Sponsor View" button if impersonation is active
+  const isImpersonating = Boolean(localStorage.getItem("impersonatingDriver"));
 
   return (
     <>
@@ -52,6 +61,11 @@ export const Navbar = ({ userType }: Props) => {
         </div>
         <div className="topbar-right">
           <button className="topbar-button">🇺🇸 EN</button>
+          {isImpersonating && (
+            <button className="topbar-button" onClick={handleReturnToSponsor}>
+              Return to Sponsor View
+            </button>
+          )}
           <LoginButton />
         </div>
       </nav>
@@ -69,7 +83,6 @@ export const Navbar = ({ userType }: Props) => {
           </Link>
         ) : null}
         
-
         {userType === "Driver" && (
           <div className="nav-right">
             <Link to="/cart" className="nav-cart">
