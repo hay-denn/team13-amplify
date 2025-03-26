@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
 import { LoginButton } from "./LoginButton";
 import {
   MenuInfoSponsoredDriver,
@@ -32,6 +33,7 @@ const getNavbarMenu = (userType: string, numOrgs: number) => {
 };
 
 export const Navbar = ({ userType }: Props) => {
+  const auth = useAuth();
   const numOrgs = 1;
   const menuItems = getNavbarMenu(userType, numOrgs);
   const { cart } = useCart();
@@ -44,7 +46,10 @@ export const Navbar = ({ userType }: Props) => {
   };
 
   // Only show the "Return to Sponsor View" button if impersonation is active
-  const isImpersonating = Boolean(localStorage.getItem("impersonatingDriver"));
+  const isImpersonating = 
+    auth.isAuthenticated && 
+    userType === "Sponsor" && 
+    Boolean(localStorage.getItem("impersonatingDriver")) === true;
 
   return (
     <>
