@@ -192,7 +192,6 @@ export const ListOfUsersTable = ({
         onClose={() => setIsViewOrgModalOpen(false)}
         email={viewOrgEmail}
       />
-      {/* 😎 NEW CODE - Actions modal */}
       <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
           <Modal.Title>View Site As Driver</Modal.Title>
@@ -202,7 +201,7 @@ export const ListOfUsersTable = ({
             <>
               <p>
                 <strong>User Email: </strong>
-                {selectedUser.DriverEmail || selectedUser.UserEmail || "N/A"}
+                {selectedUser.DriverEmail || selectedUser.UserEmail || "N / A"}
               </p>
             </>
           )}
@@ -214,18 +213,50 @@ export const ListOfUsersTable = ({
           <Button
             variant="primary"
             onClick={() => {
-              console.log("View site as driver clicked");
-              // Store both the driver's email and first name as a JSON string
-              localStorage.setItem("impersonatingDriver", JSON.stringify({
-                email: selectedUser.DriverEmail,
-                firstName: selectedUser.DriverFName
-              }));
-              console.log("Impersonating driver:", selectedUser.DriverEmail, selectedUser.DriverFName);
+              localStorage.setItem(
+                "impersonatingDriver",
+                JSON.stringify({
+                  email: selectedUser.DriverEmail,
+                  firstName: selectedUser.DriverFName
+                })
+              );
               handleCloseActionsModal();
               window.open("/driver-dashboard", "_blank");
             }}
           >
-            View site as driver
+            Driver Dashboard
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              localStorage.setItem(
+                "impersonatingDriver",
+                JSON.stringify({
+                  email: selectedUser.DriverEmail,
+                  firstName: selectedUser.DriverFName
+                })
+              );
+              handleCloseActionsModal();
+              window.open("/cart", "_blank");
+            }}
+          >
+            Driver Cart
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              localStorage.setItem(
+                "impersonatingDriver",
+                JSON.stringify({
+                  email: selectedUser.DriverEmail,
+                  firstName: selectedUser.DriverFName
+                })
+              );
+              handleCloseActionsModal();
+              window.open("/catalog", "_blank");
+            }}
+          >
+            Driver Catalog
           </Button>
         </Modal.Footer>
       </Modal>

@@ -62,7 +62,11 @@ export const useCart = () => {
 // Cart Page Component
 export const CartPage: React.FC = () => {
   const authContext = useContext(AuthContext);
-  const userEmail = authContext?.user?.profile?.email || "";
+
+  const storedImpersonation = localStorage.getItem("impersonatingDriver");
+  const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
+
+  const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
   
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [currentOrganizations, setCurrentOrganizations] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);

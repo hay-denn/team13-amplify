@@ -4,7 +4,11 @@ import { useCart } from "./CartContext";
 
 export const DriverCatalogsTest = () => {
       const authContext = useContext(AuthContext);
-      const userEmail = authContext?.user?.profile?.email || "";
+
+      const storedImpersonation = localStorage.getItem("impersonatingDriver");
+      const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
+
+      const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
       
       const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
       const [currentOrganizations, setCurrentOrganizations] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);
