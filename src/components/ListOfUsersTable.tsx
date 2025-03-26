@@ -215,8 +215,12 @@ export const ListOfUsersTable = ({
             variant="primary"
             onClick={() => {
               console.log("View site as driver clicked");
-              localStorage.setItem("impersonatingDriver", selectedUser.DriverEmail);
-              console.log("Impersonating driver:", selectedUser.DriverEmail);
+              // Store both the driver's email and first name as a JSON string
+              localStorage.setItem("impersonatingDriver", JSON.stringify({
+                email: selectedUser.DriverEmail,
+                firstName: selectedUser.DriverFName
+              }));
+              console.log("Impersonating driver:", selectedUser.DriverEmail, selectedUser.DriverFName);
               handleCloseActionsModal();
               window.open("/driver-dashboard", "_blank");
             }}

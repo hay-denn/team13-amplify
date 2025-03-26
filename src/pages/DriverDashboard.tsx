@@ -10,10 +10,12 @@ import { AuthContext } from "react-oidc-context";
 
 export const DriverDashBoard = () => {
   const authContext = useContext(AuthContext);
-  const userFName = authContext?.user?.profile?.given_name || "";
-  const impersonatingDriver = localStorage.getItem("impersonatingDriver");
-  const userEmail = impersonatingDriver || authContext?.user?.profile?.email || "";
+  const storedImpersonation = localStorage.getItem("impersonatingDriver");
+  const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
+  const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
+  const userFName = impersonation ? impersonation.firstName : authContext?.user?.profile?.given_name || "";
   console.log("Current Driver Email: ", userEmail);
+  console.log("Current Driver First Name: ", userFName);
   const [showModal, setShowModal] = useState(false);
 
   //The list of sponsors the driver is a part of
