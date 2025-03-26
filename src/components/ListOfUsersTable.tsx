@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal, { ViewOrgModal } from "./Modal";
+import Modal, { ViewOrgModal, ViewAsDriverModal } from "./Modal";
 
 interface Driver {
   DriverEmail: string;
@@ -43,9 +43,11 @@ export const ListOfUsersTable = ({
     userType: string;
     newUser: boolean;
   }>();
-
   const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
   const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
+
+  // 😎 NEW CODE - State for "View As Driver" modal
+  const [isViewAsDriverModalOpen, setIsViewAsDriverModalOpen] = useState<boolean>(false);
 
   const handleEditUser = (
     pfirstName: string,
@@ -68,6 +70,14 @@ export const ListOfUsersTable = ({
     setIsViewOrgModalOpen(true);
   };
 
+  // 😎 NEW CODE - Handlers for opening/closing "View As Driver" modal
+  const handleOpenViewAsDriverModal = () => {
+    setIsViewAsDriverModalOpen(true);
+  };
+  const handleCloseViewAsDriverModal = () => {
+    setIsViewAsDriverModalOpen(false);
+  };
+
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -79,7 +89,9 @@ export const ListOfUsersTable = ({
             <th scope="col">Last</th>
             <th scope="col">Email</th>
             {!isSponsor && <th scope="col">Organization</th>}
-            {!isSponsor && <th scope="col">Actions</th>}
+            {!isSponsor && <th scope="col">Edit</th>}
+            {/* 😎 NEW CODE - Always show "Actions" column */}
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -117,6 +129,15 @@ export const ListOfUsersTable = ({
                   </button>
                 </td>
               )}
+              {/* 😎 NEW CODE - Actions column button */}
+              <td>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleOpenViewAsDriverModal}
+                >
+                  Actions
+                </button>
+              </td>
             </tr>
           ))}
 
@@ -127,20 +148,31 @@ export const ListOfUsersTable = ({
               <td>{sponsor.UserFName}</td>
               <td>{sponsor.UserLName}</td>
               <td>{sponsor.UserEmail}</td>
-              <td>{sponsor.UserOrganization || "N / A"}</td>
+              {!isSponsor && <td>{sponsor.UserOrganization || "N / A"}</td>}
+              {!isSponsor && (
+                <td>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleEditUser(
+                        sponsor.UserFName,
+                        sponsor.UserLName,
+                        sponsor.UserEmail,
+                        "Sponsor"
+                      )
+                    }
+                  >
+                    Edit
+                  </button>
+                </td>
+              )}
+              {/* 😎 NEW CODE - Actions column button */}
               <td>
                 <button
                   className="btn btn-primary"
-                  onClick={() =>
-                    handleEditUser(
-                      sponsor.UserFName,
-                      sponsor.UserLName,
-                      sponsor.UserEmail,
-                      "Sponsor"
-                    )
-                  }
+                  onClick={handleOpenViewAsDriverModal}
                 >
-                  Edit
+                  Actions
                 </button>
               </td>
             </tr>
@@ -155,20 +187,31 @@ export const ListOfUsersTable = ({
               <td>{admin.AdminFName}</td>
               <td>{admin.AdminLName}</td>
               <td>{admin.AdminEmail}</td>
-              <td>Administrator</td>
+              {!isSponsor && <td>Administrator</td>}
+              {!isSponsor && (
+                <td>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleEditUser(
+                        admin.AdminFName,
+                        admin.AdminLName,
+                        admin.AdminEmail,
+                        "Admin"
+                      )
+                    }
+                  >
+                    Edit
+                  </button>
+                </td>
+              )}
+              {/* 😎 NEW CODE - Actions column button */}
               <td>
                 <button
                   className="btn btn-primary"
-                  onClick={() =>
-                    handleEditUser(
-                      admin.AdminFName,
-                      admin.AdminLName,
-                      admin.AdminEmail,
-                      "Admin"
-                    )
-                  }
+                  onClick={handleOpenViewAsDriverModal}
                 >
-                  Edit
+                  Actions
                 </button>
               </td>
             </tr>
@@ -184,6 +227,11 @@ export const ListOfUsersTable = ({
         isOpen={isViewOrgModalOpen}
         onClose={() => setIsViewOrgModalOpen(false)}
         email={viewOrgEmail}
+      />
+      {/* 😎 NEW CODE - "View As Driver" modal */}
+      <ViewAsDriverModal
+        isOpen={isViewAsDriverModalOpen}
+        onClose={handleCloseViewAsDriverModal}
       />
     </div>
   );
