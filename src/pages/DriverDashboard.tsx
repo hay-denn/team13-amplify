@@ -6,11 +6,12 @@ import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
 
-const impersonatingDriver = localStorage.getItem("impersonatingDriver");
+
 
 export const DriverDashBoard = () => {
   const authContext = useContext(AuthContext);
   const userFName = authContext?.user?.profile?.given_name || "";
+  const impersonatingDriver = localStorage.getItem("impersonatingDriver");
   const userEmail = impersonatingDriver || authContext?.user?.profile?.email || "";
   console.log("Current Driver Email: ", userEmail);
   const [showModal, setShowModal] = useState(false);

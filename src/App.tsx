@@ -47,6 +47,9 @@ function App() {
           <Routes>
             {auth.isAuthenticated ? (
               <>
+                {/* Route for viewing driver dashboard when logged in as a sponsor */}
+                <Route path="/driver-dashboard" element={<DriverDashBoard />} />
+
                 {userGroup === "Driver" && (
                   <>
                     <Route path="/" element={<DriverDashBoard />} />

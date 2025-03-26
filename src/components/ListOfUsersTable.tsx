@@ -218,7 +218,7 @@ export const ListOfUsersTable = ({
               localStorage.setItem("impersonatingDriver", selectedUser.DriverEmail);
               console.log("Impersonating driver:", selectedUser.DriverEmail);
               handleCloseActionsModal();
-              window.open("/", "_blank");
+              window.open("/driver-dashboard", "_blank");
             }}
           >
             View site as driver
