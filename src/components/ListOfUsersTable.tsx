@@ -195,7 +195,7 @@ export const ListOfUsersTable = ({
       {/* 😎 NEW CODE - Actions modal */}
       <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Actions</Modal.Title>
+          <Modal.Title>View Site As Driver</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
@@ -204,7 +204,6 @@ export const ListOfUsersTable = ({
                 <strong>User Email: </strong>
                 {selectedUser.DriverEmail || selectedUser.UserEmail || "N/A"}
               </p>
-              <p>View site as driver?</p>
             </>
           )}
         </Modal.Body>
@@ -216,7 +215,10 @@ export const ListOfUsersTable = ({
             variant="primary"
             onClick={() => {
               console.log("View site as driver clicked");
+              localStorage.setItem("impersonatingDriver", selectedUser.DriverEmail);
+              console.log("Impersonating driver:", selectedUser.DriverEmail);
               handleCloseActionsModal();
+              window.location.reload();
             }}
           >
             View site as driver

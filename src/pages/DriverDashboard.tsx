@@ -6,14 +6,12 @@ import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
 
-// interface Props {
-//   userFName?: string;
-// }
+const impersonatingDriver = localStorage.getItem("impersonatingDriver");
 
 export const DriverDashBoard = () => {
   const authContext = useContext(AuthContext);
   const userFName = authContext?.user?.profile?.given_name || "";
-  const userEmail = authContext?.user?.profile?.email || "";
+  const userEmail = impersonatingDriver || authContext?.user?.profile?.email || "";
   const [showModal, setShowModal] = useState(false);
 
   //The list of sponsors the driver is a part of
