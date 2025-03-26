@@ -14,7 +14,7 @@ body {
   padding-top: 80px;
   margin: 0;
 }
-
+    
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -105,3 +105,4 @@ body {
   place-content: center;
   font-size: 150%;
 }
+
