@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Modal, Button } from "react-bootstrap";
 import { ViewOrgModal } from "./Modal";
@@ -31,6 +31,8 @@ interface Props {
   isSponsor?: boolean;
 }
 
+const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+
 export const ListOfUsersTable = ({
   driverTable,
   sponsorTable = [],
@@ -38,6 +40,45 @@ export const ListOfUsersTable = ({
   isSponsor = false,
 }: Props) => {
   const auth = useAuth();
+
+  // State for sponsor's organization ID (fetched from API)
+  const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
+
+  // Fetch the sponsor's org id via their email and log the result
+  useEffect(() => {
+    const fetchSponsorOrg = async () => {
+      try {
+        const response = await fetch(
+          `${SPONSOR_BASE_URL}/sponsor?UserEmail=${encodeURIComponent(
+            auth.user?.profile?.email || ""
+          )}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch sponsor: ${response.status}`);
+        }
+        const data = await response.json();
+        let sponsor;
+        if (Array.isArray(data)) {
+          // Look for the sponsor record that matches
+          sponsor = data.find((s: any) => s.UserEmail === auth.user?.profile?.email);
+        } else {
+          sponsor = data;
+        }
+        if (sponsor && sponsor.UserOrganization) {
+          console.log("Fetched sponsor organization ID:", sponsor.UserOrganization);
+          setSponsorOrgID(sponsor.UserOrganization);
+        } else {
+          console.log("Sponsor record not found or no organization available.");
+        }
+      } catch (err) {
+        console.error("Error fetching sponsor organization:", err);
+      }
+    };
+
+    if (auth.user?.profile?.email) {
+      fetchSponsorOrg();
+    }
+  }, [auth.user?.profile?.email]);
 
   const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
   const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
@@ -59,15 +100,16 @@ export const ListOfUsersTable = ({
     setSelectedUser(null);
   };
 
-  
+  // Use the fetched sponsorOrgID (if available) instead of hardcoding from the profile.
+  // Also log the sponsorOrgID when impersonating.
   const handleViewAsDriver = (targetRoute: string) => {
-    const sponsorOrgID = auth.user?.profile?.UserOrganization; 
+    console.log("Using sponsorOrgID for impersonation:", sponsorOrgID);
     localStorage.setItem(
       "impersonatingDriver",
       JSON.stringify({
         email: selectedUser.DriverEmail,
         firstName: selectedUser.DriverFName,
-        sponsorOrgID: sponsorOrgID
+        sponsorOrgID: sponsorOrgID,  // dynamically fetched from sponsor API
       })
     );
     handleCloseActionsModal();
@@ -113,9 +155,7 @@ export const ListOfUsersTable = ({
                   <button
                     className="btn btn-primary"
                     onClick={() =>
-                      console.log(
-                        "Edit user code remains where it was (omitted)."
-                      )
+                      console.log("Edit user code remains where it was (omitted).")
                     }
                   >
                     Edit
@@ -146,9 +186,7 @@ export const ListOfUsersTable = ({
                   <button
                     className="btn btn-primary"
                     onClick={() =>
-                      console.log(
-                        "Edit user code remains where it was (omitted)."
-                      )
+                      console.log("Edit user code remains where it was (omitted).")
                     }
                   >
                     Edit
@@ -180,9 +218,7 @@ export const ListOfUsersTable = ({
                   <button
                     className="btn btn-primary"
                     onClick={() =>
-                      console.log(
-                        "Edit user code remains where it was (omitted)."
-                      )
+                      console.log("Edit user code remains where it was (omitted).")
                     }
                   >
                     Edit
