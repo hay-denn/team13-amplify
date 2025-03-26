@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useAuth } from "react-oidc-context";
 import { Modal, Button } from "react-bootstrap";
-import { ViewOrgModal } from "./Modal"; // 🔥 NEW CODE - If you still need the existing ViewOrgModal
+import { ViewOrgModal } from "./Modal";
 
 interface Driver {
   DriverEmail: string;
@@ -36,10 +37,10 @@ export const ListOfUsersTable = ({
   adminTable = [],
   isSponsor = false,
 }: Props) => {
+  const auth = useAuth();
+
   const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
   const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
-
-  // 😎 NEW CODE - Modal state for "Actions"
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
@@ -48,16 +49,29 @@ export const ListOfUsersTable = ({
     setIsViewOrgModalOpen(true);
   };
 
-  // 😎 NEW CODE - Open the Actions modal
   const handleShowActionsModal = (user: any) => {
     setSelectedUser(user);
     setShowActionsModal(true);
   };
 
-  // 😎 NEW CODE - Close the Actions modal
   const handleCloseActionsModal = () => {
     setShowActionsModal(false);
     setSelectedUser(null);
+  };
+
+  
+  const handleViewAsDriver = (targetRoute: string) => {
+    const sponsorOrgID = auth.user?.profile?.UserOrganization; 
+    localStorage.setItem(
+      "impersonatingDriver",
+      JSON.stringify({
+        email: selectedUser.DriverEmail,
+        firstName: selectedUser.DriverFName,
+        sponsorOrgID: sponsorOrgID
+      })
+    );
+    handleCloseActionsModal();
+    window.open(targetRoute, "_blank");
   };
 
   return (
@@ -212,49 +226,19 @@ export const ListOfUsersTable = ({
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              localStorage.setItem(
-                "impersonatingDriver",
-                JSON.stringify({
-                  email: selectedUser.DriverEmail,
-                  firstName: selectedUser.DriverFName
-                })
-              );
-              handleCloseActionsModal();
-              window.open("/driver-dashboard", "_blank");
-            }}
+            onClick={() => handleViewAsDriver("/driver-dashboard")}
           >
             Driver Dashboard
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              localStorage.setItem(
-                "impersonatingDriver",
-                JSON.stringify({
-                  email: selectedUser.DriverEmail,
-                  firstName: selectedUser.DriverFName
-                })
-              );
-              handleCloseActionsModal();
-              window.open("/cart", "_blank");
-            }}
+            onClick={() => handleViewAsDriver("/cart")}
           >
             Driver Cart
           </Button>
           <Button
             variant="primary"
-            onClick={() => {
-              localStorage.setItem(
-                "impersonatingDriver",
-                JSON.stringify({
-                  email: selectedUser.DriverEmail,
-                  firstName: selectedUser.DriverFName
-                })
-              );
-              handleCloseActionsModal();
-              window.open("/catalog", "_blank");
-            }}
+            onClick={() => handleViewAsDriver("/catalog")}
           >
             Driver Catalog
           </Button>
