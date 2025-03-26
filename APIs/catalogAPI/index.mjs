@@ -3,6 +3,9 @@ import serverlessExpress from "@vendia/serverless-express";
 import mysql from "mysql2";
 import cors from "cors";
 
+const ITUNES_API_URL = "https://itunes.apple.com/search?term=";
+const ITUNES_API_LIMIT = 10;
+
 const app = express();  
 app.use(cors({ origin: "*" }));
 app.use(express.json());
@@ -17,10 +20,40 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-// Simple health check
 app.get("/status", (req, res) => {
   res.send({ Status: "Running" });
 });
+
+app.get("/itunes", (req, res) => {
+  console.log("Incoming Request Query:", req.query);
+
+  const term = req.query.term || req.query["term"];
+  const media = req.query.media || "music";
+  const limit = req.query.limit || 10;
+
+  if (!term || term.trim() === "") {
+      console.error("Missing search term. Query received:", req.query);
+      return res.status(400).json({ error: "Search term required" });
+  }
+
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=${media}&limit=${limit}`;
+
+  fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+          if (!data.results || data.results.length === 0) {
+              return res.status(404).json({ error: "No results found" });
+          }
+
+          return res.status(200).json({ products: data.results });
+      })
+      .catch((error) => {
+          console.error("iTunes API Error:", error);
+          res.status(500).json({ error: "Failed to fetch data from iTunes" });
+      });
+});
+
+
 
 /**
  * POST /catalog

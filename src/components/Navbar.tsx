@@ -8,6 +8,7 @@ import {
   MenuInfoNewUser
 } from "./Menu";
 import "./Navbarstyle.css";
+import { useCart } from "../pages/CartContext";
 
 interface Props {
   userType: string;
@@ -33,6 +34,8 @@ const getNavbarMenu = (userType: string, numOrgs: number) => {
 export const Navbar = ({ userType }: Props) => {
   const numOrgs = 1;
   const menuItems = getNavbarMenu(userType, numOrgs);
+  const { cart } = useCart();
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <>
@@ -60,10 +63,36 @@ export const Navbar = ({ userType }: Props) => {
           MoneyMiles
         </Link>
 
+        {userType === "Driver" || userType === "Sponsor" || userType === "Admin" ? (
+          <Link to="/account" className="nav-account">
+            <i className="fa-solid fa-user-gear fa-lg"></i>
+          </Link>
+        ) : null}
+        
+
+        {userType === "Driver" && (
+          <div className="nav-right">
+            <Link to="/cart" className="nav-cart">
+              <i className="fa-solid fa-shopping-cart fa-lg"></i>
+              {cartItemCount > 0 && (
+                <span className="cart-badge">{cartItemCount}</span>
+              )}
+            </Link>
+          </div>
+        )}
+
+        {userType === "Driver" && (
+          <div className="nav-left">
+            <Link to="/catalog" className="nav-catalog">
+              <strong>Catalog</strong>
+            </Link>
+          </div>
+        )}
+
         <div className="nav-right">
           <div className="nav-dropdown">
             <button className="dropdown-toggle">
-              <i className="fa-solid fa-bars fa-lg"></i>
+              <i className="fa-solid fa-bars fa-lg dropdown-icon"></i>
             </button>
             <ul className="dropdown-menu">
               {menuItems.map((item, index) => (

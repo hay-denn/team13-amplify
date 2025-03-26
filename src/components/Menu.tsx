@@ -7,12 +7,6 @@ export const MenuInfoSponsoredDriver = [
     icon: "fa-solid fa-house-user",
   },
   {
-    title: "About",
-    url: "/about",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
-  },
-  {
     title: "Catalog",
     url: "/catalog",
     cName: "nav-links",
@@ -23,12 +17,6 @@ export const MenuInfoSponsoredDriver = [
     url: "/sponsors",
     cName: "nav-links",
     icon: "fa-solid fa-building"
-  },
-  {
-    title: "Cart",
-    url: "/cart",
-    cName: "nav-links",
-    icon: "fa-solid fa-cart-shopping",
   },
 
   /*
@@ -46,13 +34,7 @@ export const MenuInfoSponsoredDriver = [
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-sitemap",
-  },
-  {
-    title: "My Account",
-    url: "/account",
-    cName: "nav-links profile-link",
-    icon: "fa-solid fa-user-gear",
-  },
+  }
 ];
 
 export const MenuInfoNewUser = [
@@ -63,22 +45,10 @@ export const MenuInfoNewUser = [
     icon: "fa-solid fa-house-user",
   },
   {
-    title: "About",
-    url: "/about",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
-  },
-  {
     title: "My Applications",
     url: "#",
     cName: "nav-links",
     icon: "fa-solid fa-file-signature",
-  },
-  {
-    title: "My Account",
-    url: "/account",
-    cName: "nav-links profile-link",
-    icon: "fa-solid fa-user-gear",
   },
   {
     title: "Explore Sponsors",
@@ -96,12 +66,6 @@ export const MenuAdmin = [
     icon: "fa-solid fa-house-user",
   },
   {
-    title: "About",
-    url: "/about",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
-  },
-  {
     title: "Manage Users",
     url: "/manageusers",
     cName: "nav-links",
@@ -112,13 +76,7 @@ export const MenuAdmin = [
     url: "/reports",
     cName: "nav-links",
     icon: "fa-solid fa-chart-simple",
-  },
-  {
-    title: "My Account",
-    url: "/account",
-    cName: "nav-links profile-link",
-    icon: "fa-solid fa-user-gear",
-  },
+  }
 ];
 
 export const MenuInfoSponsor = [
@@ -127,12 +85,6 @@ export const MenuInfoSponsor = [
     url: "/",
     cName: "nav-links",
     icon: "fa-solid fa-house-user",
-  },
-  {
-    title: "About",
-    url: "/about",
-    cName: "nav-links",
-    icon: "fa-solid fa-circle-user",
   },
   {
     title: "Catalogs",
@@ -151,12 +103,6 @@ export const MenuInfoSponsor = [
     url: "/reports",
     cName: "nav-links",
     icon: "fa-solid fa-chart-simple",
-  },
-  {
-    title: "My Account",
-    url: "/account",
-    cName: "nav-links profile-link",
-    icon: "fa-solid fa-user-gear",
   },
   {
     title: "Organization Settings",
