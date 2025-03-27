@@ -21,24 +21,15 @@ import { DriverCatalogs } from "./pages/DriverCatalogs.tsx";
 import  Reports  from "./pages/Reports.tsx";
 import { OrganizationSettings } from "./pages/OrganizationSettings.tsx";
 import { DriverCatalogsTest } from "./pages/DriverCatalogsTest.tsx";
+import { SponsorEditOrders } from "./pages/SponsorEditOrders.tsx";
 
 function App() {
   const auth = useAuth();
   const cognitoGroups: string[] =
     (auth.user?.profile?.["cognito:groups"] as string[]) || [];
 
-  // production code
-  /* Start production block */
   const userEmail = auth.user?.profile.email || "";
   const userGroup = cognitoGroups[0];
-  /* End production block */
-
-  // overwrites for testing, comment out for production
-  /* start testing block */
-  // const userGroup = "Sponsor";
-  // const userEmail = "noahamn@gmail.com";
-  // auth.isAuthenticated = true;
-  /* end testing block */
 
   return (
     <CartProvider>
@@ -75,6 +66,7 @@ function App() {
                     />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/catalogs" element={<SponsorCatalogs />} />
+                    <Route path="/edit-orders" element={<SponsorEditOrders /> } />
                     <Route
                       path={`/organization/settings`}
                       element={<OrganizationSettings userEmail={userEmail} />}

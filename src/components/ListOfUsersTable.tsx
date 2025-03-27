@@ -44,7 +44,7 @@ export const ListOfUsersTable = ({
   // State for sponsor's organization ID (fetched from API)
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
 
-  // Fetch the sponsor's org id via their email and log the result
+  // Fetch the sponsor's org id via their email
   useEffect(() => {
     const fetchSponsorOrg = async () => {
       try {
@@ -59,7 +59,6 @@ export const ListOfUsersTable = ({
         const data = await response.json();
         let sponsor;
         if (Array.isArray(data)) {
-          // Look for the sponsor record that matches
           sponsor = data.find((s: any) => s.UserEmail === auth.user?.profile?.email);
         } else {
           sponsor = data;
@@ -100,18 +99,26 @@ export const ListOfUsersTable = ({
     setSelectedUser(null);
   };
 
-  // Use the fetched sponsorOrgID (if available) instead of hardcoding from the profile.
-  // Also log the sponsorOrgID when impersonating.
+  // Use the fetched sponsorOrgID for viewing as driver (if needed)
   const handleViewAsDriver = (targetRoute: string) => {
-    console.log("Using sponsorOrgID for impersonation:", sponsorOrgID);
+    console.log("Viewing as driver using sponsorOrgID:", sponsorOrgID);
     localStorage.setItem(
       "impersonatingDriver",
       JSON.stringify({
         email: selectedUser.DriverEmail,
         firstName: selectedUser.DriverFName,
-        sponsorOrgID: sponsorOrgID,  // dynamically fetched from sponsor API
+        sponsorOrgID: sponsorOrgID,
       })
     );
+    handleCloseActionsModal();
+    window.open(targetRoute, "_blank");
+  };
+
+  // New function to handle editing orders using the driver's email
+  const handleEditOrders = (targetRoute: string) => {
+    console.log("Editing orders for user:", selectedUser);
+    // Save the driver's email so the edit orders page can query the API with it
+    localStorage.setItem("driverEmailForEdit", selectedUser.DriverEmail);
     handleCloseActionsModal();
     window.open(targetRoute, "_blank");
   };
@@ -162,7 +169,7 @@ export const ListOfUsersTable = ({
                   </button>
                 </td>
               )}
-              {/* 😎 NEW CODE - Actions button */}
+              {/* Actions button */}
               <td>
                 <button
                   className="btn btn-primary"
@@ -226,10 +233,7 @@ export const ListOfUsersTable = ({
                 </td>
               )}
               <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleShowActionsModal(admin)}
-                >
+                <button className="btn btn-primary" onClick={() => handleShowActionsModal(admin)}>
                   Actions
                 </button>
               </td>
@@ -260,23 +264,17 @@ export const ListOfUsersTable = ({
           <Button variant="secondary" onClick={handleCloseActionsModal}>
             Cancel
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleViewAsDriver("/driver-dashboard")}
-          >
+          <Button variant="primary" onClick={() => handleViewAsDriver("/driver-dashboard")}>
             Driver Dashboard
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleViewAsDriver("/cart")}
-          >
+          <Button variant="primary" onClick={() => handleViewAsDriver("/cart")}>
             Driver Cart
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleViewAsDriver("/catalog")}
-          >
+          <Button variant="primary" onClick={() => handleViewAsDriver("/catalog")}>
             Driver Catalog
+          </Button>
+          <Button variant="primary" onClick={() => handleEditOrders("/edit-orders")}>
+            Edit Orders
           </Button>
         </Modal.Footer>
       </Modal>
