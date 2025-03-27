@@ -139,6 +139,7 @@ const SponsorModal: React.FC<ModalProps> = ({
   onClose,
   initialData,
   emailList,
+  organizationID,
 }) => {
   //Used to store user data attributes for user we're editing/creating
   const [firstName, setFirstName] = useState("");
@@ -425,7 +426,7 @@ const SponsorModal: React.FC<ModalProps> = ({
             readOnly
             value={
               selectedOrg !== null
-                ? `Current Sponsor ID: ${selectedOrg}`
+                ? `Current Sponsor ID: ${organizationID}`
                 : "No Sponsor Assigned"
             }
             className="modal-input"
