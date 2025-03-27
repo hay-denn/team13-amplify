@@ -35,17 +35,22 @@ export const Manageusers = () => {
     getOrganizations();
   }, []);
 
-  const addEmailsToList = (jsonArray: { [key: string]: string }[], emailAttribute: string) => {
+  const addEmailsToList = (
+    jsonArray: { [key: string]: string }[],
+    emailAttribute: string
+  ) => {
     const newEmails: string[] = [];
-    jsonArray.forEach(json => {
-        if (json[emailAttribute]) {
-            newEmails.push(json[emailAttribute]);
-        } else {
-            console.log(`Email attribute "${emailAttribute}" not found in one of the provided JSON objects.`);
-        }
+    jsonArray.forEach((json) => {
+      if (json[emailAttribute]) {
+        newEmails.push(json[emailAttribute]);
+      } else {
+        console.log(
+          `Email attribute "${emailAttribute}" not found in one of the provided JSON objects.`
+        );
+      }
     });
-    setEmails(prevEmailList => [...prevEmailList, ...newEmails]);
-};
+    setEmails((prevEmailList) => [...prevEmailList, ...newEmails]);
+  };
 
   const getDrivers = async () => {
     try {
