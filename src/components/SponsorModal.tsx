@@ -424,11 +424,7 @@ const SponsorModal: React.FC<ModalProps> = ({
           <input
             type="text"
             readOnly
-            value={
-              selectedOrg !== null
-                ? `Current Sponsor ID: ${organizationID}`
-                : "No Sponsor Assigned"
-            }
+            value={`Current Sponsor ID: ${organizationID}`}
             className="modal-input"
           />
         )}

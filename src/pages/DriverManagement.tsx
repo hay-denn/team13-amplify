@@ -113,79 +113,79 @@ export const DriverManagement = () => {
 
   return (
     <>
-      <div className="container manage-users-container py-3 m-5">
-        <div className="card manage-users-card mt-5">
-          <div className="card-body">
-            <h5 className="manage-users-title card-title">
-              List Of Applications
-            </h5>
-            <p className="card-text">Manage User Applications below</p>
-            <ApplicationTable
-              applicationTable={applicationList}
-            ></ApplicationTable>
-          </div>
-        </div>
-
-        <div className="card manage-users-card mt-5">
-          <div className="card-body">
-            <h5 className="manage-users-title card-title">List Of Drivers</h5>
-            <p className="card-text">Users Associated With Your Organization</p>
-            <ListOfUsersTable
-              driverTable={driverList}
-              isSponsor={true}
-            ></ListOfUsersTable>
-            <div className="d-flex gap-3 justify-content-center">
-              <Button variant="primary" onClick={handleShowAddUserModal}>
-                Add an Existing User to Your Organization
-              </Button>
-
-              <Button variant="primary " onClick={handleOpenUserModal}>
-                Add a new Driver or Sponsor To Your Organization
-              </Button>
-              <SponsorModal
-                isOpen={isUserModalOpen}
-                onClose={() => setIsUserModalOpen(false)}
-                organizationID={currentSponsorId}
-              />
+      {currentSponsorId && (
+        <div className="container manage-users-container py-3 m-5">
+          <div className="card manage-users-card mt-5">
+            <div className="card-body">
+              <h5 className="manage-users-title card-title">
+                List Of Applications
+              </h5>
+              <p className="card-text">Manage User Applications below</p>
+              <ApplicationTable
+                applicationTable={applicationList}
+              ></ApplicationTable>
             </div>
+          </div>
 
-            <Modal show={showAddUserModal} onHide={handleCloseAddUserModal}>
-              <Modal.Header closeButton>
-                <Modal.Title>Add New Driver</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form>
-                  <Form.Group controlId="formDriverEmail" className="mb-3">
-                    <Form.Label>Driver Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      placeholder="Enter new driver email"
-                      value={newDriverEmail}
-                      onChange={(e) => setNewDriverEmail(e.target.value)}
-                    />
-                  </Form.Group>
-                  <Form.Group controlId="formSponsorOrgId" className="mb-3">
-                    <Form.Label>Sponsor Organization ID</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={currentSponsorId}
-                      readOnly
-                    />
-                  </Form.Group>
-                </Form>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleCloseAddUserModal}>
-                  Cancel
+          <div className="card manage-users-card mt-5">
+            <div className="card-body">
+              <h5 className="manage-users-title card-title">List Of Drivers</h5>
+              <p className="card-text">
+                Users Associated With Your Organization
+              </p>
+              <ListOfUsersTable
+                driverTable={driverList}
+                isSponsor={true}
+              ></ListOfUsersTable>
+              <div className="d-flex gap-3 justify-content-center">
+                <Button variant="primary" onClick={handleShowAddUserModal}>
+                  Add an Existing User to Your Organization
                 </Button>
-                <Button variant="primary" onClick={handleAddUser}>
-                  Add
+
+                <Button variant="primary " onClick={handleOpenUserModal}>
+                  Add a new Driver or Sponsor To Your Organization
                 </Button>
-              </Modal.Footer>
-            </Modal>
+                <SponsorModal
+                  isOpen={isUserModalOpen}
+                  onClose={() => setIsUserModalOpen(false)}
+                  organizationID={currentSponsorId}
+                />
+              </div>
+
+              <Modal show={showAddUserModal} onHide={handleCloseAddUserModal}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Add New Driver</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <Form.Group controlId="formDriverEmail" className="mb-3">
+                      <Form.Label>Driver Email</Form.Label>
+                      <Form.Control
+                        type="email"
+                        placeholder="Enter new driver email"
+                        value={newDriverEmail}
+                        onChange={(e) => setNewDriverEmail(e.target.value)}
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="formSponsorOrgId" className="mb-3">
+                      <Form.Label>Sponsor Organization ID</Form.Label>
+                      <Form.Control type="text" value={4} readOnly />
+                    </Form.Group>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleCloseAddUserModal}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" onClick={handleAddUser}>
+                    Add
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
