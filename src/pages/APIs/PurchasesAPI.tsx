@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const API_BASE_URL = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
+const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
 const PurchasesAPI: React.FC = () => {
 // -- States for /status & /purchase_count
@@ -12,6 +13,7 @@ const [purchaseCount, setPurchaseCount] = useState<number | null>(null);
 const [createDriver, setCreateDriver] = useState("");
 const [createStatus, setCreateStatus] = useState("");
 const [createDate, setCreateDate] = useState("");
+const [createSponsorID, setCreateSponsorID] = useState("");
 const [createResult, setCreateResult] = useState<string | null>(null);
 
 // -- States for Get Purchase (GET)
@@ -24,11 +26,33 @@ const [updateID, setUpdateID] = useState("");
 const [updateDriver, setUpdateDriver] = useState("");
 const [updateStatusValue, setUpdateStatusValue] = useState("");
 const [updateDate, setUpdateDate] = useState("");
+const [updateSponsorID, setUpdateSponsorID] = useState("");
 const [updateResult, setUpdateResult] = useState<string | null>(null);
 
 // -- States for Delete Purchase (DELETE)
 const [deleteID, setDeleteID] = useState("");
 const [deleteResult, setDeleteResult] = useState<string | null>(null);
+
+// get valid organizations
+const [organizations, setOrganizations] = useState<any>(null);
+
+// Fetch Organizations
+const fetchOrganizations = async () => {
+	try {
+		const res = await fetch(`${ORGANIZATIONS_API_URL}/organizations`);
+		if (!res.ok) {
+			throw new Error(`Organizations fetch failed: ${res.status}`);
+		}
+		const data = await res.json();
+		
+		// loop through the data and get the organization ids
+		const orgs = data.map((org: any) => org.OrganizationID);
+		setOrganizations(orgs);
+
+	} catch (err: any) {
+		setOrganizations(null);
+	}
+};
 
 /**
  * Fetch API status (GET /status)
@@ -83,6 +107,7 @@ try {
 		PurchaseDriver: createDriver,
 		PurchaseStatus: createStatus,
 		PurchaseDate: createDate,
+		PurchaseSponsorID: createSponsorID
 	}),
 	});
 
@@ -95,6 +120,7 @@ try {
 	setCreateDriver("");
 	setCreateStatus("");
 	setCreateDate("");
+	setCreateSponsorID("");
 
 	// Optionally refresh purchaseCount
 	fetchPurchaseCount();
@@ -144,9 +170,12 @@ try {
 	if (updateStatusValue.trim() !== "") {
 	requestBody.PurchaseStatus = updateStatusValue;
 	}
-	// if (updateDate.trim() !== "") {
-	// requestBody.PurchaseDate = updateDate;
-	// }
+	if (updateDate.trim() !== "") {
+	requestBody.PurchaseDate = updateDate;
+	}
+	if (updateSponsorID.trim() !== "") {
+	requestBody.PurchaseSponsorID = updateSponsorID;
+	}
 
 	const response = await fetch(`${API_BASE_URL}/purchase`, {
 	method: "PUT",
@@ -163,6 +192,7 @@ try {
 	setUpdateDriver("");
 	setUpdateStatusValue("");
 	setUpdateDate("");
+	setUpdateSponsorID("");
 } catch (error: any) {
 	setUpdateResult(`Error updating purchase: ${error.message}`);
 }
@@ -200,6 +230,7 @@ try {
 useEffect(() => {
 fetchStatus();
 fetchPurchaseCount();
+fetchOrganizations();
 }, []);
 
 return (
@@ -258,6 +289,18 @@ return (
 			onChange={(e) => setCreateDate(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
 		/>
+		<select
+            value={createSponsorID}
+            onChange={(e) => setCreateSponsorID(e.target.value)}
+            className="border border-gray-300 p-2 w-full rounded"
+        >
+            <option value="">Select Organization</option>
+            {organizations && organizations.map((org: any) => (
+            <option key={org} value={org}>
+                {org}
+            </option>
+            ))}
+        </select>
 		<button
 			onClick={handleCreatePurchase}
 			className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -328,6 +371,18 @@ return (
 			onChange={(e) => setUpdateDate(e.target.value)}
 			className="border border-gray-300 p-2 w-full rounded"
 		/>
+		<select
+            value={updateSponsorID}
+            onChange={(e) => setUpdateSponsorID(e.target.value)}
+            className="border border-gray-300 p-2 w-full rounded"
+        >
+            <option value="">Select Organization</option>
+            {organizations && organizations.map((org: any) => (
+            <option key={org} value={org}>
+                {org}
+            </option>
+            ))}
+        </select>
 		<button
 			onClick={handleUpdatePurchase}
 			className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
