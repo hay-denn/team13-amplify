@@ -106,6 +106,9 @@ const SimpleApiFetcher: React.FC = () => {
       <button onClick={() => setCurrOrgId((prev) => prev + 1)}>
         Increment Org ID
       </button>
+      <button onClick={() => setCurrOrgId((prev) => prev - 1)}>
+        Decrement Org ID
+      </button>
       <hr />
 
       <button onClick={handleSearch}>Get Catalog</button>
