@@ -114,18 +114,22 @@ export const ListOfUsersTable = ({
     window.open(targetRoute, "_blank");
   };
 
-const handleEditOrders = (targetRoute: string) => {
-  console.log("Editing orders for user:", selectedUser);
-  localStorage.setItem(
-    "driverEmailForEdit",
-    JSON.stringify({
-      driverEmail: selectedUser.DriverEmail,
-      sponsorOrgID: sponsorOrgID,
-    })
-  );
-  handleCloseActionsModal();
-  window.open(targetRoute, "_blank");
-};
+  // Updated handleEditOrders to also pass sponsorEmail
+  const handleEditOrders = (targetRoute: string) => {
+    console.log("Editing orders for user:", selectedUser);
+    // Get the sponsor email from the authenticated user's profile
+    const currentSponsorEmail = auth.user?.profile?.email || "";
+    localStorage.setItem(
+      "driverEmailForEdit",
+      JSON.stringify({
+        driverEmail: selectedUser.DriverEmail,
+        sponsorOrgID: sponsorOrgID,
+        sponsorEmail: currentSponsorEmail,
+      })
+    );
+    handleCloseActionsModal();
+    window.open(targetRoute, "_blank");
+  };
 
   return (
     <div>
@@ -236,7 +240,10 @@ const handleEditOrders = (targetRoute: string) => {
                 </td>
               )}
               <td>
-                <button className="btn btn-primary" onClick={() => handleShowActionsModal(admin)}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleShowActionsModal(admin)}
+                >
                   Actions
                 </button>
               </td>
@@ -251,7 +258,7 @@ const handleEditOrders = (targetRoute: string) => {
       />
       <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
-          <Modal.Title>View Site As Driver</Modal.Title>
+          <Modal.Title>Edit Driver</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
@@ -263,21 +270,41 @@ const handleEditOrders = (targetRoute: string) => {
             </>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseActionsModal}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={() => handleViewAsDriver("/driver-dashboard")}>
+        <Modal.Footer style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Button
+            variant="primary"
+            onClick={() => handleViewAsDriver("/driver-dashboard")}
+            style={{ width: "100%", margin: "5px 0" }}
+          >
             Driver Dashboard
           </Button>
-          <Button variant="primary" onClick={() => handleViewAsDriver("/cart")}>
+          <Button
+            variant="primary"
+            onClick={() => handleViewAsDriver("/cart")}
+            style={{ width: "100%", margin: "5px 0" }}
+          >
             Driver Cart
           </Button>
-          <Button variant="primary" onClick={() => handleViewAsDriver("/catalog")}>
+          <Button
+            variant="primary"
+            onClick={() => handleViewAsDriver("/catalog")}
+            style={{ width: "100%", margin: "5px 0" }}
+          >
             Driver Catalog
           </Button>
-          <Button variant="primary" onClick={() => handleEditOrders("/edit-orders")}>
+          <Button
+            variant="primary"
+            onClick={() => handleEditOrders("/edit-orders")}
+            style={{ width: "100%", margin: "5px 0" }}
+          >
             Edit Orders
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleCloseActionsModal}
+            style={{ width: "100%", margin: "5px 0" }}
+          >
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal>

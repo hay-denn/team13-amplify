@@ -13,21 +13,23 @@ export const SponsorEditOrders: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  // Parse the stored data to retrieve both the driver email and the sponsor ID
+  // Parse the stored data to retrieve driver email, sponsor ID, and sponsor email
   const storedData = localStorage.getItem("driverEmailForEdit");
   let driverEmail = "";
   let sponsorId = "";
+  let sponsorEmail = "";
   if (storedData) {
     try {
       const parsed = JSON.parse(storedData);
       driverEmail = parsed.driverEmail || "";
       sponsorId = parsed.sponsorOrgID || "";
+      sponsorEmail = parsed.sponsorEmail || "";
       console.log("Parsed storedData:", parsed);
     } catch (e) {
       console.error("Error parsing driverEmailForEdit:", e);
     }
   }
-  console.log("Driver Email:", driverEmail, "Sponsor ID:", sponsorId);
+  console.log("Driver Email:", driverEmail, "Sponsor ID:", sponsorId, "Sponsor Email:", sponsorEmail);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -41,13 +43,11 @@ export const SponsorEditOrders: React.FC = () => {
         if (!response.ok) {
           throw new Error(`Error fetching orders: ${response.status}`);
         }
-
         const data = await response.json();
         console.log("Data fetched:", data);
         if (!Array.isArray(data)) {
           throw new Error("Unexpected response format");
         }
-
         // Map the database fields to our Order type.
         // The database returns:
         // PurchaseID, PurchaseDriver, PurchaseDate, PurchaseStatus, PurchasePrice, PurchaseSponsorID
@@ -58,7 +58,6 @@ export const SponsorEditOrders: React.FC = () => {
           status: purchase.PurchaseStatus,
           price: purchase.PurchasePrice,
         }));
-
         console.log("Mapped Orders:", mappedOrders);
         setOrders(mappedOrders);
         setLoading(false);
@@ -72,8 +71,8 @@ export const SponsorEditOrders: React.FC = () => {
     if (driverEmail && sponsorId) {
       fetchOrders();
     } else {
-      console.error("Driver email or sponsor ID not found in localStorage.");
-      setError("Driver email or sponsor ID not found in localStorage.");
+      console.error("Driver email or sponsor ID not found in stored data.");
+      setError("Driver email or sponsor ID not found in stored data.");
       setLoading(false);
     }
   }, [driverEmail, sponsorId]);
@@ -105,8 +104,8 @@ export const SponsorEditOrders: React.FC = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              PointChangeDriver: "jrbrany@clemson.edu",
-              PointChangeSponsor: "3",
+              PointChangeDriver: order.driver,
+              PointChangeSponsor: sponsorEmail,
               PointChangeNumber: "5",
               PointChangeAction: "Subtract",
             }),
@@ -133,12 +132,10 @@ export const SponsorEditOrders: React.FC = () => {
     console.log("Loading orders...");
     return <div>Loading orders...</div>;
   }
-
   if (error) {
     console.log("Error:", error);
     return <div>Error: {error}</div>;
   }
-
   console.log("Rendering orders table.");
   return (
     <div className="container" style={{ marginTop: "80px" }}>
