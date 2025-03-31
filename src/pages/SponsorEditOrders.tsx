@@ -5,6 +5,7 @@ interface Order {
   driver: string;
   date: string;
   status: string;
+  price: number;
 }
 
 export const SponsorEditOrders: React.FC = () => {
@@ -48,11 +49,14 @@ export const SponsorEditOrders: React.FC = () => {
         }
 
         // Map the database fields to our Order type.
+        // The database returns:
+        // PurchaseID, PurchaseDriver, PurchaseDate, PurchaseStatus, PurchasePrice, PurchaseSponsorID
         const mappedOrders: Order[] = data.map((purchase: any) => ({
           orderId: purchase.PurchaseID,
           driver: purchase.PurchaseDriver,
           date: new Date(purchase.PurchaseDate).toLocaleDateString(),
           status: purchase.PurchaseStatus,
+          price: purchase.PurchasePrice,
         }));
 
         console.log("Mapped Orders:", mappedOrders);
@@ -74,6 +78,57 @@ export const SponsorEditOrders: React.FC = () => {
     }
   }, [driverEmail, sponsorId]);
 
+  const handleStatusChange = async (order: Order, newStatus: string) => {
+    try {
+      console.log("Updating status for order:", order.orderId, "to", newStatus);
+      // Request to update the purchase status
+      const updateResponse = await fetch(
+        "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1/purchase",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            PurchaseID: order.orderId,
+            PurchaseStatus: newStatus,
+          }),
+        }
+      );
+      console.log("Update response status:", updateResponse.status);
+      if (!updateResponse.ok) {
+        throw new Error(`Error updating purchase status: ${updateResponse.status}`);
+      }
+      // If status is set to "Cancelled", post to pointchange endpoint
+      if (newStatus === "Cancelled") {
+        const pointChangeResponse = await fetch(
+          "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1/pointchange",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              PointChangeDriver: order.driver,
+              PointChangeSponsor: sponsorId,
+              PointChangeNumber: order.price,
+              PointChangeAction: "Subtract",
+            }),
+          }
+        );
+        console.log("Point change response status:", pointChangeResponse.status);
+        if (!pointChangeResponse.ok) {
+          throw new Error(`Error updating point change: ${pointChangeResponse.status}`);
+        }
+      }
+      // Update local state with the new status for this order
+      setOrders((prevOrders) =>
+        prevOrders.map((o) =>
+          o.orderId === order.orderId ? { ...o, status: newStatus } : o
+        )
+      );
+      console.log("Order updated successfully.");
+    } catch (error: any) {
+      console.error("Error in handleStatusChange:", error.message);
+    }
+  };
+
   if (loading) {
     console.log("Loading orders...");
     return <div>Loading orders...</div>;
@@ -86,7 +141,7 @@ export const SponsorEditOrders: React.FC = () => {
 
   console.log("Rendering orders table.");
   return (
-    <div className="container">
+    <div className="container" style={{ marginTop: "80px" }}>
       <h1>Edit Orders for {driverEmail}</h1>
       {orders.length === 0 ? (
         <p>No orders found for this driver.</p>
@@ -95,6 +150,7 @@ export const SponsorEditOrders: React.FC = () => {
           <thead>
             <tr>
               <th>Order ID</th>
+              <th>Price</th>
               <th>Driver</th>
               <th>Date</th>
               <th>Status</th>
@@ -104,9 +160,20 @@ export const SponsorEditOrders: React.FC = () => {
             {orders.map((order) => (
               <tr key={order.orderId}>
                 <td>{order.orderId}</td>
+                <td>{order.price}</td>
                 <td>{order.driver}</td>
                 <td>{order.date}</td>
-                <td>{order.status}</td>
+                <td>
+                  <select
+                    value={order.status}
+                    onChange={(e) => handleStatusChange(order, e.target.value)}
+                  >
+                    <option value="Ordered">Ordered</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                </td>
               </tr>
             ))}
           </tbody>
