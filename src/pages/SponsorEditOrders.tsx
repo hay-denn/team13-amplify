@@ -105,9 +105,9 @@ export const SponsorEditOrders: React.FC = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              PointChangeDriver: order.driver,
-              PointChangeSponsor: sponsorId,
-              PointChangeNumber: order.price,
+              PointChangeDriver: "jrbrany@clemson.edu",
+              PointChangeSponsor: "3",
+              PointChangeNumber: "5",
               PointChangeAction: "Subtract",
             }),
           }
