@@ -195,7 +195,20 @@ export const CartPage: React.FC = () => {
   const handleSubmitOrder = async () => {
     if (selectedOrganizationID) {
     //check point balance 
-    if (currentOrganizations[selectedOrganizationID].DriversPoints >= totalCost) {
+
+    //get correct organization for point balance check
+    let curOrgIndex = -1;
+    if (impersonation) {
+      curOrgIndex = Number(impersonation.sponsorOrgID);
+    } else {
+      curOrgIndex = filteredOrgs.findIndex(
+        (driverorg) =>
+          driverorg.DriversSponsorID === selectedOrganizationID
+      );
+      console.log(curOrgIndex)
+    }
+
+    if (filteredOrgs[curOrgIndex].DriversPoints >= totalCost) {
         //post purchase
             const purchaseData = {
               "PurchaseDriver" : userEmail,
