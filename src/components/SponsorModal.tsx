@@ -262,7 +262,7 @@ const SponsorModal: React.FC<ModalProps> = ({
             DriverFName: firstName,
             DriverLName: familyName,
           };
-          callAPI(`${DRIVER_URL}/driver`, "POST", data);
+          await callAPI(`${DRIVER_URL}/driver`, "POST", data);
 
           //Add relationship between the driver and sponsor
           const data2 = {
@@ -270,7 +270,7 @@ const SponsorModal: React.FC<ModalProps> = ({
             DriversSponsorID: organizationID.toString(),
           };
 
-          callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data2);
+          await callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data2);
         } else if (userType == "Sponsor") {
           const data = {
             UserEmail: email,
