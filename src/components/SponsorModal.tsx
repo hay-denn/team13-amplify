@@ -265,6 +265,12 @@ const SponsorModal: React.FC<ModalProps> = ({
           callAPI(`${DRIVER_URL}/driver`, "POST", data);
 
           //Add relationship between the driver and sponsor
+          const data2 = {
+            DriverEmail: email,
+            DriversSponsorID: organizationID.toString(),
+          };
+
+          callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data2);
         } else if (userType == "Sponsor") {
           const data = {
             UserEmail: email,
