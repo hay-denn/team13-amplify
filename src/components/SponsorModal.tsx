@@ -263,12 +263,14 @@ const SponsorModal: React.FC<ModalProps> = ({
             DriverLName: familyName,
           };
           callAPI(`${DRIVER_URL}/driver`, "POST", data);
+
+          //Add relationship between the driver and sponsor
         } else if (userType == "Sponsor") {
           const data = {
             UserEmail: email,
             UserFName: firstName,
             UserLName: familyName,
-            UserOrganization: selectedOrg,
+            UserOrganization: organizationID,
           };
           callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
         } else {
@@ -297,7 +299,7 @@ const SponsorModal: React.FC<ModalProps> = ({
             UserEmail: email,
             UserFName: firstName,
             UserLName: familyName,
-            UserOrganization: selectedOrg, //this is temporary until sponsor organizations are implemented
+            UserOrganization: selectedOrg,
           };
           callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
         } else {
