@@ -259,11 +259,12 @@ export const CartPage: React.FC = () => {
                 alert("Purchase success!");
               } else {
                 console.log("Could not retrieve a sponsor ID for the purchase");
-                alert("Error creating purchase. Please try again.");
+                alert("Error processing purchase. Please try again.");
               }
             }
           } catch (error) {
-            alert("Error creating purchase. Please try again.")
+            console.error("Error occurred processing purchase", error);
+            alert("Error processing purchase. Please try again.")
           }
     } else {
       alert("Insufficient points!");
