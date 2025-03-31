@@ -114,14 +114,18 @@ export const ListOfUsersTable = ({
     window.open(targetRoute, "_blank");
   };
 
-  // New function to handle editing orders using the driver's email
-  const handleEditOrders = (targetRoute: string) => {
-    console.log("Editing orders for user:", selectedUser);
-    // Save the driver's email so the edit orders page can query the API with it
-    localStorage.setItem("driverEmailForEdit", selectedUser.DriverEmail);
-    handleCloseActionsModal();
-    window.open(targetRoute, "_blank");
-  };
+const handleEditOrders = (targetRoute: string) => {
+  console.log("Editing orders for user:", selectedUser);
+  localStorage.setItem(
+    "driverEmailForEdit",
+    JSON.stringify({
+      driverEmail: selectedUser.DriverEmail,
+      sponsorOrgID: sponsorOrgID,
+    })
+  );
+  handleCloseActionsModal();
+  window.open(targetRoute, "_blank");
+};
 
   return (
     <div>
@@ -135,7 +139,6 @@ export const ListOfUsersTable = ({
             <th scope="col">Email</th>
             {!isSponsor && <th scope="col">Organization</th>}
             {!isSponsor && <th scope="col">Edit</th>}
-            {/* 😎 NEW CODE - Always show "Actions" column */}
             <th scope="col">Actions</th>
           </tr>
         </thead>

@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 
 interface Order {
   orderId: number;
-  itemName: string;
-  quantity: number;
-  cost: number;
+  driver: string;
   date: string;
+  status: string;
 }
 
 export const SponsorEditOrders: React.FC = () => {
@@ -13,41 +12,79 @@ export const SponsorEditOrders: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  const driverEmail = localStorage.getItem("driverEmailForEdit") || "";
+  // Parse the stored data to retrieve both the driver email and the sponsor ID
+  const storedData = localStorage.getItem("driverEmailForEdit");
+  let driverEmail = "";
+  let sponsorId = "";
+  if (storedData) {
+    try {
+      const parsed = JSON.parse(storedData);
+      driverEmail = parsed.driverEmail || "";
+      sponsorId = parsed.sponsorOrgID || "";
+      console.log("Parsed storedData:", parsed);
+    } catch (e) {
+      console.error("Error parsing driverEmailForEdit:", e);
+    }
+  }
+  console.log("Driver Email:", driverEmail, "Sponsor ID:", sponsorId);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `https://ptgem248l6.execute-api.us-east-1.amazonaws.com/dev1/orders?driverEmail=${encodeURIComponent(driverEmail)}`
-        );
+        const encodedEmail = encodeURIComponent(driverEmail.replace(/ /g, "+"));
+        const url = `https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1/purchases?PurchaseSponsorID=${sponsorId}&PurchaseDriver=${encodedEmail}`;
+        console.log("Fetching orders from URL:", url);
+        const response = await fetch(url);
+        console.log("Response status:", response.status);
         if (!response.ok) {
           throw new Error(`Error fetching orders: ${response.status}`);
         }
+
         const data = await response.json();
+        console.log("Data fetched:", data);
         if (!Array.isArray(data)) {
           throw new Error("Unexpected response format");
         }
-        setOrders(data);
+
+        // Map the database fields to our Order type.
+        const mappedOrders: Order[] = data.map((purchase: any) => ({
+          orderId: purchase.PurchaseID,
+          driver: purchase.PurchaseDriver,
+          date: new Date(purchase.PurchaseDate).toLocaleDateString(),
+          status: purchase.PurchaseStatus,
+        }));
+
+        console.log("Mapped Orders:", mappedOrders);
+        setOrders(mappedOrders);
         setLoading(false);
       } catch (err: any) {
+        console.error("Error encountered:", err.message);
         setError(err.message);
         setLoading(false);
       }
     };
 
-    if (driverEmail) {
+    if (driverEmail && sponsorId) {
       fetchOrders();
     } else {
-      setError("Driver email not found in localStorage.");
+      console.error("Driver email or sponsor ID not found in localStorage.");
+      setError("Driver email or sponsor ID not found in localStorage.");
       setLoading(false);
     }
-  }, [driverEmail]);
+  }, [driverEmail, sponsorId]);
 
-  if (loading) return <div>Loading orders...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    console.log("Loading orders...");
+    return <div>Loading orders...</div>;
+  }
 
+  if (error) {
+    console.log("Error:", error);
+    return <div>Error: {error}</div>;
+  }
+
+  console.log("Rendering orders table.");
   return (
     <div className="container">
       <h1>Edit Orders for {driverEmail}</h1>
@@ -58,20 +95,18 @@ export const SponsorEditOrders: React.FC = () => {
           <thead>
             <tr>
               <th>Order ID</th>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Cost</th>
+              <th>Driver</th>
               <th>Date</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
               <tr key={order.orderId}>
                 <td>{order.orderId}</td>
-                <td>{order.itemName}</td>
-                <td>{order.quantity}</td>
-                <td>{order.cost}</td>
+                <td>{order.driver}</td>
                 <td>{order.date}</td>
+                <td>{order.status}</td>
               </tr>
             ))}
           </tbody>
@@ -80,3 +115,5 @@ export const SponsorEditOrders: React.FC = () => {
     </div>
   );
 };
+
+export default SponsorEditOrders;
