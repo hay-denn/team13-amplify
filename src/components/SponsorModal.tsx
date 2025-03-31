@@ -266,7 +266,7 @@ const SponsorModal: React.FC<ModalProps> = ({
 
           //Add relationship between the driver and sponsor
           const data2 = {
-            DriverEmail: email,
+            DriversEmail: email,
             DriversSponsorID: organizationID.toString(),
           };
 
