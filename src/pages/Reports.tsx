@@ -32,6 +32,17 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 */
 
+type ReportData = {
+    driver?: string;
+    pointChange?: number;
+    sales?: number;
+    sponsor?: string;
+    invoiceNumber?: string;
+    amount?: number;
+    date: string;
+};
+
+
 const sampleData = [
   { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
   { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
@@ -45,7 +56,7 @@ const Reports: React.FC = () => {
 
   const generateReport = () => {
     console.log(`Generating report: ${selectedReport}`);
-    let data: { driver: string; pointChange: number; date: string; }[] | { driver: string; sales: number; date: string; }[] | { sponsor: string; sales: number; date: string; }[] | { invoiceNumber: string; amount: number; date: string; }[] = [];
+    let data: ReportData[] = [];
     if (selectedReport === "All Driver Point Changes") {
         // Fetch or set sample data for all driver point changes
         data = sampleData; // Replace with an API call if needed
