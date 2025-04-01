@@ -368,7 +368,7 @@ export const CartPage: React.FC = () => {
                       className="text-black px-2 py-1 rounded"
                       onClick={() => handleSubmitOrder()}
                     >
-                      Remove
+                      Submit Order
                     </button>
         </div>
       </div>
