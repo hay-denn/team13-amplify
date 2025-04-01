@@ -109,6 +109,29 @@ async function callAPI(url: string, methodType: string, data: object): Promise<a
   }
 }
 
+//GET API call function for purchases
+async function callAPIGET(url: string): Promise<any> {
+  try {
+    const response = await fetch(url, {
+      method: "GET", // HTTP method
+    });
+    if (response.ok) {
+      // If the request was successful
+      const responseData = await response.json();
+      console.log('Success: ' + JSON.stringify(responseData))
+      return responseData;
+    } else {
+      // Handle error if response status is not OK
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`); // Display error alert with status and message
+      throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+
+    }
+  } catch (error) {
+    // Catch any network or other errors
+    throw new Error(`API call failed for url ${url} - Network Error: ${error}`);
+  }
+}
+
 // Cart Page Component
 export const CartPage: React.FC = () => {
   const authContext = useContext(AuthContext);
@@ -226,7 +249,7 @@ export const CartPage: React.FC = () => {
               if (impersonation) {
                 sponsorEmail = impersonation.email;
               } else {
-                const sponsorResult = await callAPI(`${SPONSOR_API}/sponsors?UserOrganization=${selectedOrganizationID}`, "GET", {});
+                const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${selectedOrganizationID}`);
                 const sponsorResultData = await sponsorResult;
                 sponsorEmail = sponsorResultData[0]?.UserEmail;
               }
