@@ -5,7 +5,33 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const sampleData = [
+const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
+
+async function getAllPointChanges(startDate: string, endDate: string) {
+    try {
+        const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
+        if (!response.ok) throw new Error("Failed to fetch point changes");
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching organizations:", error);
+        return [];
+    }
+}
+
+async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
+    try {
+        const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
+        if (!response.ok) throw new Error("Failed to fetch point changes");
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching organizations:", error);
+        return [];
+    }
+}
+
+const sampleData = getAllPointChanges("2000-01-01", "3000-01-01");
+
+const sampleDataTest = [
   { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
   { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
   { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
