@@ -12,6 +12,10 @@ export const AccountSettings: React.FC = () => {
   const auth = useAuth();
   const authContext = useContext(AuthContext);
 
+  const cognitoGroups: string[] =
+  (auth.user?.profile?.["cognito:groups"] as string[]) || [];
+  const userGroup = cognitoGroups[0]; 
+
   // States for user attributes
   const [email, setEmail] = useState(auth.user?.profile.email || "");
   const [firstName, setFirstName] = useState(auth.user?.profile.given_name || "");
@@ -383,7 +387,7 @@ export const AccountSettings: React.FC = () => {
           </form>
         </div>
       )}
-      {auth.user?.profile?.["cognito:groups"] === "Driver" && <PurchaseTable userEmail={email}></PurchaseTable>}
+      {userGroup === "Driver" && <PurchaseTable userEmail={email}></PurchaseTable>}
     </div>
   );
 };
