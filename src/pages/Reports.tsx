@@ -33,10 +33,30 @@ const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 */
 
 const sampleData = [
-  { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
-  { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
-  { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+    { driver: "Ethan Brown", pointChange: 8, date: "2025-03-11" },
+    { driver: "Sarah Connor", pointChange: -4, date: "2025-03-15" },
 ];
+
+const allDriverPointChanges = [
+    { driver: "Ethan Brown", pointChange: 8, date: "2025-03-11" },
+    { driver: "Sarah Connor", pointChange: -4, date: "2025-03-15" },
+];
+  
+const specificDriverPointChanges = [
+    { driver: "John Doe", pointChange: 3, date: "2025-03-16" },
+];
+
+const salesByDriver = [
+    { driver: "Jane Smith", sales: 1200, date: "2025-03-12" },
+];
+
+const salesBySponsor = [
+    { sponsor: "Acme Corp", sales: 3000, date: "2025-03-18" },
+];
+
+const invoiceData = [
+    { invoiceNumber: "INV1234", amount: 1500, date: "2025-03-20" },
+];  
 
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
@@ -44,10 +64,29 @@ const Reports: React.FC = () => {
   const [reportData, setReportData] = useState(sampleData);
 
   const generateReport = () => {
-    console.log(`Generating report: ${selectedReport}`);
-    setReportData(sampleData);
+    let data;
+    switch (selectedReport) {
+      case "All Driver Point Changes":
+        data = allDriverPointChanges;
+        break;
+      case "Specific Driver Point Changes":
+        data = specificDriverPointChanges;
+        break;
+      case "Sales By Driver":
+        data = salesByDriver;
+        break;
+      case "Sales By Sponsor":
+        data = salesBySponsor;
+        break;
+      case "Invoice":
+        data = invoiceData;
+        break;
+      default:
+        data = sampleData; // Default to "Driver Point Changes"
+    }
+    setReportData(data);
   };
-
+  
   const downloadPDF = async () => {
     const element = document.getElementById("report-content");
     if (element) {
@@ -89,11 +128,27 @@ const Reports: React.FC = () => {
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
-                  <TableRow>
-                    <TableCell>Driver</TableCell>
-                    <TableCell>Point Change</TableCell>
-                    <TableCell>Date</TableCell>
-                  </TableRow>
+                    <TableRow>
+                        {selectedReport.includes("Sales") ? (
+                        <>
+                            <TableCell>{selectedReport === "Sales By Driver" ? "Driver" : "Sponsor"}</TableCell>
+                            <TableCell>Sales</TableCell>
+                            <TableCell>Date</TableCell>
+                        </>
+                        ) : selectedReport === "Invoice" ? (
+                        <>
+                            <TableCell>Invoice Number</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell>Date</TableCell>
+                        </>
+                        ) : (
+                        <>
+                            <TableCell>Driver</TableCell>
+                            <TableCell>Point Change</TableCell>
+                            <TableCell>Date</TableCell>
+                        </>
+                        )}
+                    </TableRow>
                 </TableHead>
                 <TableBody>
                   {reportData.map((item, index) => (
