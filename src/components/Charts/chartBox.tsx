@@ -14,74 +14,44 @@ export const ChartBox = () => {
   const data = [
     {
       name: "January",
-      pointsEarned: 4000,
-      pointsSpent: 2400,
+      uv: 4000,
+      pv: 2400,
       amt: 2400,
     },
     {
-      name: "February",
-      pointsEarned: 3000,
-      pointsSpent: 1398,
+      name: "Febuary",
+      uv: 3000,
+      pv: 1398,
       amt: 2210,
     },
     {
       name: "March",
-      pointsEarned: 2000,
-      pointsSpent: 9800,
+      uv: 2000,
+      pv: 9800,
       amt: 2290,
     },
     {
       name: "April",
-      pointsEarned: 2780,
-      pointsSpent: 3908,
+      uv: 2780,
+      pv: 3908,
       amt: 2000,
     },
     {
       name: "May",
-      pointsEarned: 1890,
-      pointsSpent: 4800,
+      uv: 1890,
+      pv: 4800,
       amt: 2181,
     },
     {
       name: "June",
-      pointsEarned: 2390,
-      pointsSpent: 3800,
+      uv: 2390,
+      pv: 3800,
       amt: 2500,
     },
     {
       name: "July",
-      pointsEarned: 3490,
-      pointsSpent: 4300,
-      amt: 2100,
-    },
-    {
-      name: "August",
-      pointsEarned: 3490,
-      pointsSpent: 4300,
-      amt: 2100,
-    },
-    {
-      name: "September",
-      pointsEarned: 3490,
-      pointsSpent: 4300,
-      amt: 2100,
-    },
-    {
-      name: "October",
-      pointsEarned: 3490,
-      pointsSpent: 4300,
-      amt: 2100,
-    },
-    {
-      name: "November",
-      pointsEarned: 3490,
-      pointsSpent: 4300,
-      amt: 2100,
-    },
-    {
-      name: "December",
-      pointsEarned: 3490,
-      pointsSpent: 4300,
+      uv: 3490,
+      pv: 4300,
       amt: 2100,
     },
   ];
@@ -91,14 +61,14 @@ export const ChartBox = () => {
         <div className="boxInfo">
           <div className="title">
             <img src="/user.svg" alt="" />
-            <span>Total Users</span>
+            <span>New Users By Month</span>
           </div>
 
           <h1>10</h1>
           <Link to="/DriverManagement">"View users"</Link>
           <div className="chartInfo">
             <div className="chart"></div>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart
                 width={500}
                 height={300}
@@ -116,12 +86,12 @@ export const ChartBox = () => {
                 <Tooltip />
                 <Legend />
                 <Bar
-                  dataKey="pointsEarned"
+                  dataKey="pv"
                   fill="#8884d8"
                   activeBar={<Rectangle fill="pink" stroke="blue" />}
                 />
                 <Bar
-                  dataKey="pointsSpent"
+                  dataKey="uv"
                   fill="#82ca9d"
                   activeBar={<Rectangle fill="gold" stroke="purple" />}
                 />

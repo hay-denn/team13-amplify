@@ -18,8 +18,13 @@ body {
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     transition: box-shadow 0.3s ease, transform 0.3s ease;
+    overflow: auto;
+    border: 1px solid	#dee2e6;
   }
   
+  .box1{
+    height: 400px;
+  }
   .box:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     transform: translateY(-2px);
@@ -37,3 +42,5 @@ body {
     color: #555;
     font-size: 1.1rem;
   }
+
+  
