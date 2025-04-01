@@ -1,38 +1,43 @@
-import {useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "./CartContext";
 
-const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
-const DRIVERS_SPONSORS_API_URL="https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+const ORGANIZATIONS_API_URL =
+  "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
+const DRIVERS_SPONSORS_API_URL =
+  "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
 
 interface DriverCatalogsProps {
-  inputUserEmail: string; 
+  inputUserEmail: string;
+  onOrganizationSelect?: (orgId: number | null) => void;
 }
 
-export const DriverCatalogsTest = ({ inputUserEmail }: DriverCatalogsProps) => {
-
+export const DriverCatalogsTest = ({
+  inputUserEmail,
+  onOrganizationSelect,
+}: DriverCatalogsProps) => {
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
-  const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
+  const impersonation = storedImpersonation
+    ? JSON.parse(storedImpersonation)
+    : null;
 
-  const userEmail = impersonation
-    ? impersonation.email
-    : inputUserEmail || "";
+  const userEmail = impersonation ? impersonation.email : inputUserEmail || "";
 
   const [organizations, setOrganizations] = useState<
     { OrganizationID: number; OrganizationName: string }[]
   >([]);
-  const [currentOrganizations, setCurrentOrganizations] = useState<{
-    DriversEmail: string;
-    DriversSponsorID: number;
-    DriversPoints: number;
-  }[]>([]);
+  const [currentOrganizations, setCurrentOrganizations] = useState<
+    {
+      DriversEmail: string;
+      DriversSponsorID: number;
+      DriversPoints: number;
+    }[]
+  >([]);
 
   // Fetch organizations
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
-        const response = await fetch(
-          ORGANIZATIONS_API_URL
-        );
+        const response = await fetch(ORGANIZATIONS_API_URL);
         const data = await response.json();
         if (!Array.isArray(data)) {
           console.error("Unexpected response format:", data);
@@ -72,17 +77,22 @@ export const DriverCatalogsTest = ({ inputUserEmail }: DriverCatalogsProps) => {
   // Filter organizations: if impersonating, show only the matching organization
   const filteredOrgs = impersonation?.sponsorOrgID
     ? currentOrganizations.filter(
-        (org) =>
-          org.DriversSponsorID === Number(impersonation.sponsorOrgID)
+        (org) => org.DriversSponsorID === Number(impersonation.sponsorOrgID)
       )
     : currentOrganizations;
 
-  const [selectedOrganizationID, setSelectedOrganizationID] = useState<number | null>(
-    filteredOrgs.length > 0 ? filteredOrgs[0].DriversSponsorID : null
-  );
+  const [selectedOrganizationID, setSelectedOrganizationID] = useState<
+    number | null
+  >(filteredOrgs.length > 0 ? filteredOrgs[0].DriversSponsorID : null);
 
-  const handleOrganizationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleOrganizationChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setSelectedOrganizationID(Number(event.target.value));
+
+    if (onOrganizationSelect) {
+      onOrganizationSelect(Number(event.target.value));
+    }
   };
 
   const selectedOrganization = filteredOrgs.find(
@@ -94,10 +104,22 @@ export const DriverCatalogsTest = ({ inputUserEmail }: DriverCatalogsProps) => {
 
   const handleTestAddItems = () => {
     const testItems = [
-      { name: "C.O.U.N.T.R.Y.", cost: 1.29, quantity: 1, org: 4, id: 977746853},
-      { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338},
-      { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338},
-      { name: "C.O.U.N.T.R.Y.", cost: 1.29, quantity: 1, org: 7, id: 977746853},
+      {
+        name: "C.O.U.N.T.R.Y.",
+        cost: 1.29,
+        quantity: 1,
+        org: 4,
+        id: 977746853,
+      },
+      { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338 },
+      { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338 },
+      {
+        name: "C.O.U.N.T.R.Y.",
+        cost: 1.29,
+        quantity: 1,
+        org: 7,
+        id: 977746853,
+      },
     ];
     testItems.forEach(addToCart);
     alert("Test items added to cart!");
@@ -128,7 +150,9 @@ export const DriverCatalogsTest = ({ inputUserEmail }: DriverCatalogsProps) => {
           );
           return (
             <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-              {organization ? organization.OrganizationName : "Unknown Organization"}
+              {organization
+                ? organization.OrganizationName
+                : "Unknown Organization"}
             </option>
           );
         })}
