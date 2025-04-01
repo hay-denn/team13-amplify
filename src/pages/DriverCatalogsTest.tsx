@@ -94,10 +94,10 @@ export const DriverCatalogsTest = ({ inputUserEmail }: DriverCatalogsProps) => {
 
   const handleTestAddItems = () => {
     const testItems = [
-      { name: "Item A", cost: 10, quantity: 1, org: 4, id: 1},
-      { name: "Item B", cost: 15, quantity: 1, org: 7, id: 2},
-      { name: "Item C", cost: 20, quantity: 1, org: 4, id: 3 },
-      { name: "Item D", cost: 5, quantity: 1, org:7, id: 4 },
+      { name: "C.O.U.N.T.R.Y.", cost: 1.29, quantity: 1, org: 4, id: 977746853},
+      { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338},
+      { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338},
+      { name: "C.O.U.N.T.R.Y.", cost: 1.29, quantity: 1, org: 7, id: 977746853},
     ];
     testItems.forEach(addToCart);
     alert("Test items added to cart!");
