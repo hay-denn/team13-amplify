@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useCart } from "./CartContext";
+import "./Catalog.css";
 
 const ORGANIZATIONS_API_URL =
   "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
@@ -128,10 +129,6 @@ export const DriverCatalogsTest = ({
   return (
     <div>
       <br />
-      <br />
-      <br />
-
-      <h1>Catalog</h1>
       <h3>Select an organization from the dropdown to view their catalog</h3>
       <label htmlFor="organizationDropdown" className="mr-2">
         Select Organization:

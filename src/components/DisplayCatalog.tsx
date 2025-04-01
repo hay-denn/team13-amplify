@@ -57,20 +57,30 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const url_getOrganization =
     "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-  useEffect(() => {
-    const fetchOrganization = async () => {
-      try {
-        const response = await axios.get(
-          `${url_getOrganization}/organization?OrganizationID=${currOrgId}`
-        );
-        setOrganizationData(response.data);
-      } catch (error) {
-        console.error("Error fetching organization data:", error);
-      }
-    };
+  const fetchOrganization = async () => {
+    try {
+      const response = await axios.get(
+        `${url_getOrganization}/organization?OrganizationID=${currOrgId}`
+      );
+      setOrganizationData(response.data);
+    } catch (error) {
+      console.error("Error fetching organization data:", error);
+    }
+  };
 
+  //Loads the current catalog displayed based on the prop passed in
+  //runs when currOrgID changes
+  useEffect(() => {
     fetchOrganization();
   }, [currOrgId]);
+
+  //automatically fetches catalog when a change is detected
+  //runs when organizationData changes
+  useEffect(() => {
+    if (organizationData) {
+      handleFetchAll();
+    }
+  }, [organizationData]);
 
   useEffect(() => {
     if (!organizationData) return;
@@ -116,6 +126,10 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   };
 
   useEffect(() => {
+    setCurrOrgId(currentCatalog);
+  }, [currentCatalog]);
+
+  useEffect(() => {
     let filtered = allResults.filter((item) => item.trackPrice <= maxPrice);
 
     if (artistFilter.trim()) {
@@ -157,29 +171,13 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   };
 
   if (!organizationData) {
-    return <div>Loading organization data...</div>;
+    return <div>Please Select An Organization</div>;
   }
-
-  useEffect(() => {
-    // Everytime the selected current Id changes, update the variable
-    setCurrOrgId(currentCatalog);
-  }, [currentCatalog]);
-
-  useEffect(() => {
-    if (organizationData) {
-      handleFetchAll();
-    }
-  }, [organizationData]);
 
   return (
     <div style={{ margin: "2rem" }}>
       <p>Organization ID: {currOrgId}</p>
-      <button onClick={() => setCurrOrgId((prev) => prev + 1)}>
-        Increment Org ID
-      </button>
-      <button onClick={() => setCurrOrgId((prev) => prev - 1)}>
-        Decrement Org ID
-      </button>
+
       <hr />
 
       <div style={{ marginBottom: "1rem" }}>

@@ -7,7 +7,7 @@ interface DriverCatalogsProps {
 }
 
 export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
-  const [selectedOrgId, setSelectedOrgId] = useState<number>(0);
+  const [selectedOrgId, setSelectedOrgId] = useState<number>(13);
 
   // This callback is passed down and called by the child when the user selects an org
   const handleSelectedOrgChange = (orgId: number) => {
@@ -16,12 +16,9 @@ export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
 
   return (
     <div>
-      <p>WIP</p>
-      <p></p>
       <div className="shopTitle">
         <h1>Purchase Items from Your Sponsors</h1>
       </div>
-      <p>Current Selected Sponsor: {selectedOrgId}</p>
       <DriverCatalogsTest
         inputUserEmail={inputUserEmail}
         onOrganizationSelect={handleSelectedOrgChange}
