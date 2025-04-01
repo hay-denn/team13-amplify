@@ -260,7 +260,7 @@ export const CartPage: React.FC = () => {
                   "PointChangeNumber": totalCost,
                   "PointChangeAction": "Subtract"
                 }
-                callAPI(POINT_CHANGE_API, "POST", pointChangeData);
+                callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
 
                 filteredCart.forEach((item) => {
                 const productData = {
