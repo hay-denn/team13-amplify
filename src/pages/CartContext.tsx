@@ -8,6 +8,7 @@ interface CartItem {
   cost: number;
   quantity: number;
   org: number;
+  id: number;
 }
 
 // Define context type
@@ -60,6 +61,77 @@ export const useCart = () => {
   return context;
 };
 
+//Getting SQL friendly date
+function getCurrentMySQLDate(): string {
+  const now = new Date();
+
+  // Pad single digits with a leading zero
+  const pad = (num: number): string => num < 10 ? '0' + num : num.toString();
+
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1); // Months are 0-indexed
+  const day = pad(now.getDate());
+
+  return `${year}-${month}-${day}`;
+}
+
+//API LINKS
+const PUR_API = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
+const PROD_PUR_API = "https://ptgem248l6.execute-api.us-east-1.amazonaws.com/dev1";
+const POINT_CHANGE_API = "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_API = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1"
+
+
+//API call function for purchases
+async function callAPI(url: string, methodType: string, data: object): Promise<any> {
+  try {
+    const response = await fetch(url, {
+      method: methodType, // HTTP method
+      headers: {
+        'Content-Type': 'application/json', // Content type header
+      },
+      body: JSON.stringify(data), // Convert the data to JSON string
+    });
+    if (response.ok) {
+      // If the request was successful
+      const responseData = await response.json();
+      console.log('Success: ' + JSON.stringify(responseData))
+      return responseData;
+    } else {
+      // Handle error if response status is not OK
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`); // Display error alert with status and message
+      throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+
+    }
+  } catch (error) {
+    // Catch any network or other errors
+    throw new Error(`API call failed for url ${url} - Network Error: ${error}`);
+  }
+}
+
+//GET API call function for purchases
+async function callAPIGET(url: string): Promise<any> {
+  try {
+    const response = await fetch(url, {
+      method: "GET", // HTTP method
+    });
+    if (response.ok) {
+      // If the request was successful
+      const responseData = await response.json();
+      console.log('Success: ' + JSON.stringify(responseData))
+      return responseData;
+    } else {
+      // Handle error if response status is not OK
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`); // Display error alert with status and message
+      throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+
+    }
+  } catch (error) {
+    // Catch any network or other errors
+    throw new Error(`API call failed for url ${url} - Network Error: ${error}`);
+  }
+}
+
 // Cart Page Component
 export const CartPage: React.FC = () => {
   const authContext = useContext(AuthContext);
@@ -68,6 +140,7 @@ export const CartPage: React.FC = () => {
   
   // When impersonating, use the sponsor org id; otherwise use the driver's email
   const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
+
   
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [currentOrganizations, setCurrentOrganizations] = useState<{
@@ -142,6 +215,96 @@ export const CartPage: React.FC = () => {
   const filteredCart = cart.filter((item) => item.org === selectedOrganizationID);
   const totalCost = filteredCart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
 
+  const handleSubmitOrder = async () => {
+    if (selectedOrganizationID) {
+    //check point balance 
+
+    //get correct organization for point balance check
+    let curOrgIndex = -1;
+    if (impersonation) {
+      curOrgIndex = Number(impersonation.sponsorOrgID);
+    } else {
+      curOrgIndex = filteredOrgs.findIndex(
+        (driverorg) =>
+          driverorg.DriversSponsorID === selectedOrganizationID
+      );
+      console.log(curOrgIndex)
+    }
+
+    if (filteredOrgs[curOrgIndex].DriversPoints >= totalCost) {
+        //post purchase
+            const purchaseData = {
+              "PurchaseDriver" : userEmail,
+              "PurchaseDate": getCurrentMySQLDate(),
+              "PurchaseStatus":"Delivered",
+              "PurchaseSponsorID": selectedOrganizationID
+          }
+          try {
+            const purchaseResult = await callAPI(`${PUR_API}/purchase`, "POST", purchaseData);
+            const purchaseResultData = await purchaseResult;
+            const purchaseID = purchaseResultData?.PurchaseID;
+            if (purchaseID !== undefined) {
+              //Get a sponsor email from this organization for the point change
+              let sponsorEmail = "";
+              if (impersonation) {
+                sponsorEmail = impersonation.email;
+              } else {
+                const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${selectedOrganizationID}`);
+                const sponsorResultData = await sponsorResult;
+                sponsorEmail = sponsorResultData[0]?.UserEmail;
+              }
+              if (sponsorEmail !== undefined) {
+                const pointChange = (totalCost * -1);
+                const pointChangeData = {
+                  "PointChangeDriver": userEmail,
+                  "PointChangeSponsor": sponsorEmail, 
+                  "PointChangeNumber": pointChange,
+                  "PointChangeAction": "Purchase - " + purchaseID
+                }
+                callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
+
+                await Promise.all(
+                  filteredCart.map((item) => {
+                    const productData = {
+                      "ProductPurchasedID": item.id,
+                      "PurchaseAssociatedID": purchaseID,
+                      "ProductPurchaseQuantity": item.quantity
+                    };
+                    console.log(productData);
+                    
+                    return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
+                  })
+                );
+
+                  // Remove all items in filteredCart from the global cart.
+                  // Compute the indices in the global cart that match the selected organization.
+                  const indicesToRemove = cart
+                  .map((item, index) => item.org === selectedOrganizationID ? index : -1)
+                  .filter((index) => index !== -1)
+                  .sort((a, b) => b - a); // Remove from highest index to lowest.
+
+                indicesToRemove.forEach((index) => {
+                  removeFromCart(index);
+                });
+                alert("Purchase success!");
+              } else {
+                console.log("Could not retrieve a sponsor ID for the purchase");
+                alert("Error processing purchase. Please try again.");
+              }
+            }
+          } catch (error) {
+            console.error("Error occurred processing purchase", error);
+            alert("Error processing purchase. Please try again.")
+          }
+    } else {
+      alert("Insufficient points!");
+    }
+
+  } else {
+    alert("Select an organization before submitting order!");
+  }
+}
+
   return (
     <div className="container manage-users-container py-3 m-5">
       <div className="card manage-users-card mt-5">
@@ -181,7 +344,8 @@ export const CartPage: React.FC = () => {
                     cartItem.name === item.name &&
                     cartItem.org === item.org &&
                     cartItem.quantity === item.quantity &&
-                    cartItem.cost === item.cost
+                    cartItem.cost === item.cost &&
+                    cartItem.id === item.id
                 );
                 return (
                   <li key={itemIndex} className="flex justify-between items-center border-b p-2">
@@ -200,6 +364,12 @@ export const CartPage: React.FC = () => {
             </ul>
           )}
           <h2 className="text-xl font-bold mt-4">Total: {totalCost.toFixed(2)} Points</h2>
+          <button
+                      className="text-black px-2 py-1 rounded"
+                      onClick={() => handleSubmitOrder()}
+                    >
+                      Remove
+                    </button>
         </div>
       </div>
     </div>

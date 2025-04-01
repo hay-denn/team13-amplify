@@ -1,11 +1,10 @@
 import "./topBox.css";
 import { catalogData } from "../TestData/ExampleItems";
-//import { CarouselExample } from "../carousel";
 
 export const TopBox = () => {
   return (
     <div className="topBox">
-      <h2>Featured Items</h2>
+      <h2>Most Sold Items this Month</h2>
       <div className="list">
         {catalogData.map((item) => (
           <div className="user" key={item.id}>

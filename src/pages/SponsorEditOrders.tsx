@@ -106,7 +106,7 @@ export const SponsorEditOrders: React.FC = () => {
             body: JSON.stringify({
               PointChangeDriver: order.driver,
               PointChangeSponsor: sponsorEmail,
-              PointChangeNumber: "5",
+              PointChangeNumber: order.price,
               PointChangeAction: "Subtract",
             }),
           }

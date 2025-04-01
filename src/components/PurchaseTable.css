@@ -1,0 +1,33 @@
+.purchase-table-container {
+    margin: 20px;
+  }
+  
+  .purchase-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .purchase-table th,
+  .purchase-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .purchase-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+  }
+  
+  .purchase-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .purchase-table tr:hover {
+    background-color: #ddd;
+  }
+  
+  button {
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  

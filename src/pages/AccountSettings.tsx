@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { AuthContext, useAuth } from "react-oidc-context";
 import EditableInput from "../components/EditableInput";
 import { signOutRedirect } from "../main";
+import PurchaseTable from "../components/PurchaseTable";
 
 const REGION = "us-east-1";
 const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
@@ -381,6 +382,7 @@ export const AccountSettings: React.FC = () => {
           </form>
         </div>
       )}
+      {auth.user?.profile?.["cognito:groups"] === "Driver" && <PurchaseTable userEmail={email}></PurchaseTable>}
     </div>
   );
 };
