@@ -38,14 +38,51 @@ const sampleData = [
   { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
 ];
 
+const sampleData2 = [
+    { driver: "John Doe2", pointChange: 5, date: "2025-03-10" },
+    { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
+    { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+];
+
+const sampleData3 = [
+    { driver: "John Doe3", pointChange: 5, date: "2025-03-10" },
+    { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
+    { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+];
+  
+  const sampleData4 = [
+      { driver: "John Doe4", pointChange: 5, date: "2025-03-10" },
+      { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
+      { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+ ];
+
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState(sampleData);
 
   const generateReport = () => {
-    console.log(`Generating report: ${selectedReport}`);
-    setReportData(sampleData);
+    let data;
+    switch (selectedReport) {
+      case "All Driver Point Changes":
+        data = sampleData;
+        break;
+      case "Specific Driver Point Changes":
+        data = sampleData2;
+        break;
+      case "Sales By Driver":
+        data = sampleData3;
+        break;
+      case "Sales By Sponsor":
+        data = sampleData4;
+        break;
+      case "Invoice":
+        data = sampleData4;
+        break;
+      default:
+        data = sampleData; // Default to "Driver Point Changes"
+    }
+    setReportData(data);
   };
 
   const downloadPDF = async () => {
