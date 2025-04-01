@@ -4,11 +4,11 @@ import "./Manageusers.css";
 
 // Define item type
 interface CartItem {
-  name: string;
-  cost: number;
-  quantity: number;
-  org: number;
-  id: number;
+  name: string; //Name of the item (can be anything, this info is not stored in our DB)
+  cost: number; //cost (in points) of item
+  quantity: number; //quantity of item (probably just use 1)
+  org: number; //the organization ID for the catalog that the user is adding the item from
+  id: number; //the trackID of the item
 }
 
 // Define context type
