@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
+//const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
 /*
 async function getAllPointChanges(startDate: string, endDate: string) {
     try {
@@ -30,7 +30,7 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
 }
 
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
-*/
+
 
 async function getAllPointChanges(startDate, endDate) {
     try {
@@ -42,6 +42,7 @@ async function getAllPointChanges(startDate, endDate) {
         return [];
     }
 }
+*/
 
 const sampleData = [
     {
@@ -92,10 +93,7 @@ const Reports: React.FC = () => {
     let data;
     switch (selectedReport) {
       case "All Driver Point Changes":
-        (async () => {
-            let allData = await getAllPointChanges("2000-01-01", "3000-01-01");
-            data = allData[0];
-        })();
+        data = sampleData;
         break;
       case "Specific Driver Point Changes":
         data = sampleData2;
