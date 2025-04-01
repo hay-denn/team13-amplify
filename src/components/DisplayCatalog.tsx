@@ -160,6 +160,17 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return <div>Loading organization data...</div>;
   }
 
+  useEffect(() => {
+    // Everytime the selected current Id changes, update the variable
+    setCurrOrgId(currentCatalog);
+  }, [currentCatalog]);
+
+  useEffect(() => {
+    if (organizationData) {
+      handleFetchAll();
+    }
+  }, [organizationData]);
+
   return (
     <div style={{ margin: "2rem" }}>
       <p>Organization ID: {currOrgId}</p>
