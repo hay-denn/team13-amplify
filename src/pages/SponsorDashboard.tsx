@@ -23,7 +23,7 @@ interface OrganizationData {
 export const SponsorDashboard = () => {
   const auth = useAuth();
   const [currsponsor_email] = useState(auth.user?.profile.email || "");
-  const [currsponsor_name] = useState(auth.user?.profile.name || "");
+  const [currsponsor_name] = useState(auth.user?.profile.family_name || "");
 
   const [currentSponsorId, setCurrentSponsorId] = useState("");
 

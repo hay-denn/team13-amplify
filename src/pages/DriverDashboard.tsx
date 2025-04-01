@@ -9,9 +9,15 @@ import { AuthContext } from "react-oidc-context";
 export const DriverDashBoard = () => {
   const authContext = useContext(AuthContext);
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
-  const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
-  const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
-  const userFName = impersonation ? impersonation.firstName : authContext?.user?.profile?.given_name || "";
+  const impersonation = storedImpersonation
+    ? JSON.parse(storedImpersonation)
+    : null;
+  const userEmail = impersonation
+    ? impersonation.email
+    : authContext?.user?.profile?.email || "";
+  const userFName = impersonation
+    ? impersonation.firstName
+    : authContext?.user?.profile?.given_name || "";
   const [showModal, setShowModal] = useState(false);
 
   // The list of sponsors (or organizations) the driver is a part of
@@ -19,13 +25,17 @@ export const DriverDashBoard = () => {
     { DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]
   >([]);
 
-  // Filter the organizations if impersonating  
-  const filteredOrganizations = impersonation?.sponsorOrgID 
-    ? currentOrganizations.filter(org => org.DriversSponsorID === Number(impersonation.sponsorOrgID))
+  // Filter the organizations if impersonating
+  const filteredOrganizations = impersonation?.sponsorOrgID
+    ? currentOrganizations.filter(
+        (org) => org.DriversSponsorID === Number(impersonation.sponsorOrgID)
+      )
     : currentOrganizations;
 
   // Default selected organization state. We update its value when filteredOrganizations changes.
-  const [selectedOrganizationID, setSelectedOrganizationID] = useState<number | null>(null);
+  const [selectedOrganizationID, setSelectedOrganizationID] = useState<
+    number | null
+  >(null);
   useEffect(() => {
     if (filteredOrganizations.length > 0 && selectedOrganizationID === null) {
       setSelectedOrganizationID(filteredOrganizations[0].DriversSponsorID);
@@ -52,7 +62,9 @@ export const DriverDashBoard = () => {
     { OrganizationID: number; OrganizationName: string }[]
   >([]);
   const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
-  const [sponsorNames, setSponsorNames] = useState<{ [key: string]: string }>({});
+  const [sponsorNames, setSponsorNames] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   const driverRelationshipURL =
     "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
@@ -95,7 +107,9 @@ export const DriverDashBoard = () => {
   const getDriverRelationships = async () => {
     try {
       const response = await fetch(
-        `${driverRelationshipURL}/driverssponsors?DriversEmail=${encodeURIComponent(userEmail)}`
+        `${driverRelationshipURL}/driverssponsors?DriversEmail=${encodeURIComponent(
+          userEmail
+        )}`
       );
 
       if (!response.ok) {
@@ -112,7 +126,9 @@ export const DriverDashBoard = () => {
   const fetchApplications = async (): Promise<void> => {
     try {
       const response = await fetch(
-        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications?ApplicationDriver=${encodeURIComponent(userEmail)}`
+        `https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications?ApplicationDriver=${encodeURIComponent(
+          userEmail
+        )}`
       );
       const data = (await response.json()) as Application[];
 
@@ -136,7 +152,8 @@ export const DriverDashBoard = () => {
       );
       sponsorsList.forEach((sponsor) => {
         if (sponsor.ApplicationSponsorUser) {
-          sponsorNames[sponsor.ApplicationSponsorUser] = sponsor.ApplicationSponsorUser;
+          sponsorNames[sponsor.ApplicationSponsorUser] =
+            sponsor.ApplicationSponsorUser;
         }
       });
 
@@ -164,7 +181,9 @@ export const DriverDashBoard = () => {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to delete application. Status: ${response.status}`);
+        throw new Error(
+          `Failed to delete application. Status: ${response.status}`
+        );
       }
 
       console.log("Application deleted successfully!");
@@ -196,49 +215,77 @@ export const DriverDashBoard = () => {
     }
   };
 
-  const handleOrganizationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleOrganizationChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setSelectedOrganizationID(Number(event.target.value));
   };
 
   return (
     <>
-      <h1 className="welcome">Good Afternoon, {userFName}!</h1>
-
+      <h1 className="text-center mb-5 mt-5">Welcome Back {userFName}!</h1>
       {filteredOrganizations.length > 0 ? (
-        <div className="home">
-          <div className="box box1">
-            <TopBox />
-          </div>
-          <div className="box box2">
-            {filteredOrganizations.length > 0 && (
-              <>
-                <b>Current Point Balance: {selectedOrganization?.DriversPoints || "N/A"}</b>
-                <br />
-                <label htmlFor="organizationDropdown">Select Organization: </label>
-                <select
-                  id="organizationDropdown"
-                  className="form-control"
-                  value={selectedOrganizationID || ""}
-                  onChange={handleOrganizationChange}
-                >
-                  <option value="" disabled>Select an Organization</option>
-                  {filteredOrganizations.map((org) => {
-                    const organization = organizations.find(
-                      (o) => o.OrganizationID === org.DriversSponsorID
-                    );
-                    return (
-                      <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-                        {organization ? organization.OrganizationName : "Unknown Organization"}
+        <div className="container">
+          <div className="row">
+            <div className="col-md-4">
+              <div className="box box1">
+                <TopBox />
+              </div>
+            </div>
+            <div className="col-md-8">
+              <div className="box box2">
+                {filteredOrganizations.length > 0 && (
+                  <>
+                    <b>
+                      Current Point Balance:{" "}
+                      {selectedOrganization?.DriversPoints || "N/A"}
+                    </b>
+                    <br />
+                    <label htmlFor="organizationDropdown">
+                      Select Organization:{" "}
+                    </label>
+                    <select
+                      id="organizationDropdown"
+                      className="form-control"
+                      value={selectedOrganizationID || ""}
+                      onChange={handleOrganizationChange}
+                    >
+                      <option value="" disabled>
+                        Select an Organization
                       </option>
-                    );
-                  })}
-                </select>
-              </>
-            )}
+                      {filteredOrganizations.map((org) => {
+                        const organization = organizations.find(
+                          (o) => o.OrganizationID === org.DriversSponsorID
+                        );
+                        return (
+                          <option
+                            key={org.DriversSponsorID}
+                            value={org.DriversSponsorID}
+                          >
+                            {organization
+                              ? organization.OrganizationName
+                              : "Unknown Organization"}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="box box3">Placeholder Item</div>
-          <div className="box box4">Placeholder Item</div>
-          <div className="box box5">My Point Progress Chart:</div>
+
+          <div className="row mt-3">
+            <div className="col-md-4">
+              <div className="box box3">Placeholder Item</div>
+            </div>
+            <div className="col-md-4">
+              <div className="box box4">Placeholder Item</div>
+            </div>
+            <div className="col-md-4">
+              <div className="box box5">My Point Progress Chart:</div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="container-fluid">
@@ -249,7 +296,10 @@ export const DriverDashBoard = () => {
                 Now that you have completed registration as a driver, it is time
                 for you to start applying to a sponsor of your choice.
               </p>
-              <button className="btn btn-primary mb-3" onClick={() => setShowModal(true)}>
+              <button
+                className="btn btn-primary mb-3"
+                onClick={() => setShowModal(true)}
+              >
                 Apply Now!
               </button>
 
@@ -262,21 +312,27 @@ export const DriverDashBoard = () => {
                     <div key={app.ApplicationID} className="application-card">
                       <span className="application-date">
                         {app.ApplicationDateSubmitted
-                          ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                          ? new Date(
+                              app.ApplicationDateSubmitted
+                            ).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
                             })
                           : "N/A"}
                       </span>
-                      <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
+                      <span
+                        className={`application-status ${app.ApplicationStatus.toLowerCase()}`}
+                      >
                         {app.ApplicationStatus}
                       </span>
                       <p>{app.OrganizationName || "N / A"}</p>
                       {app.ApplicationStatus.toLowerCase() === "submitted" && (
                         <button
                           className="btn btn-danger cancel-button"
-                          onClick={() => handleCancelApplication(app.ApplicationID)}
+                          onClick={() =>
+                            handleCancelApplication(app.ApplicationID)
+                          }
                         >
                           Cancel
                         </button>
@@ -292,10 +348,15 @@ export const DriverDashBoard = () => {
                   <p>No sponsors found.</p>
                 ) : (
                   sponsors.map((sponsor) => (
-                    <div key={sponsor.ApplicationID} className="application-card">
+                    <div
+                      key={sponsor.ApplicationID}
+                      className="application-card"
+                    >
                       <span className="application-date">
                         {sponsor.ApplicationDateSubmitted
-                          ? new Date(sponsor.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                          ? new Date(
+                              sponsor.ApplicationDateSubmitted
+                            ).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
@@ -304,12 +365,15 @@ export const DriverDashBoard = () => {
                       </span>
                       <p>
                         {sponsor.ApplicationSponsorUser
-                          ? sponsorNames[sponsor.ApplicationSponsorUser] || sponsor.ApplicationSponsorUser
+                          ? sponsorNames[sponsor.ApplicationSponsorUser] ||
+                            sponsor.ApplicationSponsorUser
                           : "N/A"}
                       </p>
                       <button
                         className="btn btn-danger cancel-button"
-                        onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
+                        onClick={() =>
+                          handleRemoveSponsor(sponsor.ApplicationID)
+                        }
                       >
                         Remove
                       </button>
