@@ -121,7 +121,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   const getOrganizations = async (): Promise<Organization[]> => {
     try {
       // Placeholder endpoint – replace with your actual endpoint.
-      const response = await fetch(`https://example.com/organizations`);
+      const response = await fetch(`https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations`);
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
@@ -233,7 +233,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
           "PointChangeDriver": userEmail,
           "PointChangeSponsor": sponsorEmail, 
           "PointChangeNumber": pointChange,
-          "PointChangeAction": "Subrtact"
+          "PointChangeAction": "Add"
         };
         await callAPI(`https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1/pointchange`, "POST", pointChangeData);
   
