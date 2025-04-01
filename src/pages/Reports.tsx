@@ -64,7 +64,7 @@ const Reports: React.FC = () => {
         data = [
           { sponsor: "Company A", sales: 5000, date: "2025-03-14" }, // Example data
         ];
-      } else (selectedReport === "Invoice") {
+      } else if (selectedReport === "Invoice") {
         // Fetch or set sample data for invoices
         data = [
           { invoiceNumber: "INV123", amount: 1000, date: "2025-03-16" }, // Example data
