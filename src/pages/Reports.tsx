@@ -5,8 +5,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
-
+//const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
+/*
 async function getAllPointChanges(startDate: string, endDate: string) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
@@ -17,7 +17,7 @@ async function getAllPointChanges(startDate: string, endDate: string) {
         return [];
     }
 }
-/*
+
 async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
@@ -32,11 +32,11 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 */
 
-let sampleData;
-
-(async () => {
-    sampleData = await getAllPointChanges("2000-01-01", "3000-01-01");
-})();
+const sampleData = [
+  { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
+  { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
+  { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+];
 
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
