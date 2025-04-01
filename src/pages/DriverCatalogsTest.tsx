@@ -2,6 +2,8 @@ import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "react-oidc-context";
 import { useCart } from "./CartContext";
 
+const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
+const DRIVERS_SPONSORS_API_URL="https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1"
 export const DriverCatalogsTest = () => {
   const authContext = useContext(AuthContext);
 
@@ -26,7 +28,7 @@ export const DriverCatalogsTest = () => {
     const fetchOrganizations = async () => {
       try {
         const response = await fetch(
-          "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"
+          ORGANIZATIONS_API_URL
         );
         const data = await response.json();
         if (!Array.isArray(data)) {
@@ -46,10 +48,8 @@ export const DriverCatalogsTest = () => {
     if (userEmail) {
       const getDriverRelationships = async () => {
         try {
-          const driverRelationshipURL =
-            "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
           const response = await fetch(
-            `${driverRelationshipURL}/driverssponsors?DriversEmail=${encodeURIComponent(
+            `${DRIVERS_SPONSORS_API_URL}/driverssponsors?DriversEmail=${encodeURIComponent(
               userEmail
             )}`
           );

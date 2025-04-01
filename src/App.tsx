@@ -28,8 +28,11 @@ function App() {
   const cognitoGroups: string[] =
     (auth.user?.profile?.["cognito:groups"] as string[]) || [];
 
-  const userEmail = auth.user?.profile.email || "";
-  const userGroup = cognitoGroups[0];
+  // const userEmail = auth.user?.profile.email || "";
+  // const userGroup = cognitoGroups[0];
+
+  const userGroup = "Driver";
+  const userEmail = "noahamn@gmail.com"
 
   return (
     <CartProvider>

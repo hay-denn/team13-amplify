@@ -3,7 +3,6 @@ import { AuthContext, useAuth } from "react-oidc-context";
 import EditableInput from "../components/EditableInput";
 import { signOutRedirect } from "../main";
 
-
 const REGION = "us-east-1";
 const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
 
