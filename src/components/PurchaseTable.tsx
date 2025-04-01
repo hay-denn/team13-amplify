@@ -24,19 +24,24 @@ interface PurchaseTableProps {
   userEmail: string;
 }
 
+interface ProductDetail {
+  trackName: string;
+  cost: number;
+}
+
 const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEmail }) => {
   // State variables
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [productsPurchased, setProductsPurchased] = useState<ProductPurchased[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  // Mapping from ProductPurchasedID to fetched product cost
-  const [productCosts, setProductCosts] = useState<{ [key: string]: number }>({});
+  // Mapping from ProductPurchasedID to fetched product details (trackName and cost)
+  const [productDetails, setProductDetails] = useState<{ [key: string]: ProductDetail }>({});
   // Storing the userEmail passed in as a state variable
   const [userEmail] = useState<string>(initialUserEmail);
   // Tracks which purchase rows have been expanded (viewed)
   const [expandedPurchases, setExpandedPurchases] = useState<{ [key: string]: boolean }>({});
 
-  // Function to fetch purchases. Returns the JSON data directly.
+  // Function to fetch purchases.
   const getPurchases = async (): Promise<Purchase[]> => {
     try {
       const response = await fetch(
@@ -53,7 +58,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
     }
   };
 
-  // Function to fetch products purchased. Returns the JSON data directly.
+  // Function to fetch products purchased.
   const getProductsPurchased = async (): Promise<ProductPurchased[]> => {
     try {
       const response = await fetch(
@@ -70,12 +75,11 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
     }
   };
 
-
-  // Function to fetch organizations. Returns the JSON data directly.
+  // Function to fetch organizations.
   const getOrganizations = async (): Promise<Organization[]> => {
     try {
       // Placeholder endpoint – replace with your actual endpoint.
-      const response = await fetch(`https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations`);
+      const response = await fetch(`https://example.com/organizations`);
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
@@ -87,12 +91,12 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
     }
   };
 
-  // New function: Fetch product cost details from iTunes API using the ProductPurchasedID.
-  // Returns trackPrice multiplied by the PointDollarRatio where OrganizationID equals the purchase's PurchaseSponsorID.
+  // New function: Fetch product details from iTunes API.
+  // Returns an object containing trackName and cost (trackPrice * PointDollarRatio)
   const fetchProductDetails = async (
     productPurchasedID: string,
     purchaseSponsorID: string
-  ): Promise<number> => {
+  ): Promise<ProductDetail> => {
     try {
       const response = await fetch(`https://itunes.apple.com/lookup?id=${productPurchasedID}`);
       if (!response.ok) {
@@ -101,15 +105,17 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
       const json = await response.json();
       if (json.resultCount > 0 && json.results && json.results[0].trackPrice != null) {
         const trackPrice = json.results[0].trackPrice;
+        const trackName = json.results[0].trackName || "Item Name Not Found";
         const org = organizations.find(o => o.OrganizationID === purchaseSponsorID);
         const ratio = org ? org.PointDollarRatio : 1;
-        return trackPrice * ratio;
+        const cost = trackPrice * ratio;
+        return { trackName, cost };
       } else {
-        return 0;
+        return { trackName: "Item Name Not Found", cost: 0 };
       }
     } catch (error) {
       console.error("Error fetching product details:", error);
-      return 0;
+      return { trackName: "Item Name Not Found", cost: 0 };
     }
   };
 
@@ -138,8 +144,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
     fetchOrganizations();
   }, []);
 
-  // Handler to expand the purchase row to show its purchased products along with their costs.
-  // It also fetches the cost for each product and updates the productCosts state.
+  // Handler to expand the purchase row to show its purchased products along with their details.
   const handleViewClick = async (purchaseId: string) => {
     // Mark the purchase as expanded.
     setExpandedPurchases(prev => ({ ...prev, [purchaseId]: true }));
@@ -153,22 +158,24 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
       product => product.PurchaseAssociatedID === purchaseId
     );
 
-    // Fetch cost details for each product in parallel, accounting for quantity.
+    // Fetch details for each product in parallel, accounting for quantity.
     const details = await Promise.all(
       purchaseProducts.map(product =>
-        fetchProductDetails(product.ProductPurchasedID, sponsorId).then(
-          cost => cost * product.ProductPurchaseQuantity
-        )
+        fetchProductDetails(product.ProductPurchasedID, sponsorId).then(result => ({
+          trackName: result.trackName,
+          // Multiply cost by quantity for total cost per product.
+          cost: result.cost * product.ProductPurchaseQuantity,
+        }))
       )
     );
 
-    // Update the productCosts state with the fetched costs.
+    // Update the productDetails state with the fetched details.
     const newMapping = purchaseProducts.reduce((acc, product, index) => {
       acc[product.ProductPurchasedID] = details[index];
       return acc;
-    }, {} as { [key: string]: number });
+    }, {} as { [key: string]: ProductDetail });
 
-    setProductCosts(prev => ({ ...prev, ...newMapping }));
+    setProductDetails(prev => ({ ...prev, ...newMapping }));
   };
 
   // Modified cancel handler that now accepts the purchase cost.
@@ -200,12 +207,15 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
               const purchaseProducts = productsPurchased.filter(
                 product => product.PurchaseAssociatedID === purchase.PurchaseID
               );
-              // Compute total cost for the purchase by summing the product costs.
-              const totalCost = purchaseProducts.reduce(
-                (sum, product) => sum + (productCosts[product.ProductPurchasedID] || 0),
-                0
-              );
-              
+              // If view is expanded, compute total cost.
+              const totalCost = expandedPurchases[purchase.PurchaseID]
+                ? purchaseProducts.reduce(
+                    (sum, product) =>
+                      sum + (productDetails[product.ProductPurchasedID]?.cost || 0),
+                    0
+                  )
+                : null;
+
               return (
                 <tr key={purchase.PurchaseID}>
                   <td>{purchase.PurchaseDate}</td>
@@ -215,8 +225,8 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                       <ul>
                         {purchaseProducts.map(product => (
                           <li key={product.ProductPurchasedID}>
-                            {productCosts[product.ProductPurchasedID] !== undefined
-                              ? productCosts[product.ProductPurchasedID]
+                            {productDetails[product.ProductPurchasedID]
+                              ? `${productDetails[product.ProductPurchasedID].trackName}: $${productDetails[product.ProductPurchasedID].cost.toFixed(2)}`
                               : "Loading..."}
                           </li>
                         ))}
@@ -227,10 +237,14 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                       </button>
                     )}
                   </td>
-                  <td>{totalCost}</td>
+                  <td>
+                    {expandedPurchases[purchase.PurchaseID]
+                      ? `$${totalCost?.toFixed(2)}`
+                      : "Click View to See Cost"}
+                  </td>
                   <td>
                     {purchase.PurchaseDate.split('T')[0] === today && (
-                      <button onClick={() => handleCancel(purchase.PurchaseID, totalCost)}>
+                      <button onClick={() => handleCancel(purchase.PurchaseID, totalCost || 0)}>
                         Cancel
                       </button>
                     )}
