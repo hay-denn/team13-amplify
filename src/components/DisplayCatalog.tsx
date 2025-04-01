@@ -32,24 +32,25 @@ interface CatalogItem {
 
 const SimpleApiFetcher: React.FC = () => {
   const [currOrgId, setCurrOrgId] = useState<number>(13);
-
   const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
 
-  // Catalog parameters derived from organization data
-  const [amount, setAmount] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [type, setType] = useState("music");
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
   const [maxPrice, setMaxPrice] = useState(100);
 
-  // pagination
+  const [pageSize, setPageSize] = useState(10);
+
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
+  const [artistFilter, setArtistFilter] = useState("");
+
+  // Store all fetched results in memory
+  const [allResults, setAllResults] = useState<CatalogItem[]>([]);
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [page, setPage] = useState(0);
 
-  const url_getOrganization =
-    "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+  const url_getOrganization = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-  // 1. Fetch the organization info
   useEffect(() => {
     const fetchOrganization = async () => {
       try {
@@ -65,50 +66,85 @@ const SimpleApiFetcher: React.FC = () => {
     fetchOrganization();
   }, [currOrgId]);
 
-  // 2. Update local states whenever org data arrives
   useEffect(() => {
     if (!organizationData) return;
-    setAmount(organizationData.AmountOfProducts);
+    setPageSize(organizationData.AmountOfProducts || 10);
     setSearchTerm(organizationData.SearchTerm || "");
     setType(organizationData.ProductType || "music");
     setPriceToPointRatio(Number(organizationData.PointDollarRatio) || 1);
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
   }, [organizationData]);
 
-  // 3. Build a function to fetch results from iTunes with pagination
-  const handleSearch = async (desiredPage: number = page) => {
+  const handleFetchAll = async () => {
     try {
-      
-      // offset = page * amount
-      const offset = desiredPage * amount;
+      const limit = 50;
+      let offset = 0;
+      let fetchedItems: CatalogItem[] = [];
+      let keepFetching = true;
 
-      const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
-        searchTerm
-      )}&media=${type}&limit=${amount}&offset=${offset}`;
+      while (keepFetching) {
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
+          searchTerm
+        )}&media=${type}&limit=${limit}&offset=${offset}`;
 
-      const response = await axios.get(url);
+        const response = await axios.get(url);
+        const batch = response.data.results as CatalogItem[];
 
-      console.log("Response from iTunes API:", response.data); 
+        // If we got zero results, stop
+        if (batch.length === 0) {
+          keepFetching = false;
+        } else {
+          fetchedItems = [...fetchedItems, ...batch];
+          offset += limit;
+          if (offset >= 200) {
+            keepFetching = false;
+          }
+        }
+      }
 
-      const filteredResults: CatalogItem[] = response.data.results.filter(
-        (item: CatalogItem) => item.trackPrice <= maxPrice
-      );
-
-      setCatalog(filteredResults);
-      setPage(desiredPage);
+      setAllResults(fetchedItems);
+      setPage(0);
     } catch (error) {
       console.error("Error fetching catalog:", error);
     }
   };
 
-  // 4. “Next” and “Previous” page handlers
+  useEffect(() => {
+    let filtered = allResults.filter((item) => item.trackPrice <= maxPrice);
+
+    if (artistFilter.trim()) {
+      filtered = filtered.filter((item) =>
+        item.artistName.toLowerCase().includes(artistFilter.toLowerCase())
+      );
+    }
+
+    if (sortOrder === "asc") {
+      filtered.sort((a, b) => a.trackPrice - b.trackPrice);
+    } else if (sortOrder === "desc") {
+      filtered.sort((a, b) => b.trackPrice - a.trackPrice);
+    }
+
+    // Now we do local pagination
+    const startIdx = page * pageSize;
+    const endIdx = startIdx + pageSize;
+    const pageResults = filtered.slice(startIdx, endIdx);
+
+    setCatalog(pageResults);
+  }, [allResults, sortOrder, artistFilter, page, pageSize, maxPrice]);
+
+  // Pagination controls
   const handleNextPage = () => {
-    handleSearch(page + 1);
+    // Only go to next page if there are more items left
+    const totalItems = allResults.filter((item) => item.trackPrice <= maxPrice).length;
+    const maxPage = Math.floor(totalItems / pageSize);
+    if (page < maxPage) {
+      setPage((prev) => prev + 1);
+    }
   };
 
   const handlePrevPage = () => {
     if (page > 0) {
-      handleSearch(page - 1);
+      setPage((prev) => prev - 1);
     }
   };
 
@@ -119,35 +155,49 @@ const SimpleApiFetcher: React.FC = () => {
   return (
     <div style={{ margin: "2rem" }}>
       <p>Organization ID: {currOrgId}</p>
-      <button onClick={() => setCurrOrgId((prev) => prev + 1)}>
-        Increment Org ID
-      </button>
-      <button onClick={() => setCurrOrgId((prev) => prev - 1)}>
-        Decrement Org ID
-      </button>
+      <button onClick={() => setCurrOrgId((prev) => prev + 1)}>Increment Org ID</button>
+      <button onClick={() => setCurrOrgId((prev) => prev - 1)}>Decrement Org ID</button>
       <hr />
 
-      {/* Trigger a search on the current (page, searchTerm, etc.) */}
-      <button onClick={() => handleSearch(0)}>Update Catalog</button>
+      <div style={{ marginBottom: "1rem" }}>
+        <label style={{ marginRight: "1rem" }}>Sort by Price:</label>
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value as "asc" | "desc" | "")}
+          style={{ marginRight: "2rem" }}
+        >
+          <option value="">None</option>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+
+        <label style={{ marginRight: "1rem" }}>Search by Artist:</label>
+        <input
+          type="text"
+          value={artistFilter}
+          onChange={(e) => setArtistFilter(e.target.value)}
+          placeholder="Type artist name"
+        />
+      </div>
+
+      <button onClick={() => handleFetchAll()}>Fetch All Items</button>
 
       <div className="card organization-card mt-5">
         <div className="card-body">
           {organizationData.LogoUrl && (
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
-          <img
-            src={organizationData.LogoUrl}
-            alt={organizationData.OrganizationName}
-            className="logo"
-            style={{ width: "100px", height: "100px" }}
-          />
-        </div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+              <img
+                src={organizationData.LogoUrl}
+                alt={organizationData.OrganizationName}
+                className="logo"
+                style={{ width: "100px", height: "100px" }}
+              />
+            </div>
           )}
-          <h5 className="organization-title card-title">
-        {organizationData.OrganizationName}
-          </h5>
+          <h5 className="organization-title card-title">{organizationData.OrganizationName}</h5>
           <p className="card-text">{organizationData.OrganizationDescription}</p>
           <p>
-        Max Price: ${maxPrice} | Point to Dollar Ratio: {priceToPointRatio}
+            Max Price: ${maxPrice} | Point to Dollar Ratio: {priceToPointRatio}
           </p>
         </div>
       </div>
@@ -155,7 +205,8 @@ const SimpleApiFetcher: React.FC = () => {
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">Catalog Results</h5>
-          <p className="card-text">Results of your customized catalog search.</p>
+          <p className="card-text">
+          </p>
           <div className="catalog-results">
             {catalog.map((item: CatalogItem) => (
               <div key={item.trackId} className="catalog-item">
@@ -179,9 +230,7 @@ const SimpleApiFetcher: React.FC = () => {
                     <strong>Genre:</strong> {item.primaryGenreName}
                   </p>
                   <p>
-                    {item.longDescription ||
-                      item.shortDescription ||
-                      "No description available."}
+                    {item.longDescription || item.shortDescription || "No description available."}
                   </p>
                 </div>
               </div>
@@ -190,15 +239,13 @@ const SimpleApiFetcher: React.FC = () => {
         </div>
       </div>
 
-      <button
-        onClick={handlePrevPage}
-        disabled={page === 0}
-        style={{ marginRight: "10px" }}
-      >
+      <button onClick={handlePrevPage} disabled={page === 0} style={{ marginRight: "10px" }}>
         Previous
       </button>
       <button onClick={handleNextPage}>Next</button>
-
+      <p>
+        Page: {page + 1}
+      </p>
     </div>
   );
 };
