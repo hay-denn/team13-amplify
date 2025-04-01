@@ -271,9 +271,21 @@ export const CartPage: React.FC = () => {
                       "ProductPurchaseQuantity": item.quantity
                     };
                     console.log(productData);
+                    
                     return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
                   })
                 );
+
+                  // Remove all items in filteredCart from the global cart.
+                  // Compute the indices in the global cart that match the selected organization.
+                  const indicesToRemove = cart
+                  .map((item, index) => item.org === selectedOrganizationID ? index : -1)
+                  .filter((index) => index !== -1)
+                  .sort((a, b) => b - a); // Remove from highest index to lowest.
+
+                indicesToRemove.forEach((index) => {
+                  removeFromCart(index);
+                });
                 alert("Purchase success!");
               } else {
                 console.log("Could not retrieve a sponsor ID for the purchase");
