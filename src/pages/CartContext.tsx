@@ -254,23 +254,26 @@ export const CartPage: React.FC = () => {
                 sponsorEmail = sponsorResultData[0]?.UserEmail;
               }
               if (sponsorEmail !== undefined) {
+                
                 const pointChangeData = {
                   "PointChangeDriver": userEmail,
                   "PointChangeSponsor": sponsorEmail, 
                   "PointChangeNumber": totalCost,
-                  "PointChangeAction": "Subtract"
+                  "PointChangeAction": "Purchase"
                 }
                 callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
 
-                filteredCart.forEach((item) => {
-                const productData = {
-                  "ProductPurchasedID": item.id,
-                  "PurchaseAssociatedID": purchaseID,
-                  "ProductPurchaseQuantity": item.quantity
-                }
-                callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
- 
-                });
+                await Promise.all(
+                  filteredCart.map((item) => {
+                    const productData = {
+                      "ProductPurchasedID": item.id,
+                      "PurchaseAssociatedID": purchaseID,
+                      "ProductPurchaseQuantity": item.quantity
+                    };
+                    console.log(productData);
+                    return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
+                  })
+                );
                 alert("Purchase success!");
               } else {
                 console.log("Could not retrieve a sponsor ID for the purchase");
