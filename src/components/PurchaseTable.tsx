@@ -235,7 +235,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
           "PointChangeNumber": pointChange,
           "PointChangeAction": "Add"
         };
-        console.log("pointChangeData" + pointChangeData);
+        console.log(pointChangeData);
         await callAPI(`https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1/pointchange`, "POST", pointChangeData);
   
         const purchaseData = {
