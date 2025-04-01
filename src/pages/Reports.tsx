@@ -153,11 +153,11 @@ const Reports: React.FC = () => {
                 <TableBody>
                   {reportData.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell>{item.pointChangeDriver}</TableCell>
-                      <TableCell>{item.pointChangeSponsor}</TableCell>
-                      <TableCell>{item.pointChangeNumber}</TableCell>
-                      <TableCell>{item.pointChangeAction}</TableCell>
-                      <TableCell>{item.pointChangeDate}</TableCell>
+                      <TableCell>{item.PointChangeDriver}</TableCell>
+                      <TableCell>{item.PointChangeSponsor}</TableCell>
+                      <TableCell>{item.PointChangeNumber}</TableCell>
+                      <TableCell>{item.PointChangeAction}</TableCell>
+                      <TableCell>{item.PointChangeDate}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
