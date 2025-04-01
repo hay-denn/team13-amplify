@@ -33,27 +33,43 @@ const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 */
 
 const sampleData = [
-  { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
-  { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
-  { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+    {
+        PointChangeDriver: 'jrbrany@clemson.edu',
+        PointChangeSponsor: 'jrbrany+s@clemson.edu',
+        PointChangeNumber: '5.00',
+        PointChangeAction: 'Subtract',
+        PointChangeDate: '2025-03-31T00:00:00.000Z'
+    }
 ];
 
 const sampleData2 = [
-    { driver: "John Doe2", pointChange: 5, date: "2025-03-10" },
-    { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
-    { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+    {
+        PointChangeDriver: 'jrbrany@clemson.edu',
+        PointChangeSponsor: 'jrbrany+s@clemson.edu',
+        PointChangeNumber: '10.00',
+        PointChangeAction: 'Subtract',
+        PointChangeDate: '2025-03-31T00:00:00.000Z'
+    }
 ];
 
 const sampleData3 = [
-    { driver: "John Doe3", pointChange: 5, date: "2025-03-10" },
-    { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
-    { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+    {
+        PointChangeDriver: 'hayjroof@gmail.com',
+        PointChangeSponsor: 'haydenjroof+25@gmail.com',
+        PointChangeNumber: '100.00',
+        PointChangeAction: 'Set',
+        PointChangeDate: '2025-03-24T00:00:00.000Z'
+      },
 ];
   
   const sampleData4 = [
-      { driver: "John Doe4", pointChange: 5, date: "2025-03-10" },
-      { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
-      { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
+    {
+        PointChangeDriver: 'testEmail@email.com',
+        PointChangeSponsor: 'sponsortest@email.com',
+        PointChangeNumber: '10.00',
+        PointChangeAction: 'Subtract',
+        PointChangeDate: '2025-03-11T00:00:00.000Z'
+    }
  ];
 
 const Reports: React.FC = () => {
@@ -127,17 +143,21 @@ const Reports: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Driver</TableCell>
-                    <TableCell>Point Change</TableCell>
-                    <TableCell>Date</TableCell>
+                    <TableCell>PointChangeDriver</TableCell>
+                    <TableCell>PointChangeSponsor</TableCell>
+                    <TableCell>PointChangeNumber</TableCell>
+                    <TableCell>PointChangeAction</TableCell>
+                    <TableCell>PointChangeDate</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {reportData.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell>{item.driver}</TableCell>
-                      <TableCell>{item.pointChange}</TableCell>
-                      <TableCell>{item.date}</TableCell>
+                      <TableCell>{item.pointChangeDriver}</TableCell>
+                      <TableCell>{item.pointChangeSponsor}</TableCell>
+                      <TableCell>{item.pointChangeNumber}</TableCell>
+                      <TableCell>{item.pointChangeAction}</TableCell>
+                      <TableCell>{item.pointChangeDate}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
