@@ -218,7 +218,7 @@ export const CartPage: React.FC = () => {
           }
           try {
             const purchaseResult = await callAPI(`${PUR_API}/purchase`, "POST", purchaseData);
-            const purchaseResultData = await purchaseResult.json();
+            const purchaseResultData = await purchaseResult;
             const purchaseID = purchaseResultData?.PurchaseID;
             if (purchaseID !== undefined) {
               //Get a sponsor email from this organization for the point change
@@ -227,7 +227,7 @@ export const CartPage: React.FC = () => {
                 sponsorEmail = impersonation.email;
               } else {
                 const sponsorResult = await callAPI(`${SPONSOR_API}/sponsors?UserOrganization=${selectedOrganizationID}`, "GET", {});
-                const sponsorResultData = await sponsorResult.json();
+                const sponsorResultData = await sponsorResult;
                 sponsorEmail = sponsorResultData[0]?.UserEmail;
               }
               if (sponsorEmail !== undefined) {
