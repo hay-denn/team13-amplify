@@ -1,6 +1,5 @@
 import "./topBox.css";
 import { catalogData } from "../TestData/ExampleItems";
-//import { CarouselExample } from "../carousel";
 
 export const TopBox = () => {
   return (
