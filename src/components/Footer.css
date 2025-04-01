@@ -1,0 +1,22 @@
+.footer-container {
+	background-color: black;
+	padding: 1rem 0;
+	text-align: center;
+	border-top: 1px solid black;
+	margin-top: 2rem;
+  }  
+
+.footer-content p {
+	margin: 0.25rem;
+	font-size: 0.9rem;
+	color: white;
+}
+
+.footer-link {
+	color: white;
+	text-decoration: none;
+}
+
+.footer-link:hover {
+	text-decoration: underline;
+}

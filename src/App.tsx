@@ -24,6 +24,7 @@ import { DriverCatalogsTest } from "./pages/DriverCatalogsTest.tsx";
 import { SponsorEditOrders } from "./pages/SponsorEditOrders.tsx";
 import { DriverMyApplications } from "./pages/DriverMyApplications.tsx";
 import { DriverMySponsors } from "./pages/DriverMySponsors.tsx";
+import { Footer } from "./components/Footer.tsx";
 
 function App() {
   const auth = useAuth();
@@ -104,6 +105,7 @@ function App() {
           <APIRoutes />
         </Layout>
       </Router>
+      <Footer />
     </CartProvider>
   );
 }
