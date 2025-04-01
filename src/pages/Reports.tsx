@@ -28,8 +28,9 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
         return [];
     }
 }
-*/
+
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
+*/
 
 const sampleData = [
   { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
