@@ -254,12 +254,12 @@ export const CartPage: React.FC = () => {
                 sponsorEmail = sponsorResultData[0]?.UserEmail;
               }
               if (sponsorEmail !== undefined) {
-                
+                const pointChange = (totalCost * -1);
                 const pointChangeData = {
                   "PointChangeDriver": userEmail,
                   "PointChangeSponsor": sponsorEmail, 
-                  "PointChangeNumber": totalCost,
-                  "PointChangeAction": "Purchase"
+                  "PointChangeNumber": pointChange,
+                  "PointChangeAction": "Purchase - " + purchaseID
                 }
                 callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
 
