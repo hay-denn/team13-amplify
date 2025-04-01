@@ -32,17 +32,6 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 */
 
-type ReportData = {
-    driver?: string;
-    pointChange?: number;
-    sales?: number;
-    sponsor?: string;
-    invoiceNumber?: string;
-    amount?: number;
-    date: string;
-};
-
-
 const sampleData = [
   { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
   { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
@@ -56,7 +45,7 @@ const Reports: React.FC = () => {
 
   const generateReport = () => {
     console.log(`Generating report: ${selectedReport}`);
-    let data: ReportData[] = [];
+    let data = []
     if (selectedReport === "All Driver Point Changes") {
         // Fetch or set sample data for all driver point changes
         data = sampleData; // Replace with an API call if needed
@@ -82,41 +71,26 @@ const Reports: React.FC = () => {
         ];
       }
     setReportData(data);
+    setReportData(sampleData);
   };
 
   const downloadPDF = async () => {
-    const element = document.getElementById("report-content");
-    if (element) {
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
-      pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
-      pdf.save("report.pdf");
-    }
-  };
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Reports</h1>
-      <div className="flex items-center gap-4 mb-4">
+@@ -94,6 +69,7 @@ const Reports: React.FC = () => {
         <FormControl>
           <InputLabel>Report</InputLabel>
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
+            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
-            <MenuItem value="Sales By Sponsor">Sales By Sponsor</MenuItem>
-            <MenuItem value="Invoice">Invoice</MenuItem>
-          </Select>
-        </FormControl>
-        <Button variant="contained" onClick={generateReport}>Generate</Button>
-      </div>
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant={viewMode === "table" ? "contained" : "outlined"} onClick={() => setViewMode("table")}>Table</Button>
+
+@@ -108,76 +84,44 @@
         <Button variant={viewMode === "chart" ? "contained" : "outlined"} onClick={() => setViewMode("chart")}>Chart</Button>
       </div>
       <Card>
       <div id="report-content" className="p-4">
+        <div id="report-content" className="p-4">
           {viewMode === "table" ? (
             <TableContainer component={Paper}>
               <Table>
@@ -141,6 +115,9 @@ const Reports: React.FC = () => {
                         <TableCell>Date</TableCell>
                       </>
                     )}
+                    <TableCell>Driver</TableCell>
+                    <TableCell>Point Change</TableCell>
+                    <TableCell>Date</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -165,6 +142,9 @@ const Reports: React.FC = () => {
                           <TableCell>{item.date}</TableCell>
                         </>
                       )}
+                      <TableCell>{item.driver}</TableCell>
+                      <TableCell>{item.pointChange}</TableCell>
+                      <TableCell>{item.date}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
