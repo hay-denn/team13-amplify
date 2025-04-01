@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "./Catalog.css";
 
@@ -30,9 +30,14 @@ interface CatalogItem {
   shortDescription?: string;
 }
 
-const SimpleApiFetcher: React.FC = () => {
-  const [currOrgId, setCurrOrgId] = useState<number>(13);
-  const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
+interface Props {
+  currentCatalog: number;
+}
+
+export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
+  const [currOrgId, setCurrOrgId] = useState(currentCatalog);
+  const [organizationData, setOrganizationData] =
+    useState<OrganizationData | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [type, setType] = useState("music");
@@ -49,7 +54,8 @@ const SimpleApiFetcher: React.FC = () => {
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [page, setPage] = useState(0);
 
-  const url_getOrganization = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+  const url_getOrganization =
+    "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
   useEffect(() => {
     const fetchOrganization = async () => {
@@ -135,7 +141,9 @@ const SimpleApiFetcher: React.FC = () => {
   // Pagination controls
   const handleNextPage = () => {
     // Only go to next page if there are more items left
-    const totalItems = allResults.filter((item) => item.trackPrice <= maxPrice).length;
+    const totalItems = allResults.filter(
+      (item) => item.trackPrice <= maxPrice
+    ).length;
     const maxPage = Math.floor(totalItems / pageSize);
     if (page < maxPage) {
       setPage((prev) => prev + 1);
@@ -155,8 +163,12 @@ const SimpleApiFetcher: React.FC = () => {
   return (
     <div style={{ margin: "2rem" }}>
       <p>Organization ID: {currOrgId}</p>
-      <button onClick={() => setCurrOrgId((prev) => prev + 1)}>Increment Org ID</button>
-      <button onClick={() => setCurrOrgId((prev) => prev - 1)}>Decrement Org ID</button>
+      <button onClick={() => setCurrOrgId((prev) => prev + 1)}>
+        Increment Org ID
+      </button>
+      <button onClick={() => setCurrOrgId((prev) => prev - 1)}>
+        Decrement Org ID
+      </button>
       <hr />
 
       <div style={{ marginBottom: "1rem" }}>
@@ -185,7 +197,13 @@ const SimpleApiFetcher: React.FC = () => {
       <div className="card organization-card mt-5">
         <div className="card-body">
           {organizationData.LogoUrl && (
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "1rem",
+              }}
+            >
               <img
                 src={organizationData.LogoUrl}
                 alt={organizationData.OrganizationName}
@@ -194,8 +212,12 @@ const SimpleApiFetcher: React.FC = () => {
               />
             </div>
           )}
-          <h5 className="organization-title card-title">{organizationData.OrganizationName}</h5>
-          <p className="card-text">{organizationData.OrganizationDescription}</p>
+          <h5 className="organization-title card-title">
+            {organizationData.OrganizationName}
+          </h5>
+          <p className="card-text">
+            {organizationData.OrganizationDescription}
+          </p>
           <p>
             Max Price: ${maxPrice} | Point to Dollar Ratio: {priceToPointRatio}
           </p>
@@ -205,8 +227,7 @@ const SimpleApiFetcher: React.FC = () => {
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">Catalog Results</h5>
-          <p className="card-text">
-          </p>
+          <p className="card-text"></p>
           <div className="catalog-results">
             {catalog.map((item: CatalogItem) => (
               <div key={item.trackId} className="catalog-item">
@@ -230,7 +251,9 @@ const SimpleApiFetcher: React.FC = () => {
                     <strong>Genre:</strong> {item.primaryGenreName}
                   </p>
                   <p>
-                    {item.longDescription || item.shortDescription || "No description available."}
+                    {item.longDescription ||
+                      item.shortDescription ||
+                      "No description available."}
                   </p>
                 </div>
               </div>
@@ -239,15 +262,17 @@ const SimpleApiFetcher: React.FC = () => {
         </div>
       </div>
 
-      <button onClick={handlePrevPage} disabled={page === 0} style={{ marginRight: "10px" }}>
+      <button
+        onClick={handlePrevPage}
+        disabled={page === 0}
+        style={{ marginRight: "10px" }}
+      >
         Previous
       </button>
       <button onClick={handleNextPage}>Next</button>
-      <p>
-        Page: {page + 1}
-      </p>
+      <p>Page: {page + 1}</p>
     </div>
   );
 };
 
-export default SimpleApiFetcher;
+export default GetCurrentCatalog;

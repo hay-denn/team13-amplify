@@ -7,10 +7,10 @@ interface DriverCatalogsProps {
 }
 
 export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
-  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
+  const [selectedOrgId, setSelectedOrgId] = useState<number>(0);
 
   // This callback is passed down and called by the child when the user selects an org
-  const handleSelectedOrgChange = (orgId: number | null) => {
+  const handleSelectedOrgChange = (orgId: number) => {
     setSelectedOrgId(orgId);
   };
 
@@ -27,7 +27,7 @@ export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
         onOrganizationSelect={handleSelectedOrgChange}
       ></DriverCatalogsTest>
 
-      <DisplayCatalog></DisplayCatalog>
+      <DisplayCatalog currentCatalog={selectedOrgId}></DisplayCatalog>
     </div>
   );
 };

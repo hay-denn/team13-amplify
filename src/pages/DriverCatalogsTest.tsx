@@ -8,7 +8,7 @@ const DRIVERS_SPONSORS_API_URL =
 
 interface DriverCatalogsProps {
   inputUserEmail: string;
-  onOrganizationSelect?: (orgId: number | null) => void;
+  onOrganizationSelect?: (orgId: number) => void;
 }
 
 export const DriverCatalogsTest = ({
