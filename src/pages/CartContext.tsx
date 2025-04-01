@@ -259,7 +259,7 @@ export const CartPage: React.FC = () => {
                   "PointChangeDriver": userEmail,
                   "PointChangeSponsor": sponsorEmail, 
                   "PointChangeNumber": pointChange,
-                  "PointChangeAction": "Subrtact"
+                  "PointChangeAction": "Subtract"
                 }
                 callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
 
