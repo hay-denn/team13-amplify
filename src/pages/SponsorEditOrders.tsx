@@ -107,7 +107,7 @@ export const SponsorEditOrders: React.FC = () => {
               PointChangeDriver: order.driver,
               PointChangeSponsor: sponsorEmail,
               PointChangeNumber: order.price,
-              PointChangeAction: "Subtract",
+              PointChangeAction: "Add",
             }),
           }
         );
