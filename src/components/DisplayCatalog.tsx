@@ -74,14 +74,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     fetchOrganization();
   }, [currOrgId]);
 
-  //automatically fetches catalog when a change is detected
-  //runs when organizationData changes
-  useEffect(() => {
-    if (organizationData) {
-      handleFetchAll();
-    }
-  }, [organizationData]);
-
   useEffect(() => {
     if (!organizationData) return;
     setPageSize(organizationData.AmountOfProducts || 10);
@@ -90,6 +82,12 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     setPriceToPointRatio(Number(organizationData.PointDollarRatio) || 1);
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
   }, [organizationData]);
+
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      handleFetchAll();
+    }
+  }, [searchTerm, type, maxPrice, pageSize]);
 
   const handleFetchAll = async () => {
     try {
