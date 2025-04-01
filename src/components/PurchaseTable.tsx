@@ -15,13 +15,9 @@ interface ProductPurchased {
   ProductPurchaseQuantity: number;
 }
 
-interface PointChange {
-  PointChangeID: string;
-  PointChangeDriver: string;
-  PointChangeSponsor: string;
-  PointChangeNumber: number;
-  PointChangeAction: string;
-  PointChangeDate: string;
+interface Organization {
+  OrganizationID: string;
+  PointDollarRatio: number;
 }
 
 interface PurchaseTableProps {
@@ -32,9 +28,9 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   // State variables
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [productsPurchased, setProductsPurchased] = useState<ProductPurchased[]>([]);
-  const [pointChanges, setPointChanges] = useState<PointChange[]>([]);
-  // Mapping from ProductPurchasedID to fetched product name
-  const [productNames, setProductNames] = useState<{ [key: string]: string }>({});
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  // Mapping from ProductPurchasedID to fetched product cost
+  const [productCosts, setProductCosts] = useState<{ [key: string]: number }>({});
   // Storing the userEmail passed in as a state variable
   const [userEmail] = useState<string>(initialUserEmail);
   // Tracks which purchase rows have been expanded (viewed)
@@ -74,39 +70,46 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
     }
   };
 
-  // Function to fetch point changes. Returns the JSON data directly.
-  const getPointChanges = async (): Promise<PointChange[]> => {
+
+  // Function to fetch organizations. Returns the JSON data directly.
+  const getOrganizations = async (): Promise<Organization[]> => {
     try {
-      const response = await fetch(
-        `https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1/pointchanges`
-      );
+      // Placeholder endpoint – replace with your actual endpoint.
+      const response = await fetch(`https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations`);
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
       const data = await response.json();
-      return data as PointChange[];
+      return data as Organization[];
     } catch (error) {
-      console.error("Error getting point changes:", error);
+      console.error("Error getting organizations:", error);
       return [];
     }
   };
 
-  // New function: Fetch product details from iTunes API using the ProductPurchasedID.
-  const fetchProductDetails = async (productPurchasedID: string): Promise<string> => {
+  // New function: Fetch product cost details from iTunes API using the ProductPurchasedID.
+  // Returns trackPrice multiplied by the PointDollarRatio where OrganizationID equals the purchase's PurchaseSponsorID.
+  const fetchProductDetails = async (
+    productPurchasedID: string,
+    purchaseSponsorID: string
+  ): Promise<number> => {
     try {
       const response = await fetch(`https://itunes.apple.com/lookup?id=${productPurchasedID}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch product details, status: ${response.status}`);
       }
       const json = await response.json();
-      if (json.resultCount > 0 && json.results && json.results[0].trackName) {
-        return json.results[0].trackName;
+      if (json.resultCount > 0 && json.results && json.results[0].trackPrice != null) {
+        const trackPrice = json.results[0].trackPrice;
+        const org = organizations.find(o => o.OrganizationID === purchaseSponsorID);
+        const ratio = org ? org.PointDollarRatio : 1;
+        return trackPrice * ratio;
       } else {
-        return "Item Name Not Found";
+        return 0;
       }
     } catch (error) {
       console.error("Error fetching product details:", error);
-      return "Item Name Not Found";
+      return 0;
     }
   };
 
@@ -128,35 +131,44 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   }, []);
 
   useEffect(() => {
-    const fetchPointChanges = async () => {
-      const data = await getPointChanges();
-      setPointChanges(data);
+    const fetchOrganizations = async () => {
+      const data = await getOrganizations();
+      setOrganizations(data);
     };
-    fetchPointChanges();
+    fetchOrganizations();
   }, []);
 
-  // Handler to expand the purchase row to show its purchased products along with their names
+  // Handler to expand the purchase row to show its purchased products along with their costs.
+  // It also fetches the cost for each product and updates the productCosts state.
   const handleViewClick = async (purchaseId: string) => {
-    // Mark the purchase as expanded
+    // Mark the purchase as expanded.
     setExpandedPurchases(prev => ({ ...prev, [purchaseId]: true }));
 
-    // Find all products associated with the purchase
+    // Retrieve the purchase to get its PurchaseSponsorID.
+    const purchase = purchases.find(p => p.PurchaseID === purchaseId);
+    const sponsorId = purchase ? purchase.PurchaseSponsorID : "";
+
+    // Find all products associated with the purchase.
     const purchaseProducts = productsPurchased.filter(
       product => product.PurchaseAssociatedID === purchaseId
     );
 
-    // Fetch details for each product in parallel
+    // Fetch cost details for each product in parallel, accounting for quantity.
     const details = await Promise.all(
-      purchaseProducts.map(product => fetchProductDetails(product.ProductPurchasedID))
+      purchaseProducts.map(product =>
+        fetchProductDetails(product.ProductPurchasedID, sponsorId).then(
+          cost => cost * product.ProductPurchaseQuantity
+        )
+      )
     );
 
-    // Update the productNames state with the fetched track names
+    // Update the productCosts state with the fetched costs.
     const newMapping = purchaseProducts.reduce((acc, product, index) => {
       acc[product.ProductPurchasedID] = details[index];
       return acc;
-    }, {} as { [key: string]: string });
+    }, {} as { [key: string]: number });
 
-    setProductNames(prev => ({ ...prev, ...newMapping }));
+    setProductCosts(prev => ({ ...prev, ...newMapping }));
   };
 
   // Modified cancel handler that now accepts the purchase cost.
@@ -165,7 +177,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
     console.log(`Cancel purchase ${purchaseId} with cost ${purchaseCost}`);
   };
 
-  // Get today's date in YYYY-MM-DD format
+  // Get today's date in YYYY-MM-DD format.
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -184,13 +196,15 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
           {purchases
             .filter(purchase => purchase.PurchaseDriver === userEmail)
             .map(purchase => {
-              // Find the point change corresponding to this purchase.
-              const matchingPointChange = pointChanges.find(
-                pointChange =>
-                  pointChange.PointChangeDriver === userEmail &&
-                  pointChange.PointChangeAction === `Purchase - ${purchase.PurchaseID}`
+              // Filter the products associated with this purchase.
+              const purchaseProducts = productsPurchased.filter(
+                product => product.PurchaseAssociatedID === purchase.PurchaseID
               );
-              const purchaseCost = matchingPointChange ? matchingPointChange.PointChangeNumber : 0;
+              // Compute total cost for the purchase by summing the product costs.
+              const totalCost = purchaseProducts.reduce(
+                (sum, product) => sum + (productCosts[product.ProductPurchasedID] || 0),
+                0
+              );
               
               return (
                 <tr key={purchase.PurchaseID}>
@@ -199,24 +213,24 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                   <td>
                     {expandedPurchases[purchase.PurchaseID] ? (
                       <ul>
-                        {productsPurchased
-                          .filter(product => product.PurchaseAssociatedID === purchase.PurchaseID)
-                          .map(product => (
-                            <li key={product.ProductPurchasedID}>
-                              {productNames[product.ProductPurchasedID]
-                                ? productNames[product.ProductPurchasedID]
-                                : "Loading..."}
-                            </li>
-                          ))}
+                        {purchaseProducts.map(product => (
+                          <li key={product.ProductPurchasedID}>
+                            {productCosts[product.ProductPurchasedID] !== undefined
+                              ? productCosts[product.ProductPurchasedID]
+                              : "Loading..."}
+                          </li>
+                        ))}
                       </ul>
                     ) : (
-                      <button onClick={() => handleViewClick(purchase.PurchaseID)}>View</button>
+                      <button onClick={() => handleViewClick(purchase.PurchaseID)}>
+                        View
+                      </button>
                     )}
                   </td>
-                  <td>{purchaseCost}</td>
+                  <td>{totalCost}</td>
                   <td>
-                    {purchase.PurchaseDate === today && (
-                      <button onClick={() => handleCancel(purchase.PurchaseID, purchaseCost)}>
+                    {purchase.PurchaseDate.split('T')[0] === today && (
+                      <button onClick={() => handleCancel(purchase.PurchaseID, totalCost)}>
                         Cancel
                       </button>
                     )}
