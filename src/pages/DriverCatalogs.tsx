@@ -1,7 +1,11 @@
 import DisplayCatalog from "../components/DisplayCatalog";
 import { DriverCatalogsTest } from "./DriverCatalogsTest";
 
-export const DriverCatalogs = () => {
+interface DriverCatalogsProps {
+  inputUserEmail: string; 
+}
+
+export const DriverCatalogs = ( {inputUserEmail}: DriverCatalogsProps) => {
   return (
     <div>
       <p>WIP</p>
@@ -9,7 +13,7 @@ export const DriverCatalogs = () => {
       <div className="shopTitle">
         <h1>Purchase Items from Your Sponsors</h1>
       </div>
-      <DriverCatalogsTest></DriverCatalogsTest>
+      <DriverCatalogsTest inputUserEmail={inputUserEmail}></DriverCatalogsTest>
 
       <DisplayCatalog></DisplayCatalog>
     </div>

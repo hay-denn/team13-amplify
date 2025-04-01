@@ -1,18 +1,21 @@
-import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "react-oidc-context";
+import {useState, useEffect } from "react";
 import { useCart } from "./CartContext";
 
 const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
-const DRIVERS_SPONSORS_API_URL="https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1"
-export const DriverCatalogsTest = () => {
-  const authContext = useContext(AuthContext);
+const DRIVERS_SPONSORS_API_URL="https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+
+interface DriverCatalogsProps {
+  inputUserEmail: string; 
+}
+
+export const DriverCatalogsTest = ({ inputUserEmail }: DriverCatalogsProps) => {
 
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
   const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
 
   const userEmail = impersonation
     ? impersonation.email
-    : authContext?.user?.profile?.email || "";
+    : inputUserEmail || "";
 
   const [organizations, setOrganizations] = useState<
     { OrganizationID: number; OrganizationName: string }[]

@@ -28,11 +28,12 @@ function App() {
   const cognitoGroups: string[] =
     (auth.user?.profile?.["cognito:groups"] as string[]) || [];
 
-  // const userEmail = auth.user?.profile.email || "";
-  // const userGroup = cognitoGroups[0];
+  const userEmail = auth.user?.profile.email || "";
+  const userGroup = cognitoGroups[0];
 
-  const userGroup = "Driver";
-  const userEmail = "noahamn@gmail.com"
+  // const userGroup = "Driver";
+  // const userEmail = "noahamn@gmail.com"
+  // auth.isAuthenticated = true;
 
   return (
     <CartProvider>
@@ -44,7 +45,7 @@ function App() {
                 {/* Route for viewing driver dashboard when logged in as a sponsor */}
                 <Route path="/driver-dashboard" element={<DriverDashBoard />} />
                 <Route path="/cart" element={<CartPage />} />
-                <Route path="/catalog" element={<DriverCatalogs />} />
+                <Route path="/catalog" element={<DriverCatalogs inputUserEmail={userEmail}/>} />
 
                 {userGroup === "Driver" && (
                   <>
@@ -52,10 +53,10 @@ function App() {
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/sponsors" element={<SponsorExplore />} />
                     <Route path="/sponsors/:id" element={<SponsorProfile />} />
-                    <Route path="/catalog" element={<DriverCatalogs />} />
+                    <Route path="/catalog" element={<DriverCatalogs inputUserEmail={userEmail}/>} />
                     <Route
                       path="/catalog-test"
-                      element={<DriverCatalogsTest />}
+                      element={<DriverCatalogsTest inputUserEmail={userEmail}/>}
                     />
                   </>
                 )}

@@ -33,23 +33,23 @@ interface CatalogItem {
 const SimpleApiFetcher: React.FC = () => {
   const [currOrgId, setCurrOrgId] = useState<number>(13);
 
-  const [organizationData, setOrganizationData] =
-    useState<OrganizationData | null>(null);
+  const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
 
-  // The search parameters will update after org data is loaded
+  // Catalog parameters derived from organization data
   const [amount, setAmount] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // The current catalog being displayed
-  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [type, setType] = useState("music");
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
   const [maxPrice, setMaxPrice] = useState(100);
 
+  // pagination
+  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
+  const [page, setPage] = useState(0);
+
   const url_getOrganization =
     "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-  //Gets the orgnization information
+  // 1. Fetch the organization info
   useEffect(() => {
     const fetchOrganization = async () => {
       try {
@@ -65,10 +65,9 @@ const SimpleApiFetcher: React.FC = () => {
     fetchOrganization();
   }, [currOrgId]);
 
-  // //Sets the organization data to the local variables
+  // 2. Update local states whenever org data arrives
   useEffect(() => {
     if (!organizationData) return;
-
     setAmount(organizationData.AmountOfProducts);
     setSearchTerm(organizationData.SearchTerm || "");
     setType(organizationData.ProductType || "music");
@@ -76,29 +75,46 @@ const SimpleApiFetcher: React.FC = () => {
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
   }, [organizationData]);
 
-  if (!organizationData) {
-    return <div>Loading organization data...</div>;
-  }
-
-  // makes the itunes api call and filters it
-  const handleSearch = async () => {
+  // 3. Build a function to fetch results from iTunes with pagination
+  const handleSearch = async (desiredPage: number = page) => {
     try {
-      setCatalog([]);
+      
+      // offset = page * amount
+      const offset = desiredPage * amount;
 
-      const url = `https://itunes.apple.com/search?term=${searchTerm}&media=${type}&limit=${amount}`;
+      const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
+        searchTerm
+      )}&media=${type}&limit=${amount}&offset=${offset}`;
 
       const response = await axios.get(url);
 
-      // Filter the results based on the max price
+      console.log("Response from iTunes API:", response.data); 
+
       const filteredResults: CatalogItem[] = response.data.results.filter(
         (item: CatalogItem) => item.trackPrice <= maxPrice
       );
 
       setCatalog(filteredResults);
+      setPage(desiredPage);
     } catch (error) {
       console.error("Error fetching catalog:", error);
     }
   };
+
+  // 4. “Next” and “Previous” page handlers
+  const handleNextPage = () => {
+    handleSearch(page + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 0) {
+      handleSearch(page - 1);
+    }
+  };
+
+  if (!organizationData) {
+    return <div>Loading organization data...</div>;
+  }
 
   return (
     <div style={{ margin: "2rem" }}>
@@ -111,16 +127,35 @@ const SimpleApiFetcher: React.FC = () => {
       </button>
       <hr />
 
-      <button onClick={handleSearch}>Get Catalog</button>
+      {/* Trigger a search on the current (page, searchTerm, etc.) */}
+      <button onClick={() => handleSearch(0)}>Update Catalog</button>
 
-      <h3>Catalog Results</h3>
+      <div className="card organization-card mt-5">
+        <div className="card-body">
+          {organizationData.LogoUrl && (
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+          <img
+            src={organizationData.LogoUrl}
+            alt={organizationData.OrganizationName}
+            className="logo"
+            style={{ width: "100px", height: "100px" }}
+          />
+        </div>
+          )}
+          <h5 className="organization-title card-title">
+        {organizationData.OrganizationName}
+          </h5>
+          <p className="card-text">{organizationData.OrganizationDescription}</p>
+          <p>
+        Max Price: ${maxPrice} | Point to Dollar Ratio: {priceToPointRatio}
+          </p>
+        </div>
+      </div>
 
       <div className="card manage-users-card mt-5">
         <div className="card-body">
           <h5 className="manage-users-title card-title">Catalog Results</h5>
-          <p className="card-text">
-            Results of your customized catalog search.
-          </p>
+          <p className="card-text">Results of your customized catalog search.</p>
           <div className="catalog-results">
             {catalog.map((item: CatalogItem) => (
               <div key={item.trackId} className="catalog-item">
@@ -154,6 +189,16 @@ const SimpleApiFetcher: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <button
+        onClick={handlePrevPage}
+        disabled={page === 0}
+        style={{ marginRight: "10px" }}
+      >
+        Previous
+      </button>
+      <button onClick={handleNextPage}>Next</button>
+
     </div>
   );
 };
