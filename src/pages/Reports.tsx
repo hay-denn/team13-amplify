@@ -29,9 +29,9 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
     }
 }
 
-const sampleData = getAllPointChanges("2000-01-01", "3000-01-01");
+const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 
-const sampleDataTest = [
+const sampleData = [
   { driver: "John Doe", pointChange: 5, date: "2025-03-10" },
   { driver: "Jane Smith", pointChange: -3, date: "2025-03-12" },
   { driver: "Alex Johnson", pointChange: 2, date: "2025-03-14" },
