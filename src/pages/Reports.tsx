@@ -6,7 +6,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
-
+/*
 async function getAllPointChanges(startDate: string, endDate: string) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
@@ -28,7 +28,7 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
         return [];
     }
 }
-
+*/
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 
 const sampleData = [
