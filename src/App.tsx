@@ -22,6 +22,8 @@ import  Reports  from "./pages/Reports.tsx";
 import { OrganizationSettings } from "./pages/OrganizationSettings.tsx";
 import { DriverCatalogsTest } from "./pages/DriverCatalogsTest.tsx";
 import { SponsorEditOrders } from "./pages/SponsorEditOrders.tsx";
+import { DriverMyApplications } from "./pages/DriverMyApplications.tsx";
+import { DriverMySponsors } from "./pages/DriverMySponsors.tsx";
 
 function App() {
   const auth = useAuth();
@@ -52,8 +54,10 @@ function App() {
                     <Route path="/" element={<DriverDashBoard />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/sponsors" element={<SponsorExplore />} />
-                    <Route path="/sponsors/:id" element={<SponsorProfile />} />
+                    <Route path="/sponsors/:id" element={<SponsorProfile inputUserEmail={userEmail} />} />
                     <Route path="/catalog" element={<DriverCatalogs inputUserEmail={userEmail}/>} />
+                    <Route path="/myapplications" element={<DriverMyApplications inputUserEmail={userEmail}/>} />
+                    <Route path="/mysponsors" element={<DriverMySponsors />} />
                     <Route
                       path="/catalog-test"
                       element={<DriverCatalogsTest inputUserEmail={userEmail}/>}

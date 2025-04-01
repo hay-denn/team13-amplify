@@ -31,9 +31,15 @@ export const MenuInfoSponsoredDriver = [
   */
   {
     title: "My Sponsors",
-    url: "#",
+    url: "/mysponsors",
     cName: "nav-links",
     icon: "fa-solid fa-sitemap",
+  },
+  {
+    title: "My Applications",
+    url: "/myapplications",
+    cName: "nav-links",
+    icon: "fa-solid fa-file-signature",
   }
 ];
 

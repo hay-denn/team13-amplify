@@ -100,6 +100,7 @@ const handleCreateApplication = async () => {
         ApplicationOrganization: parseInt(createOrg, 10),
         ApplicationSponsorUser: createApplicationUser,
         ApplicationStatus: createStatus,
+        ApplicationDateSubmitted: new Date().toISOString(),
       }),
     });
 
