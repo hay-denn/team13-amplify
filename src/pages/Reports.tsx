@@ -45,7 +45,32 @@ const Reports: React.FC = () => {
 
   const generateReport = () => {
     console.log(`Generating report: ${selectedReport}`);
-    setReportData(sampleData);
+    let data = []
+    if (selectedReport === "All Driver Point Changes") {
+        // Fetch or set sample data for all driver point changes
+        data = sampleData; // Replace with an API call if needed
+      } else if (selectedReport === "Specific Driver Point Changes") {
+        // Fetch or set sample data for specific driver point changes
+        data = [
+          { driver: "John Doe", pointChange: 5, date: "2025-03-10" }, // Example data
+        ];
+      } else if (selectedReport === "Sales By Driver") {
+        // Fetch or set sample data for sales by driver
+        data = [
+          { driver: "Jane Smith", sales: 1200, date: "2025-03-12" }, // Example data
+        ];
+      } else if (selectedReport === "Sales By Sponsor") {
+        // Fetch or set sample data for sales by sponsor
+        data = [
+          { sponsor: "Company A", sales: 5000, date: "2025-03-14" }, // Example data
+        ];
+      } else (selectedReport === "Invoice") {
+        // Fetch or set sample data for invoices
+        data = [
+          { invoiceNumber: "INV123", amount: 1000, date: "2025-03-16" }, // Example data
+        ];
+      }
+    setReportData(data);
   };
 
   const downloadPDF = async () => {
