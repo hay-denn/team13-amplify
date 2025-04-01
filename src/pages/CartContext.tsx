@@ -269,15 +269,7 @@ export const CartPage: React.FC = () => {
                   "ProductPurchaseQuantity": item.quantity
                 }
                 callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
-                const itemIndex = cart.findIndex(
-                  (cartItem) =>
-                    cartItem.name === item.name &&
-                    cartItem.org === item.org &&
-                    cartItem.quantity === item.quantity &&
-                    cartItem.cost === item.cost &&
-                    cartItem.id === item.id
-                );
-                removeFromCart(itemIndex);
+ 
                 });
                 alert("Purchase success!");
               } else {
