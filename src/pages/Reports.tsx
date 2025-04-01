@@ -45,32 +45,7 @@ const Reports: React.FC = () => {
 
   const generateReport = () => {
     console.log(`Generating report: ${selectedReport}`);
-    let data = []
-    if (selectedReport === "All Driver Point Changes") {
-        // Fetch or set sample data for all driver point changes
-        data = sampleData; // Replace with an API call if needed
-      } else if (selectedReport === "Specific Driver Point Changes") {
-        // Fetch or set sample data for specific driver point changes
-        data = [
-          { driver: "John Doe", pointChange: 5, date: "2025-03-10" }, // Example data
-        ];
-      } else if (selectedReport === "Sales By Driver") {
-        // Fetch or set sample data for sales by driver
-        data = [
-          { driver: "Jane Smith", sales: 1200, date: "2025-03-12" }, // Example data
-        ];
-      } else if (selectedReport === "Sales By Sponsor") {
-        // Fetch or set sample data for sales by sponsor
-        data = [
-          { sponsor: "Company A", sales: 5000, date: "2025-03-14" }, // Example data
-        ];
-      } else if (selectedReport === "Invoice") {
-        // Fetch or set sample data for invoices
-        data = [
-          { invoiceNumber: "INV123", amount: 1000, date: "2025-03-16" }, // Example data
-        ];
-      }
-    setReportData(data);
+    setReportData(sampleData);
   };
 
   const downloadPDF = async () => {
@@ -94,6 +69,7 @@ const Reports: React.FC = () => {
         <FormControl>
           <InputLabel>Report</InputLabel>
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
+            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
@@ -108,55 +84,23 @@ const Reports: React.FC = () => {
         <Button variant={viewMode === "chart" ? "contained" : "outlined"} onClick={() => setViewMode("chart")}>Chart</Button>
       </div>
       <Card>
-      <div id="report-content" className="p-4">
+        <div id="report-content" className="p-4">
           {viewMode === "table" ? (
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    {selectedReport === "Invoice" ? (
-                      <>
-                        <TableCell>Invoice Number</TableCell>
-                        <TableCell>Amount</TableCell>
-                        <TableCell>Date</TableCell>
-                      </>
-                    ) : selectedReport === "Sales By Sponsor" ? (
-                      <>
-                        <TableCell>Sponsor</TableCell>
-                        <TableCell>Sales</TableCell>
-                        <TableCell>Date</TableCell>
-                      </>
-                    ) : (
-                      <>
-                        <TableCell>Driver</TableCell>
-                        <TableCell>{selectedReport.includes("Sales") ? "Sales" : "Point Change"}</TableCell>
-                        <TableCell>Date</TableCell>
-                      </>
-                    )}
+                    <TableCell>Driver</TableCell>
+                    <TableCell>Point Change</TableCell>
+                    <TableCell>Date</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {reportData.map((item, index) => (
                     <TableRow key={index}>
-                      {selectedReport === "Invoice" ? (
-                        <>
-                          <TableCell>{item.invoiceNumber}</TableCell>
-                          <TableCell>{item.amount}</TableCell>
-                          <TableCell>{item.date}</TableCell>
-                        </>
-                      ) : selectedReport === "Sales By Sponsor" ? (
-                        <>
-                          <TableCell>{item.sponsor}</TableCell>
-                          <TableCell>{item.sales}</TableCell>
-                          <TableCell>{item.date}</TableCell>
-                        </>
-                      ) : (
-                        <>
-                          <TableCell>{item.driver}</TableCell>
-                          <TableCell>{selectedReport.includes("Sales") ? item.sales : item.pointChange}</TableCell>
-                          <TableCell>{item.date}</TableCell>
-                        </>
-                      )}
+                      <TableCell>{item.driver}</TableCell>
+                      <TableCell>{item.pointChange}</TableCell>
+                      <TableCell>{item.date}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
