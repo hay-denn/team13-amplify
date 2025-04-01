@@ -29,6 +29,48 @@ interface ProductDetail {
   cost: number;
 }
 
+async function callAPI(url: string, methodType: string, data: object): Promise<any> {
+  try {
+    const response = await fetch(url, {
+      method: methodType, // HTTP method
+      headers: {
+        'Content-Type': 'application/json', // Content type header
+      },
+      body: JSON.stringify(data), // Convert the data to JSON string
+    });
+    if (response.ok) {
+      // If the request was successful
+      const responseData = await response.json();
+      console.log('Success: ' + JSON.stringify(responseData))
+      return responseData;
+    } else {
+      // Handle error if response status is not OK
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+      throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+    }
+  } catch (error) {
+    throw new Error(`API call failed for url ${url} - Network Error: ${error}`);
+  }
+}
+
+async function callAPIGET(url: string): Promise<any> {
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log('Success: ' + JSON.stringify(responseData))
+      return responseData;
+    } else {
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+      throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+    }
+  } catch (error) {
+    throw new Error(`API call failed for url ${url} - Network Error: ${error}`);
+  }
+}
+
 const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEmail }) => {
   // State variables
   const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -79,7 +121,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   const getOrganizations = async (): Promise<Organization[]> => {
     try {
       // Placeholder endpoint – replace with your actual endpoint.
-      const response = await fetch(`https://example.com/organizations`);
+      const response = await fetch(`https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations`);
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
@@ -179,9 +221,43 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   };
 
   // Modified cancel handler that now accepts the purchase cost.
-  const handleCancel = (purchaseId: string, purchaseCost: number) => {
-    // TODO: Implement cancel purchase functionality using purchaseId and purchaseCost.
-    console.log(`Cancel purchase ${purchaseId} with cost ${purchaseCost}`);
+  // It updates the Purchase Status locally to "Canceled" so that the UI reflects the cancellation and removes the Cancel button.
+  const handleCancel = async (orgID: string, purchaseId: string, purchaseCost: number) => {
+    try {
+      const sponsorResult = await callAPIGET(`https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsors?UserOrganization=${orgID}`);
+      const sponsorResultData = await sponsorResult;
+      const sponsorEmail = sponsorResultData[0]?.UserEmail || "";
+      if (sponsorEmail !== undefined) {
+        const pointChange = purchaseCost;
+        const pointChangeData = {
+          "PointChangeDriver": userEmail,
+          "PointChangeSponsor": sponsorEmail, 
+          "PointChangeNumber": pointChange,
+          "PointChangeAction": "Add"
+        };
+        await callAPI(`https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1/pointchange`, "POST", pointChangeData);
+  
+        const purchaseData = {
+          "PurchaseID": purchaseId,
+          "PurchaseStatus": "Canceled"
+        };
+        await callAPI("https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1/purchase", "PUT", purchaseData);
+  
+        // Update local state so that the Purchase Status is updated to "Canceled"
+        setPurchases(prevPurchases =>
+          prevPurchases.map(p =>
+            p.PurchaseID === purchaseId ? { ...p, PurchaseStatus: "Canceled" } : p
+          )
+        );
+  
+        console.log(`Cancel purchase ${purchaseId} with cost ${purchaseCost}`);
+        alert("Purchase canceled!");
+      } else {
+        alert("Purchase unable to be canceled. Try again.");
+      }
+    } catch (error) {
+      alert("Purchase unable to be canceled. Try again.");
+    }
   };
 
   // Get today's date in YYYY-MM-DD format.
@@ -243,8 +319,8 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                       : "Click View to See Cost"}
                   </td>
                   <td>
-                    {purchase.PurchaseDate.split('T')[0] === today && (
-                      <button onClick={() => handleCancel(purchase.PurchaseID, totalCost || 0)}>
+                    {purchase.PurchaseDate.split('T')[0] === today && purchase.PurchaseStatus !== "Canceled" && (
+                      <button onClick={() => handleCancel(purchase.PurchaseSponsorID, purchase.PurchaseID, totalCost || 0)}>
                         Cancel
                       </button>
                     )}
