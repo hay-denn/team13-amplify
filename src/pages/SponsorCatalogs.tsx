@@ -24,7 +24,7 @@ export const SponsorCatalogs: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [type, setType] = useState("music");
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
-  const [priceToPointRatio, setPriceToPointRatio] = useState(1);
+  const [priceToPointRatio, setPriceToPointRatio] = useState(0.01);
   const [maxPrice, setMaxPrice] = useState(100);
   const [apiUrl, setApiUrl] = useState("");
   const [organizationID, setOrganizationID] = useState<number | null>(null);
@@ -41,7 +41,7 @@ export const SponsorCatalogs: React.FC = () => {
       // Set the organization parameters from the response
       setOrganizationID(response.data.UserOrganization);
       setSearchTerm(response.data.SearchTerm?.trim() || "");    
-      setPriceToPointRatio(response.data.PointDollarRatio || 1);
+      setPriceToPointRatio(response.data.PointDollarRatio || 0.01);
       setAmount(response.data.AmountOfProducts || 10);
       setType(response.data.ProductType || "music");
       setMaxPrice(response.data.MaxPrice || 100);
