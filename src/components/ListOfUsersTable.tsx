@@ -31,7 +31,8 @@ interface Props {
   isSponsor?: boolean;
 }
 
-const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_BASE_URL =
+  "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
 export const ListOfUsersTable = ({
   driverTable,
@@ -59,12 +60,17 @@ export const ListOfUsersTable = ({
         const data = await response.json();
         let sponsor;
         if (Array.isArray(data)) {
-          sponsor = data.find((s: any) => s.UserEmail === auth.user?.profile?.email);
+          sponsor = data.find(
+            (s: any) => s.UserEmail === auth.user?.profile?.email
+          );
         } else {
           sponsor = data;
         }
         if (sponsor && sponsor.UserOrganization) {
-          console.log("Fetched sponsor organization ID:", sponsor.UserOrganization);
+          console.log(
+            "Fetched sponsor organization ID:",
+            sponsor.UserOrganization
+          );
           setSponsorOrgID(sponsor.UserOrganization);
         } else {
           console.log("Sponsor record not found or no organization available.");
@@ -84,6 +90,10 @@ export const ListOfUsersTable = ({
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
+  // New states for points editing
+  const [currentPoints, setCurrentPoints] = useState<number | null>(null);
+  const [pointsChange, setPointsChange] = useState<number>(0);
+
   const handleViewOrg = (pemail: string) => {
     setViewOrgEmail(pemail);
     setIsViewOrgModalOpen(true);
@@ -97,6 +107,8 @@ export const ListOfUsersTable = ({
   const handleCloseActionsModal = () => {
     setShowActionsModal(false);
     setSelectedUser(null);
+    setCurrentPoints(null);
+    setPointsChange(0);
   };
 
   // Use the fetched sponsorOrgID for viewing as driver (if needed)
@@ -129,6 +141,87 @@ export const ListOfUsersTable = ({
     );
     handleCloseActionsModal();
     window.open(targetRoute, "_blank");
+  };
+
+  // useEffect to fetch driver's current points when a user is selected and sponsorOrgID is available
+  useEffect(() => {
+    const fetchCurrentPoints = async (driverEmail: string) => {
+      try {
+        const response = await fetch(
+          `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driversponsor?DriversEmail=${encodeURIComponent(
+            driverEmail
+          )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
+        );
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        const data = await response.json();
+        // Assuming the API returns points in a property called "points"
+        setCurrentPoints(Number(data.points));
+      } catch (error) {
+        console.error("Error fetching driver's points:", error);
+        setCurrentPoints(null);
+      }
+    };
+
+    if (selectedUser && sponsorOrgID) {
+      const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
+      if (driverEmail) {
+        fetchCurrentPoints(driverEmail);
+      }
+    }
+  }, [selectedUser, sponsorOrgID]);
+
+  // Function to handle the point change API call
+  const handleChangePoints = async () => {
+    if (pointsChange === 0) {
+      alert("Please input a non-zero value to change points.");
+      return;
+    }
+    const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
+    const sponsorEmail = auth.user?.profile?.email || "";
+    const action = pointsChange > 0 ? "Add" : "Subtract";
+    try {
+      const response = await fetch(
+        "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1/pointchange",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            PointChangeDriver: driverEmail.toString(),
+            PointChangeSponsor: sponsorEmail.toString(),
+            PointChangeNumber: Math.abs(pointsChange).toString(),
+            PointChangeAction: action,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      alert("Point change submitted successfully");
+      // Optionally re-fetch the current points after the change
+      const fetchCurrentPoints = async (driverEmail: string) => {
+        try {
+          const response = await fetch(
+            `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driversponsor?DriversEmail=${encodeURIComponent(
+              driverEmail
+            )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
+          );
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          const data = await response.json();
+          setCurrentPoints(Number(data.points));
+        } catch (error) {
+          console.error("Error fetching driver's points:", error);
+        }
+      };
+      fetchCurrentPoints(driverEmail);
+      setPointsChange(0);
+    } catch (error) {
+      console.error("Error changing points:", error);
+      alert("Failed to change points.");
+    }
   };
 
   return (
@@ -265,12 +358,52 @@ export const ListOfUsersTable = ({
             <>
               <p>
                 <strong>User Email: </strong>
-                {selectedUser.DriverEmail || selectedUser.UserEmail || "N / A"}
+                {selectedUser.DriverEmail ||
+                  selectedUser.UserEmail ||
+                  "N / A"}
               </p>
+              <p>
+                <strong>Driver's Points: </strong>
+                {currentPoints !== null ? currentPoints : "Loading..."}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "10px",
+                }}
+              >
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setPointsChange(pointsChange - 1)}
+                >
+                  -
+                </button>
+                <span>{pointsChange}</span>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setPointsChange(pointsChange + 1)}
+                >
+                  +
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleChangePoints}
+                >
+                  Change Points
+                </button>
+              </div>
             </>
           )}
         </Modal.Body>
-        <Modal.Footer style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Modal.Footer
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Button
             variant="primary"
             onClick={() => handleViewAsDriver("/driver-dashboard")}
