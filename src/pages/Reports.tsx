@@ -5,18 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-//const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
-/*
-async function getAllPointChanges(startDate: string, endDate: string) {
-    try {
-        const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
-        if (!response.ok) throw new Error("Failed to fetch point changes");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching organizations:", error);
-        return [];
-    }
-}
+const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
 
 async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
     try {
@@ -29,10 +18,7 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
     }
 }
 
-const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
-
-
-async function getAllPointChanges(startDate, endDate) {
+async function getAllPointChanges(startDate: String, endDate: String) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
         if (!response.ok) throw new Error("Failed to fetch point changes");
@@ -42,7 +28,7 @@ async function getAllPointChanges(startDate, endDate) {
         return [];
     }
 }
-*/
+
 
 const sampleData = [
     {
@@ -85,30 +71,32 @@ const sampleData3 = [
  ];
 
 const Reports: React.FC = () => {
-  const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
+  const [selectedReport, setSelectedReport] = useState("All Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState(sampleData);
 
-  const generateReport = () => {
-    let data;
+  const generateReport = async () => {
+    let data = []
     switch (selectedReport) {
       case "All Driver Point Changes":
-        data = sampleData;
+        data = await getAllPointChanges("2000-01-01", "3000-01-01");
+        data = data[0];
         break;
       case "Specific Driver Point Changes":
-        data = sampleData2;
+        data = await getSpecificPointChnages("2000-01-01", "3000-01-01", "jrbrany@clemson.edu");
+        data = data[0];
         break;
       case "Sales By Driver":
-        data = sampleData3;
+        data = sampleData2;
         break;
       case "Sales By Sponsor":
-        data = sampleData4;
+        data = sampleData3;
         break;
       case "Invoice":
         data = sampleData4;
         break;
       default:
-        data = sampleData; // Default to "Driver Point Changes"
+        data = sampleData;
     }
     setReportData(data);
   };
@@ -134,7 +122,6 @@ const Reports: React.FC = () => {
         <FormControl>
           <InputLabel>Report</InputLabel>
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
-            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
@@ -178,10 +165,10 @@ const Reports: React.FC = () => {
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={reportData}>
-                <XAxis dataKey="driver" />
+                <XAxis dataKey="PointChangeDriver" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="pointChange" fill="#8884d8" />
+                <Bar dataKey="PointChangeNumber" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           )}
