@@ -7,7 +7,6 @@ import html2canvas from "html2canvas";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
 
-/*
 async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
@@ -18,9 +17,6 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
         return [];
     }
 }
-
-const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
-*/
 
 async function getAllPointChanges(startDate: String, endDate: String) {
     try {
@@ -87,7 +83,8 @@ const Reports: React.FC = () => {
         data = data[0];
         break;
       case "Specific Driver Point Changes":
-        data = sampleData2;
+        data = await getSpecificPointChnages("2000-01-01", "3000-01-01", "jrbrany+s@clemson.edu");
+        data = data[0];
         break;
       case "Sales By Driver":
         data = sampleData3;
