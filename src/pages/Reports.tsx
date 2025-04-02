@@ -5,19 +5,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-//const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
-/*
-async function getAllPointChanges(startDate: string, endDate: string) {
-    try {
-        const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
-        if (!response.ok) throw new Error("Failed to fetch point changes");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching organizations:", error);
-        return [];
-    }
-}
+const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
 
+/*
 async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
@@ -30,7 +20,7 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
 }
 
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
-
+*/
 
 async function getAllPointChanges(startDate, endDate) {
     try {
@@ -42,7 +32,7 @@ async function getAllPointChanges(startDate, endDate) {
         return [];
     }
 }
-*/
+
 
 const sampleData = [
     {
@@ -89,11 +79,12 @@ const Reports: React.FC = () => {
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState(sampleData);
 
-  const generateReport = () => {
-    let data;
+  const generateReport = async () => {
+    let data = []
     switch (selectedReport) {
       case "All Driver Point Changes":
-        data = sampleData;
+        data = await getAllPointChanges("2000-01-01", "3000-01-01");
+        data = data[0];
         break;
       case "Specific Driver Point Changes":
         data = sampleData2;
