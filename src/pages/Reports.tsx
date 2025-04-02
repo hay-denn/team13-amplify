@@ -87,10 +87,10 @@ const Reports: React.FC = () => {
         data = data[0];
         break;
       case "Sales By Driver":
-        data = sampleData3;
+        data = sampleData2;
         break;
       case "Sales By Sponsor":
-        data = sampleData4;
+        data = sampleData3;
         break;
       case "Invoice":
         data = sampleData4;
