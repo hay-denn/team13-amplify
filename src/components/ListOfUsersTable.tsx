@@ -148,7 +148,7 @@ export const ListOfUsersTable = ({
     const fetchCurrentPoints = async (driverEmail: string) => {
       try {
         const response = await fetch(
-          `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driversponsor?DriversEmail=${encodeURIComponent(
+          `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor?DriversEmail=${encodeURIComponent(
             driverEmail
           )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
         );
@@ -363,7 +363,7 @@ export const ListOfUsersTable = ({
                   "N / A"}
               </p>
               <p>
-                <strong>Driver's Points: </strong>
+                <strong>User Points: </strong>
                 {currentPoints !== null ? currentPoints : "Loading..."}
               </p>
               <div
