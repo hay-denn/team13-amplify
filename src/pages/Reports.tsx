@@ -22,7 +22,7 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
 const sampleDataTest = getAllPointChanges("2000-01-01", "3000-01-01");
 */
 
-async function getAllPointChanges(startDate, endDate) {
+async function getAllPointChanges(startDate: String, endDate: String) {
     try {
         const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
         if (!response.ok) throw new Error("Failed to fetch point changes");
