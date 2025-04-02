@@ -177,10 +177,10 @@ const Reports: React.FC = () => {
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={reportData}>
-                <XAxis dataKey="driver" />
+                <XAxis dataKey="PointChangeDriver" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="pointChange" fill="#8884d8" />
+                <Bar dataKey="PointChangeNumber" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           )}
