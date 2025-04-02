@@ -171,7 +171,7 @@ export const ListOfUsersTable = ({
           body: JSON.stringify({
             PointChangeDriver: driverEmail.toString(),
             PointChangeSponsor: sponsorEmail.toString(),
-            PointChangeNumber: Math.abs(pointsChange).toString(),
+            PointChangeNumber: pointsChange.toString(),
             PointChangeAction: action,
           }),
         }
@@ -299,7 +299,7 @@ export const ListOfUsersTable = ({
       />
       <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Driver</Modal.Title>
+          <Modal.Title style={{ width: "100%", textAlign: "center" }}>Edit Driver</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
