@@ -85,7 +85,7 @@ const sampleData3 = [
  ];
 
 const Reports: React.FC = () => {
-  const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
+  const [selectedReport, setSelectedReport] = useState("All Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState(sampleData);
 
@@ -108,7 +108,7 @@ const Reports: React.FC = () => {
         data = sampleData4;
         break;
       default:
-        data = sampleData; // Default to "Driver Point Changes"
+        data = sampleData;
     }
     setReportData(data);
   };
@@ -134,7 +134,6 @@ const Reports: React.FC = () => {
         <FormControl>
           <InputLabel>Report</InputLabel>
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
-            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
