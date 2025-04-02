@@ -83,7 +83,7 @@ const Reports: React.FC = () => {
         data = data[0];
         break;
       case "Specific Driver Point Changes":
-        data = await getSpecificPointChnages("2000-01-01", "3000-01-01", "jrbrany+s@clemson.edu");
+        data = await getSpecificPointChnages("2000-01-01", "3000-01-01", "jrbrany@clemson.edu");
         data = data[0];
         break;
       case "Sales By Driver":
