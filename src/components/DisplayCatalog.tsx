@@ -177,27 +177,18 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
 
   //This function handles adding an item to cart
 
-  const handleTestAddItems = () => {
-    const testItems = [
+  const handleTestAddItems = (item: CatalogItem) => {
+    const cartItem = [
       {
-        name: "C.O.U.N.T.R.Y.",
-        cost: 1.29,
+        name: item.artistName,
+        cost: item.trackPrice,
         quantity: 1,
-        org: 4,
-        id: 977746853,
-      },
-      { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338 },
-      { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338 },
-      {
-        name: "C.O.U.N.T.R.Y.",
-        cost: 1.29,
-        quantity: 1,
-        org: 7,
-        id: 977746853,
+        org: organizationData.OrganizationID,
+        id: item.trackId,
       },
     ];
-    testItems.forEach(addToCart);
-    alert("Test items added to cart!");
+    cartItem.forEach(addToCart);
+    alert("Item Added To Cart!");
   };
 
   return (
@@ -289,7 +280,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
                 </div>
                 <button
                   className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={handleTestAddItems}
+                  onClick={() => handleTestAddItems(item)}
                 >
                   Add To Cart
                 </button>
