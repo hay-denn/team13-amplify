@@ -42,10 +42,14 @@ export const ListOfUsersTable = ({
 }: Props) => {
   const auth = useAuth();
 
-  // State for sponsor's organization ID (fetched from API)
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
+  const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
+  const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
+  const [showActionsModal, setShowActionsModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [currentPoints, setCurrentPoints] = useState<number | null>(null);
+  const [pointsChange, setPointsChange] = useState<number>(0);
 
-  // Fetch the sponsor's org id via their email
   useEffect(() => {
     const fetchSponsorOrg = async () => {
       try {
@@ -67,13 +71,7 @@ export const ListOfUsersTable = ({
           sponsor = data;
         }
         if (sponsor && sponsor.UserOrganization) {
-          console.log(
-            "Fetched sponsor organization ID:",
-            sponsor.UserOrganization
-          );
           setSponsorOrgID(sponsor.UserOrganization);
-        } else {
-          console.log("Sponsor record not found or no organization available.");
         }
       } catch (err) {
         console.error("Error fetching sponsor organization:", err);
@@ -84,15 +82,6 @@ export const ListOfUsersTable = ({
       fetchSponsorOrg();
     }
   }, [auth.user?.profile?.email]);
-
-  const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
-  const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
-  const [showActionsModal, setShowActionsModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-
-  // New states for points editing
-  const [currentPoints, setCurrentPoints] = useState<number | null>(null);
-  const [pointsChange, setPointsChange] = useState<number>(0);
 
   const handleViewOrg = (pemail: string) => {
     setViewOrgEmail(pemail);
@@ -111,9 +100,7 @@ export const ListOfUsersTable = ({
     setPointsChange(0);
   };
 
-  // Use the fetched sponsorOrgID for viewing as driver (if needed)
   const handleViewAsDriver = (targetRoute: string) => {
-    console.log("Viewing as driver using sponsorOrgID:", sponsorOrgID);
     localStorage.setItem(
       "impersonatingDriver",
       JSON.stringify({
@@ -126,10 +113,7 @@ export const ListOfUsersTable = ({
     window.open(targetRoute, "_blank");
   };
 
-  // Updated handleEditOrders to also pass sponsorEmail
   const handleEditOrders = (targetRoute: string) => {
-    console.log("Editing orders for user:", selectedUser);
-    // Get the sponsor email from the authenticated user's profile
     const currentSponsorEmail = auth.user?.profile?.email || "";
     localStorage.setItem(
       "driverEmailForEdit",
@@ -143,27 +127,25 @@ export const ListOfUsersTable = ({
     window.open(targetRoute, "_blank");
   };
 
-  // useEffect to fetch driver's current points when a user is selected and sponsorOrgID is available
-  useEffect(() => {
-    const fetchCurrentPoints = async (driverEmail: string) => {
-      try {
-        const response = await fetch(
-          `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor?DriversEmail=${encodeURIComponent(
-            driverEmail
-          )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
-        );
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        const data = await response.json();
-        // Assuming the API returns points in a property called "points"
-        setCurrentPoints(Number(data.points));
-      } catch (error) {
-        console.error("Error fetching driver's points:", error);
-        setCurrentPoints(null);
+  const fetchCurrentPoints = async (driverEmail: string) => {
+    try {
+      const response = await fetch(
+        `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor?DriversEmail=${encodeURIComponent(
+          driverEmail
+        )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
       }
-    };
+      const data = await response.json();
+      setCurrentPoints(Number(data.DriversPoints));
+    } catch (error) {
+      console.error("Error fetching driver's points:", error);
+      setCurrentPoints(null);
+    }
+  };
 
+  useEffect(() => {
     if (selectedUser && sponsorOrgID) {
       const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
       if (driverEmail) {
@@ -172,7 +154,6 @@ export const ListOfUsersTable = ({
     }
   }, [selectedUser, sponsorOrgID]);
 
-  // Function to handle the point change API call
   const handleChangePoints = async () => {
     if (pointsChange === 0) {
       alert("Please input a non-zero value to change points.");
@@ -198,25 +179,8 @@ export const ListOfUsersTable = ({
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
+      await fetchCurrentPoints(driverEmail);
       alert("Point change submitted successfully");
-      // Optionally re-fetch the current points after the change
-      const fetchCurrentPoints = async (driverEmail: string) => {
-        try {
-          const response = await fetch(
-            `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driversponsor?DriversEmail=${encodeURIComponent(
-              driverEmail
-            )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
-          );
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-          }
-          const data = await response.json();
-          setCurrentPoints(Number(data.points));
-        } catch (error) {
-          console.error("Error fetching driver's points:", error);
-        }
-      };
-      fetchCurrentPoints(driverEmail);
       setPointsChange(0);
     } catch (error) {
       console.error("Error changing points:", error);
@@ -259,17 +223,11 @@ export const ListOfUsersTable = ({
               )}
               {!isSponsor && (
                 <td>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      console.log("Edit user code remains where it was (omitted).")
-                    }
-                  >
+                  <button className="btn btn-primary" onClick={() => {}}>
                     Edit
                   </button>
                 </td>
               )}
-              {/* Actions button */}
               <td>
                 <button
                   className="btn btn-primary"
@@ -290,12 +248,7 @@ export const ListOfUsersTable = ({
               {!isSponsor && <td>{sponsor.UserOrganization || "N / A"}</td>}
               {!isSponsor && (
                 <td>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      console.log("Edit user code remains where it was (omitted).")
-                    }
-                  >
+                  <button className="btn btn-primary" onClick={() => {}}>
                     Edit
                   </button>
                 </td>
@@ -322,12 +275,7 @@ export const ListOfUsersTable = ({
               {!isSponsor && <td>Administrator</td>}
               {!isSponsor && (
                 <td>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      console.log("Edit user code remains where it was (omitted).")
-                    }
-                  >
+                  <button className="btn btn-primary" onClick={() => {}}>
                     Edit
                   </button>
                 </td>
@@ -387,10 +335,7 @@ export const ListOfUsersTable = ({
                 >
                   +
                 </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleChangePoints}
-                >
+                <button className="btn btn-primary" onClick={handleChangePoints}>
                   Change Points
                 </button>
               </div>
