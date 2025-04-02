@@ -1,59 +1,59 @@
-.sponsor-catalogs {
-    padding: 20px;
-  }
-  
-  nav {
-    margin-bottom: 20px;
-  }
-  
-  form {
-    margin-bottom: 20px;
-  }
-  
-  .catalog-results {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .catalog-item {
-    flex: 1 1 calc(33.333% - 20px);
-    box-sizing: border-box;
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  
-  .catalog-item img {
-    max-width: 100%;
-    height: auto;
-  }
-  
-  .catalog-description {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 10px;
-    box-sizing: border-box;
-    text-align: left;
-    overflow-y: auto;
-  }
-  
-  .catalog-item:hover .catalog-description {
-    display: block;
-  }
-  
-  .form-group select {
-    width: 100%;
-    position: relative;
-    z-index: 10;
-  }
-  
-  .btn.btn-primary.mt-3 {
-    margin-top: 10px;
-  }
+.catalog-container {
+  margin: 2rem;
+}
+
+.catalog-header {
+  margin-bottom: 1rem;
+}
+
+
+.limited-card-height {
+  max-height: 250px; 
+  overflow-y: auto;
+}
+
+.limited-card-height::-webkit-scrollbar {
+  width: 6px;
+}
+.limited-card-height::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.limited-card-height::-webkit-scrollbar-thumb {
+  background: #888;
+}
+.limited-card-height::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.catalog-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.catalog-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.organizations-row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  flex-wrap: wrap; 
+}
+
+.org-box {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.org-box:hover {
+  background-color: #f0f0f0;
+}
+
+.org-box.selected {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}

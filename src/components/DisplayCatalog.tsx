@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useCart } from "../pages/CartContext";
 import "./Catalog.css";
 
 interface OrganizationData {
@@ -53,6 +54,8 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const [allResults, setAllResults] = useState<CatalogItem[]>([]);
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
   const [page, setPage] = useState(0);
+
+  const { addToCart } = useCart();
 
   const url_getOrganization =
     "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
@@ -172,25 +175,49 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return <div>Please Select An Organization</div>;
   }
 
-  return (
-    <div style={{ margin: "2rem" }}>
-      <p>Organization ID: {currOrgId}</p>
+  //This function handles adding an item to cart
 
+  const handleTestAddItems = () => {
+    const testItems = [
+      {
+        name: "C.O.U.N.T.R.Y.",
+        cost: 1.29,
+        quantity: 1,
+        org: 4,
+        id: 977746853,
+      },
+      { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338 },
+      { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338 },
+      {
+        name: "C.O.U.N.T.R.Y.",
+        cost: 1.29,
+        quantity: 1,
+        org: 7,
+        id: 977746853,
+      },
+    ];
+    testItems.forEach(addToCart);
+    alert("Test items added to cart!");
+  };
+
+  return (
+    <div className="catalog-container">
       <hr />
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label style={{ marginRight: "1rem" }}>Sort by Price:</label>
+      {/* Filters */}
+      <div className="catalog-header">
+        <label className="me-2">Sort by Price:</label>
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as "asc" | "desc" | "")}
-          style={{ marginRight: "2rem" }}
+          className="me-4"
         >
           <option value="">None</option>
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
 
-        <label style={{ marginRight: "1rem" }}>Search by Artist:</label>
+        <label className="me-2">Search by Artist:</label>
         <input
           type="text"
           value={artistFilter}
@@ -199,85 +226,86 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         />
       </div>
 
-      <button onClick={() => handleFetchAll()}>Fetch All Items</button>
-
-      <div className="card organization-card mt-5">
-        <div className="card-body">
-          {organizationData.LogoUrl && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "1rem",
-              }}
-            >
-              <img
-                src={organizationData.LogoUrl}
-                alt={organizationData.OrganizationName}
-                className="logo"
-                style={{ width: "100px", height: "100px" }}
-              />
-            </div>
-          )}
-          <h5 className="organization-title card-title">
-            {organizationData.OrganizationName}
-          </h5>
-          <p className="card-text">
-            {organizationData.OrganizationDescription}
-          </p>
-          <p>
-            Max Price: ${maxPrice} | Point to Dollar Ratio: {priceToPointRatio}
-          </p>
+      <div className="container my-5">
+        <div className="row mb-4">
+          <div className="col text-center">
+            <h5 className="mb-3">Catalog Results</h5>
+            <p>
+              For organization{" "}
+              <strong>{organizationData.OrganizationName}</strong> (ID=
+              {organizationData.OrganizationID})
+            </p>
+            <p>
+              Max Price: <strong>${maxPrice}</strong> | Point to Dollar Ratio:{" "}
+              <strong>{priceToPointRatio}</strong>
+            </p>
+            {organizationData.LogoUrl && (
+              <div className="my-3">
+                <img
+                  src={organizationData.LogoUrl}
+                  alt={organizationData.OrganizationName}
+                  style={{ width: "100px", height: "100px" }}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="card manage-users-card mt-5">
-        <div className="card-body">
-          <h5 className="manage-users-title card-title">Catalog Results</h5>
-          <p className="card-text"></p>
-          <div className="catalog-results">
-            {catalog.map((item: CatalogItem) => (
-              <div key={item.trackId} className="catalog-item">
-                <img src={item.artworkUrl100} alt={item.trackName} />
-                <p>
-                  {item.trackName} - ${item.trackPrice} (
-                  {(item.trackPrice * priceToPointRatio).toFixed(2)} points)
-                </p>
-                <div className="catalog-description">
-                  <p>
+        {/* Catalog grid */}
+        <div className="row">
+          {catalog.map((item) => (
+            <div key={item.trackId} className="col-sm-6 col-md-4 col-lg-3 mb-4">
+              <div className="card h-100 catalog-card">
+                <img
+                  src={item.artworkUrl100}
+                  alt={item.trackName}
+                  className="card-img-top"
+                />
+
+                <div className="card-body limited-card-height">
+                  <h6 className="card-title mb-2">{item.trackName}</h6>
+                  <p className="card-text text-muted mb-2">
+                    ${item.trackPrice} •{" "}
+                    {(item.trackPrice * priceToPointRatio).toFixed(2)} points
+                  </p>
+                  <p className="mb-1">
                     <strong>Artist:</strong> {item.artistName}
                   </p>
-                  <p>
+                  <p className="mb-1">
                     <strong>Collection:</strong> {item.collectionName}
                   </p>
-                  <p>
+                  <p className="mb-1">
                     <strong>Release Date:</strong>{" "}
                     {new Date(item.releaseDate).toLocaleDateString()}
                   </p>
-                  <p>
+                  <p className="mb-2">
                     <strong>Genre:</strong> {item.primaryGenreName}
                   </p>
-                  <p>
+                  <p className="card-text">
                     {item.longDescription ||
                       item.shortDescription ||
                       "No description available."}
                   </p>
                 </div>
+                <button
+                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                  onClick={handleTestAddItems}
+                >
+                  Add To Cart
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <button
-        onClick={handlePrevPage}
-        disabled={page === 0}
-        style={{ marginRight: "10px" }}
-      >
+      {/* Pagination */}
+      <button onClick={handlePrevPage} disabled={page === 0} className="me-2">
         Previous
       </button>
       <button onClick={handleNextPage}>Next</button>
       <p>Page: {page + 1}</p>
+      <button onClick={() => handleFetchAll()}>Fetch All Items</button>
     </div>
   );
 };

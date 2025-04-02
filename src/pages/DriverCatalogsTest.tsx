@@ -34,6 +34,11 @@ export const DriverCatalogsTest = ({
     }[]
   >([]);
 
+  // State for selected organization
+  const [selectedOrganizationID, setSelectedOrganizationID] = useState<
+    number | null
+  >(null);
+
   // Fetch organizations
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -67,38 +72,39 @@ export const DriverCatalogsTest = ({
           }
           const data = await response.json();
           setCurrentOrganizations(data);
+
+          if (data.length > 0 && selectedOrganizationID === null) {
+            setSelectedOrganizationID(data[0].DriversSponsorID);
+            if (onOrganizationSelect) {
+              onOrganizationSelect(data[0].DriversSponsorID);
+            }
+          }
         } catch (error) {
           console.error("Error getting the driver's relationships:", error);
         }
       };
       getDriverRelationships();
     }
-  }, [userEmail]);
+  }, [userEmail, onOrganizationSelect, selectedOrganizationID]);
 
-  // Filter organizations: if impersonating, show only the matching organization
+  // If impersonating, filter org list to the single org
   const filteredOrgs = impersonation?.sponsorOrgID
     ? currentOrganizations.filter(
         (org) => org.DriversSponsorID === Number(impersonation.sponsorOrgID)
       )
     : currentOrganizations;
 
-  const [selectedOrganizationID, setSelectedOrganizationID] = useState<
-    number | null
-  >(filteredOrgs.length > 0 ? filteredOrgs[0].DriversSponsorID : null);
-
-  const handleOrganizationChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectedOrganizationID(Number(event.target.value));
-
-    if (onOrganizationSelect) {
-      onOrganizationSelect(Number(event.target.value));
-    }
-  };
-
   const selectedOrganization = filteredOrgs.find(
     (org) => org.DriversSponsorID === selectedOrganizationID
   );
+
+  // Handle click on organization box
+  const handleOrganizationClick = (orgId: number) => {
+    setSelectedOrganizationID(orgId);
+    if (onOrganizationSelect) {
+      onOrganizationSelect(orgId);
+    }
+  };
 
   // Testing adding items to cart
   const { addToCart } = useCart();
@@ -128,37 +134,43 @@ export const DriverCatalogsTest = ({
 
   return (
     <div>
-      <br />
-      <h3>Select an organization from the dropdown to view their catalog</h3>
-      <label htmlFor="organizationDropdown" className="mr-2">
-        Select Organization:
-      </label>
-      <select
-        id="organizationDropdown"
-        value={selectedOrganizationID || ""}
-        onChange={handleOrganizationChange}
-      >
-        <option value="" disabled>
-          Select an Organization
-        </option>
+      <h3>Select an organization to view their catalog</h3>
+
+      {/* Row of clickable organization boxes */}
+      <div className="organizations-row">
         {filteredOrgs.map((org) => {
-          const organization = organizations.find(
+          const organizationInfo = organizations.find(
             (o) => o.OrganizationID === org.DriversSponsorID
           );
+
           return (
-            <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-              {organization
-                ? organization.OrganizationName
+            <div
+              key={org.DriversSponsorID}
+              className={`org-box ${
+                org.DriversSponsorID === selectedOrganizationID
+                  ? "selected"
+                  : ""
+              }`}
+              onClick={() => handleOrganizationClick(org.DriversSponsorID)}
+            >
+              {organizationInfo
+                ? organizationInfo.OrganizationName
                 : "Unknown Organization"}
-            </option>
+            </div>
           );
         })}
-      </select>
+      </div>
+
       <br />
       <b>
-        Current Point Balance: {selectedOrganization?.DriversPoints || "N/A"}
+        Current Point Balance:
+        {"  "}
+        {selectedOrganization?.DriversPoints !== undefined
+          ? selectedOrganization.DriversPoints
+          : "N/A"}
       </b>
       <br />
+
       <button
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         onClick={handleTestAddItems}
