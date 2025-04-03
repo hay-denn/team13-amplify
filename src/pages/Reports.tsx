@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Button, Select, MenuItem, FormControl, InputLabel, Card } from "@mui/material";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import {
+  Button, Select, MenuItem, FormControl, InputLabel, TextField, Card,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
+} from "@mui/material";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 
-// Existing functions for point changes
 async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
   try {
     const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
@@ -30,7 +31,6 @@ async function getAllPointChanges(startDate: string, endDate: string) {
   }
 }
 
-// New function for driver applications
 async function getDriverApplications(startDate: string, endDate: string, sponsorId: string) {
   try {
     const response = await fetch(`${REPORTS_URL}/driverApplications?StartDate=${startDate}&EndDate=${endDate}&SponsorID=${sponsorId}`);
@@ -42,7 +42,6 @@ async function getDriverApplications(startDate: string, endDate: string, sponsor
   }
 }
 
-// Sample data (for fallback/testing)
 const sampleData = [
   {
     PointChangeDriver: 'jrbrany@clemson.edu',
@@ -52,44 +51,18 @@ const sampleData = [
     PointChangeDate: '2025-03-31T00:00:00.000Z'
   }
 ];
-const sampleData2 = [
-  {
-    PointChangeDriver: 'jrbrany@clemson.edu',
-    PointChangeSponsor: 'jrbrany+s@clemson.edu',
-    PointChangeNumber: '10.00',
-    PointChangeAction: 'Subtract',
-    PointChangeDate: '2025-03-31T00:00:00.000Z'
-  }
-];
-const sampleData3 = [
-  {
-    PointChangeDriver: 'hayjroof@gmail.com',
-    PointChangeSponsor: 'haydenjroof+25@gmail.com',
-    PointChangeNumber: '100.00',
-    PointChangeAction: 'Set',
-    PointChangeDate: '2025-03-24T00:00:00.000Z'
-  }
-];
-const sampleData4 = [
-  {
-    PointChangeDriver: 'testEmail@email.com',
-    PointChangeSponsor: 'sponsortest@email.com',
-    PointChangeNumber: '10.00',
-    PointChangeAction: 'Subtract',
-    PointChangeDate: '2025-03-11T00:00:00.000Z'
-  }
-];
 
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("All Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState<any[]>(sampleData);
+  const [startDate, setStartDate] = useState("2000-01-01");
+  const [endDate, setEndDate] = useState("3000-01-01");
+  const [sponsorId, setSponsorId] = useState("3");
 
   const generateReport = async () => {
     let data: any[] = [];
-    // Using sample dates and sponsorId for demonstration.
-    const startDate = "2000-01-01";
-    const endDate = "3000-01-01";
+
     switch (selectedReport) {
       case "All Driver Point Changes":
         data = await getAllPointChanges(startDate, endDate);
@@ -100,22 +73,13 @@ const Reports: React.FC = () => {
         data = data[0];
         break;
       case "Driver Applications":
-        // Using a sample SponsorID. In production, you might let the admin choose this.
-        data = await getDriverApplications(startDate, endDate, "123");
+        data = await getDriverApplications(startDate, endDate, sponsorId);
         data = data[0];
-        break;
-      case "Sales By Driver":
-        data = sampleData2;
-        break;
-      case "Sales By Sponsor":
-        data = sampleData3;
-        break;
-      case "Invoice":
-        data = sampleData4;
         break;
       default:
         data = sampleData;
     }
+
     setReportData(data);
   };
 
@@ -130,7 +94,6 @@ const Reports: React.FC = () => {
     }
   };
 
-  // Render table headers based on selected report type
   const renderTableHeaders = () => {
     if (selectedReport === "Driver Applications") {
       return (
@@ -155,8 +118,9 @@ const Reports: React.FC = () => {
     }
   };
 
-  // Render table rows based on selected report type
   const renderTableRows = () => {
+    if (!reportData || !Array.isArray(reportData)) return null;
+
     if (selectedReport === "Driver Applications") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
@@ -186,10 +150,10 @@ const Reports: React.FC = () => {
       <br />
       <br />
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex flex-wrap items-center gap-4 mb-4">
         <FormControl>
           <InputLabel>Report</InputLabel>
-          <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
+          <Select value={selectedReport} onChange={(e: React.ChangeEvent<{ value: unknown }>) => setSelectedReport(e.target.value as string)}>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
@@ -198,12 +162,40 @@ const Reports: React.FC = () => {
             <MenuItem value="Invoice">Invoice</MenuItem>
           </Select>
         </FormControl>
+
+        {selectedReport === "Driver Applications" && (
+          <>
+            <TextField
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={startDate}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+            />
+            <TextField
+              label="End Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={endDate}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+            />
+            <TextField
+              label="Sponsor ID"
+              type="number"
+              value={sponsorId}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSponsorId(e.target.value)}
+            />
+          </>
+        )}
+
         <Button variant="contained" onClick={generateReport}>Generate</Button>
       </div>
+
       <div className="flex items-center gap-4 mb-4">
         <Button variant={viewMode === "table" ? "contained" : "outlined"} onClick={() => setViewMode("table")}>Table</Button>
         <Button variant={viewMode === "chart" ? "contained" : "outlined"} onClick={() => setViewMode("chart")}>Chart</Button>
       </div>
+
       <Card>
         <div id="report-content" className="p-4">
           {viewMode === "table" ? (
@@ -219,12 +211,13 @@ const Reports: React.FC = () => {
                 <XAxis dataKey="PointChangeDriver" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="PointChangeNumber" fill="#8884d8" />
+                <Bar dataKey="PointChangeNumber" />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
       </Card>
+
       <Button className="mt-4" variant="contained" onClick={downloadPDF}>Download PDF</Button>
     </div>
   );
