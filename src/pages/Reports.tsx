@@ -42,6 +42,9 @@ async function getPointChanges(startDate?: string, endDate?: string, driverEmail
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch point changes");
     }
+    for (const item of await response.json()) {
+      console.log("Point Change Data:", item);
+    }
     return await response.json();
   } catch (error) {
     console.error("Error fetching point changes:", error);
@@ -68,6 +71,9 @@ async function getDriverApplications(
       const errorText = await response.text();
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch driver applications");
+    }
+    for (const item of await response.json()) {
+      console.log("Driver Application Data:", item);
     }
     return await response.json();
   } catch (error) {
@@ -98,20 +104,24 @@ const Reports: React.FC = () => {
 
   const generateReport = async () => {
     let data: any[] = [];
-
+  
     switch (selectedReport) {
       case "Driver Point Changes":
         data = await getPointChanges(startDate, endDate, driverEmail);
-        data = data[0] || [];
         break;
       case "Driver Applications":
         data = await getDriverApplications(startDate, endDate, sponsorId, driverEmail);
-        data = data[0] || [];
         break;
       default:
         data = sampleData;
     }
-
+  
+    if (!Array.isArray(data)) {
+      console.error("Unexpected API response format:", data);
+      data = [];
+    }
+    
+    console.log("Fetched data:", data);
     setReportData(data);
   };
 
