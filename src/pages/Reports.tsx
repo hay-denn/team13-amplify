@@ -28,16 +28,20 @@ import html2canvas from "html2canvas";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 
-// Point Changes API with optional filters
+// Point Changes API using stored procedure with optional filters
 async function getPointChanges(startDate?: string, endDate?: string, driverEmail?: string) {
   const url = new URL(`${REPORTS_URL}/pointChanges`);
-  if (startDate) url.searchParams.append("StartDate", startDate);
-  if (endDate) url.searchParams.append("EndDate", endDate);
-  if (driverEmail) url.searchParams.append("DriverEmail", driverEmail);
+  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
+  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
+  if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
 
   try {
     const response = await fetch(url.toString());
-    if (!response.ok) throw new Error("Failed to fetch point changes");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to fetch point changes");
+    }
     return await response.json();
   } catch (error) {
     console.error("Error fetching point changes:", error);
@@ -45,7 +49,7 @@ async function getPointChanges(startDate?: string, endDate?: string, driverEmail
   }
 }
 
-// Driver Applications API with optional filters
+// Driver Applications API using stored procedure with optional filters
 async function getDriverApplications(
   startDate?: string,
   endDate?: string,
@@ -53,14 +57,18 @@ async function getDriverApplications(
   driverEmail?: string
 ) {
   const url = new URL(`${REPORTS_URL}/driverApplications`);
-  if (startDate) url.searchParams.append("StartDate", startDate);
-  if (endDate) url.searchParams.append("EndDate", endDate);
-  if (sponsorId) url.searchParams.append("SponsorID", sponsorId);
-  if (driverEmail) url.searchParams.append("DriverEmail", driverEmail);
+  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
+  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
+  if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
+  if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
 
   try {
     const response = await fetch(url.toString());
-    if (!response.ok) throw new Error("Failed to fetch driver applications");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to fetch driver applications");
+    }
     return await response.json();
   } catch (error) {
     console.error("Error fetching driver applications:", error);
@@ -83,7 +91,6 @@ const Reports: React.FC = () => {
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState<any[]>(sampleData);
 
-  // Shared filters
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sponsorId, setSponsorId] = useState("");
@@ -95,11 +102,11 @@ const Reports: React.FC = () => {
     switch (selectedReport) {
       case "Driver Point Changes":
         data = await getPointChanges(startDate, endDate, driverEmail);
-        data = data[0];
+        data = data[0] || [];
         break;
       case "Driver Applications":
         data = await getDriverApplications(startDate, endDate, sponsorId, driverEmail);
-        data = data[0];
+        data = data[0] || [];
         break;
       default:
         data = sampleData;
@@ -210,18 +217,13 @@ const Reports: React.FC = () => {
 
   return (
     <div className="p-6">
-      <br />
-      <br />
-      <br />
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <FormControl>
           <InputLabel>Report</InputLabel>
           <Select
             value={selectedReport}
-            onChange={(e) =>
-              setSelectedReport(e.target.value)
-            }
+            onChange={(e) => setSelectedReport(e.target.value)}
           >
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
