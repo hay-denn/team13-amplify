@@ -274,9 +274,60 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
 
   const handlePasswordReset = async () => {
     if (!auth.user?.access_token) {
-      alert("Unable to make user edit. You are not signed in.");
-    } else {
-      await manageCognitoUser("resetPassword", USER_POOL_ID, email, auth.user.access_token, {}, "", userType);
+      alert("Unable to reset password. You are not signed in.");
+      return;
+    }
+  
+    try {
+      // Reset the user's password
+      await manageCognitoUser(
+        "resetPassword",
+        USER_POOL_ID,
+        email,
+        auth.user.access_token,
+        {},
+        "",
+        userType
+      );
+  
+      // Log the password change
+      console.log("Logging password change...");
+      console.log("Request Body:", {
+        user: email,
+        changeDate: new Date().toISOString(),
+        changeType: "admin reset",
+      });
+  
+      try {
+        const logResponse = await fetch(
+          "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1/passwordChanges",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user: email,
+              changeDate: new Date().toISOString(),
+              changeType: "admin reset",
+            }),
+          }
+        );
+  
+        if (!logResponse.ok) {
+          const errorText = await logResponse.text();
+          console.error("Failed to log password change:", errorText);
+        } else {
+          console.log("Password change logged successfully.");
+        }
+      } catch (err) {
+        console.error("Error logging password change:", err);
+      }
+  
+      alert("Password reset successfully!");
+    } catch (err) {
+      console.error("Error resetting password:", err);
+      alert("Failed to reset password.");
     }
   };
 
