@@ -138,18 +138,18 @@ const Reports: React.FC = () => {
           <TableCell>Driver</TableCell>
           <TableCell>Sponsor</TableCell>
           <TableCell>Status</TableCell>
-          <TableCell>Date Submitted</TableCell>
+          <TableCell>Date</TableCell>
           <TableCell>Reason</TableCell>
         </TableRow>
       );
     } else {
       return (
         <TableRow>
-          <TableCell>PointChangeDriver</TableCell>
-          <TableCell>PointChangeSponsor</TableCell>
-          <TableCell>PointChangeNumber</TableCell>
-          <TableCell>PointChangeAction</TableCell>
-          <TableCell>PointChangeDate</TableCell>
+          <TableCell>Driver</TableCell>
+          <TableCell>Sponsor</TableCell>
+          <TableCell>Points Gained/Removed</TableCell>
+          <TableCell>Date</TableCell>
+          <TableCell>Reason</TableCell>
         </TableRow>
       );
     }
@@ -174,8 +174,8 @@ const Reports: React.FC = () => {
           <TableCell>{item.PointChangeDriver}</TableCell>
           <TableCell>{item.PointChangeSponsor}</TableCell>
           <TableCell>{item.PointChangeNumber}</TableCell>
-          <TableCell>{item.PointChangeAction}</TableCell>
           <TableCell>{item.PointChangeDate}</TableCell>
+          <TableCell>{item.PointChangeReason}</TableCell>
         </TableRow>
       ));
     }
