@@ -80,6 +80,28 @@ async function getDriverApplications(
   }
 }
 
+async function getPasswordChanges(startDate?: string, endDate?: string, userEmail?: string) {
+  const url = new URL(`${REPORTS_URL}/passwordChanges`);
+  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
+  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
+  if (userEmail && userEmail.trim() !== "") url.searchParams.append("UserEmail", userEmail);
+
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to fetch password change logs");
+    }
+    const data = await response.json();
+    data.forEach((item: any) => console.log("Password Change Data:", item));
+    return await data;
+  } catch (error) {
+    console.error("Error fetching password changes:", error);
+    return [];
+  }
+}
+
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
@@ -110,6 +132,9 @@ const Reports: React.FC = () => {
         data = [{PurchaseDriver: "Driver1", PurchasePrice: "$8.99", PurchaseDate: "2000-12-10", PurchaseStatus: "Complete"},
             {PurchaseDriver: "Driver2", PurchasePrice: "$18.99", PurchaseDate: "2000-12-10", PurchaseStatus: "Canceled"}
         ];
+        break;
+      case "Password Change Logs":
+        data = await getPasswordChanges(startDate, endDate, driverEmail);
         break;
       default:
         data = [];
@@ -157,8 +182,15 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
-    }
-    else {
+    } else if (selectedReport === "Password Change Logs") {
+      return (
+        <TableRow>
+          <TableCell>User Email</TableCell>
+          <TableCell>Change Type</TableCell>
+          <TableCell>Change Date</TableCell>
+        </TableRow>
+      );
+    } else {
         return (
         <TableRow>
             <TableCell>Purchase Driver</TableCell>
@@ -193,6 +225,14 @@ const Reports: React.FC = () => {
           <TableCell>{item.PointChangeReason}</TableCell>
         </TableRow>
       ));
+    } else if (selectedReport === "Password Change Logs") {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.user}</TableCell>
+          <TableCell>{item.changeType}</TableCell>
+          <TableCell>{item.changeDate}</TableCell>
+        </TableRow>
+      ));
     } else {
         return reportData.map((item, index) => (
           <TableRow key={index}>
@@ -206,7 +246,11 @@ const Reports: React.FC = () => {
   };
 
   const renderFilters = () => {
-    if (selectedReport === "Driver Point Changes" || selectedReport === "Driver Applications") {
+    if (
+      selectedReport === "Driver Point Changes" ||
+      selectedReport === "Driver Applications" ||
+      selectedReport === "Password Change Logs"
+    ) {
       return (
         <div className="flex flex-col gap-4 mb-4">
           <TextField
@@ -232,7 +276,7 @@ const Reports: React.FC = () => {
             />
           )}
           <TextField
-            label="Driver Email"
+            label={selectedReport === "Password Change Logs" ? "User Email" : "Driver Email"}
             type="email"
             value={driverEmail}
             onChange={(e) => setDriverEmail(e.target.value)}
@@ -240,6 +284,7 @@ const Reports: React.FC = () => {
         </div>
       );
     }
+    
 
     return null;
   };
@@ -256,6 +301,7 @@ const Reports: React.FC = () => {
           >
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
+            <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
             <MenuItem value="Sales By Sponsor">Sales By Sponsor</MenuItem>
             <MenuItem value="Invoice">Invoice</MenuItem>
