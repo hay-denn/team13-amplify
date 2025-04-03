@@ -106,6 +106,11 @@ const Reports: React.FC = () => {
           data = data[0];
         }
         break;
+      case "Sales By Driver":
+        data = [{PurchaseDriver: "Driver1", PurchasePrice: "$8.99", PurchaseDate: "2000-12-10", PurhcaseStatus: "Complete"},
+            {PurchaseDriver: "Driver2", PurchasePrice: "$18.99", PurchaseDate: "2000-12-10", PurhcaseStatus: "Canceled"}
+        ];
+        break;
       default:
         data = [];
         break;
@@ -142,7 +147,7 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
-    } else {
+    } else if (selectedReport === "Driver Point Changes") {
       return (
         <TableRow>
           <TableCell>Driver</TableCell>
@@ -152,6 +157,16 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
+    }
+    else {
+        return (
+        <TableRow>
+            <TableCell>Purchase Driver</TableCell>
+            <TableCell>Purchase Price</TableCell>
+            <TableCell>Purchase Date</TableCell>
+            <TableCell>Purchase Status</TableCell>
+        </TableRow>
+        );
     }
   };
 
@@ -168,7 +183,7 @@ const Reports: React.FC = () => {
           <TableCell>{item.ApplicationReason}</TableCell>
         </TableRow>
       ));
-    } else {
+    } else if (selectedReport === "Driver Point Changes") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
           <TableCell>{item.PointChangeDriver}</TableCell>
@@ -178,6 +193,15 @@ const Reports: React.FC = () => {
           <TableCell>{item.PointChangeReason}</TableCell>
         </TableRow>
       ));
+    } else {
+        return reportData.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell>{item.PurchaseDriver}</TableCell>
+            <TableCell>{item.PurcahsePrice}</TableCell>
+            <TableCell>{item.PurchaseDate}</TableCell>
+            <TableCell>{item.PurchaseStatus}</TableCell>
+          </TableRow>
+        ));
     }
   };
 
