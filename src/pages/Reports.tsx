@@ -178,28 +178,28 @@ const Reports: React.FC = () => {
             type="date"
             InputLabelProps={{ shrink: true }}
             value={startDate}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+            onChange={(e) => setStartDate(e.target.value)}
           />
           <TextField
             label="End Date"
             type="date"
             InputLabelProps={{ shrink: true }}
             value={endDate}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+            onChange={(e) => setEndDate(e.target.value)}
           />
           {selectedReport === "Driver Applications" && (
             <TextField
               label="Sponsor ID"
               type="number"
               value={sponsorId}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSponsorId(e.target.value)}
+              onChange={(e) => setSponsorId(e.target.value)}
             />
           )}
           <TextField
             label="Driver Email"
             type="email"
             value={driverEmail}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDriverEmail(e.target.value)}
+            onChange={(e) => setDriverEmail(e.target.value)}
           />
         </div>
       );
@@ -219,8 +219,8 @@ const Reports: React.FC = () => {
           <InputLabel>Report</InputLabel>
           <Select
             value={selectedReport}
-            onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
-              setSelectedReport(e.target.value as string)
+            onChange={(e) =>
+              setSelectedReport(e.target.value)
             }
           >
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
