@@ -42,10 +42,9 @@ async function getPointChanges(startDate?: string, endDate?: string, driverEmail
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch point changes");
     }
-    for (const item of await response.json()) {
-      console.log("Point Change Data:", item);
-    }
-    return await response.json();
+    const data = await response.json();
+    data.forEach(item => console.log("Point Change Data:", item));
+    return await data;
   } catch (error) {
     console.error("Error fetching point changes:", error);
     return [];
@@ -72,30 +71,19 @@ async function getDriverApplications(
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch driver applications");
     }
-    for (const item of await response.json()) {
-      console.log("Driver Application Data:", item);
-    }
-    return await response.json();
+    const data = await response.json();
+    data.forEach(item => console.log("Driver Application Data:", item));
+    return await data;
   } catch (error) {
     console.error("Error fetching driver applications:", error);
     return [];
   }
 }
 
-const sampleData = [
-  {
-    PointChangeDriver: "jrbrany@clemson.edu",
-    PointChangeSponsor: "jrbrany+s@clemson.edu",
-    PointChangeNumber: "5.00",
-    PointChangeAction: "Subtract",
-    PointChangeDate: "2025-03-31T00:00:00.000Z",
-  },
-];
-
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
-  const [reportData, setReportData] = useState<any[]>(sampleData);
+  const [reportData, setReportData] = useState<any[]>([]);
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -108,12 +96,19 @@ const Reports: React.FC = () => {
     switch (selectedReport) {
       case "Driver Point Changes":
         data = await getPointChanges(startDate, endDate, driverEmail);
+        if (Array.isArray(data) && Array.isArray(data[0])) {
+          data = data[0];
+        }
         break;
       case "Driver Applications":
         data = await getDriverApplications(startDate, endDate, sponsorId, driverEmail);
+        if (Array.isArray(data) && Array.isArray(data[0])) {
+          data = data[0];
+        }
         break;
       default:
-        data = sampleData;
+        data = [];
+        break;
     }
   
     if (!Array.isArray(data)) {
