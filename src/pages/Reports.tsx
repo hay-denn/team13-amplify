@@ -5,85 +5,103 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1"
+const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 
+// Existing functions for point changes
 async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
-    try {
-        const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
-        if (!response.ok) throw new Error("Failed to fetch point changes");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching organizations:", error);
-        return [];
-    }
+  try {
+    const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
+    if (!response.ok) throw new Error("Failed to fetch point changes");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching point changes:", error);
+    return [];
+  }
 }
 
-async function getAllPointChanges(startDate: String, endDate: String) {
-    try {
-        const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
-        if (!response.ok) throw new Error("Failed to fetch point changes");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching organizations:", error);
-        return [];
-    }
+async function getAllPointChanges(startDate: string, endDate: string) {
+  try {
+    const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
+    if (!response.ok) throw new Error("Failed to fetch point changes");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching point changes:", error);
+    return [];
+  }
 }
 
+// New function for driver applications
+async function getDriverApplications(startDate: string, endDate: string, sponsorId: string) {
+  try {
+    const response = await fetch(`${REPORTS_URL}/driverApplications?StartDate=${startDate}&EndDate=${endDate}&SponsorID=${sponsorId}`);
+    if (!response.ok) throw new Error("Failed to fetch driver applications");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching driver applications:", error);
+    return [];
+  }
+}
 
+// Sample data (for fallback/testing)
 const sampleData = [
-    {
-        PointChangeDriver: 'jrbrany@clemson.edu',
-        PointChangeSponsor: 'jrbrany+s@clemson.edu',
-        PointChangeNumber: '5.00',
-        PointChangeAction: 'Subtract',
-        PointChangeDate: '2025-03-31T00:00:00.000Z'
-    }
+  {
+    PointChangeDriver: 'jrbrany@clemson.edu',
+    PointChangeSponsor: 'jrbrany+s@clemson.edu',
+    PointChangeNumber: '5.00',
+    PointChangeAction: 'Subtract',
+    PointChangeDate: '2025-03-31T00:00:00.000Z'
+  }
 ];
-
 const sampleData2 = [
-    {
-        PointChangeDriver: 'jrbrany@clemson.edu',
-        PointChangeSponsor: 'jrbrany+s@clemson.edu',
-        PointChangeNumber: '10.00',
-        PointChangeAction: 'Subtract',
-        PointChangeDate: '2025-03-31T00:00:00.000Z'
-    }
+  {
+    PointChangeDriver: 'jrbrany@clemson.edu',
+    PointChangeSponsor: 'jrbrany+s@clemson.edu',
+    PointChangeNumber: '10.00',
+    PointChangeAction: 'Subtract',
+    PointChangeDate: '2025-03-31T00:00:00.000Z'
+  }
 ];
-
 const sampleData3 = [
-    {
-        PointChangeDriver: 'hayjroof@gmail.com',
-        PointChangeSponsor: 'haydenjroof+25@gmail.com',
-        PointChangeNumber: '100.00',
-        PointChangeAction: 'Set',
-        PointChangeDate: '2025-03-24T00:00:00.000Z'
-      },
+  {
+    PointChangeDriver: 'hayjroof@gmail.com',
+    PointChangeSponsor: 'haydenjroof+25@gmail.com',
+    PointChangeNumber: '100.00',
+    PointChangeAction: 'Set',
+    PointChangeDate: '2025-03-24T00:00:00.000Z'
+  }
 ];
-  
-  const sampleData4 = [
-    {
-        PointChangeDriver: 'testEmail@email.com',
-        PointChangeSponsor: 'sponsortest@email.com',
-        PointChangeNumber: '10.00',
-        PointChangeAction: 'Subtract',
-        PointChangeDate: '2025-03-11T00:00:00.000Z'
-    }
- ];
+const sampleData4 = [
+  {
+    PointChangeDriver: 'testEmail@email.com',
+    PointChangeSponsor: 'sponsortest@email.com',
+    PointChangeNumber: '10.00',
+    PointChangeAction: 'Subtract',
+    PointChangeDate: '2025-03-11T00:00:00.000Z'
+  }
+];
 
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("All Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
-  const [reportData, setReportData] = useState(sampleData);
+  const [reportData, setReportData] = useState<any[]>(sampleData);
 
   const generateReport = async () => {
-    let data = []
+    let data: any[] = [];
+    // Using sample dates and sponsorId for demonstration.
+    const startDate = "2000-01-01";
+    const endDate = "3000-01-01";
     switch (selectedReport) {
       case "All Driver Point Changes":
-        data = await getAllPointChanges("2000-01-01", "3000-01-01");
+        data = await getAllPointChanges(startDate, endDate);
         data = data[0];
         break;
       case "Specific Driver Point Changes":
-        data = await getSpecificPointChnages("2000-01-01", "3000-01-01", "jrbrany@clemson.edu");
+        data = await getSpecificPointChnages(startDate, endDate, "jrbrany@clemson.edu");
+        data = data[0];
+        break;
+      case "Driver Applications":
+        // Using a sample SponsorID. In production, you might let the admin choose this.
+        data = await getDriverApplications(startDate, endDate, "123");
         data = data[0];
         break;
       case "Sales By Driver":
@@ -112,11 +130,61 @@ const Reports: React.FC = () => {
     }
   };
 
+  // Render table headers based on selected report type
+  const renderTableHeaders = () => {
+    if (selectedReport === "Driver Applications") {
+      return (
+        <TableRow>
+          <TableCell>Driver</TableCell>
+          <TableCell>Sponsor</TableCell>
+          <TableCell>Status</TableCell>
+          <TableCell>Date Submitted</TableCell>
+          <TableCell>Reason</TableCell>
+        </TableRow>
+      );
+    } else {
+      return (
+        <TableRow>
+          <TableCell>PointChangeDriver</TableCell>
+          <TableCell>PointChangeSponsor</TableCell>
+          <TableCell>PointChangeNumber</TableCell>
+          <TableCell>PointChangeAction</TableCell>
+          <TableCell>PointChangeDate</TableCell>
+        </TableRow>
+      );
+    }
+  };
+
+  // Render table rows based on selected report type
+  const renderTableRows = () => {
+    if (selectedReport === "Driver Applications") {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.ApplicationDriver}</TableCell>
+          <TableCell>{item.ApplicationOrganization}</TableCell>
+          <TableCell>{item.ApplicationStatus}</TableCell>
+          <TableCell>{item.ApplicationDateSubmitted}</TableCell>
+          <TableCell>{item.ApplicationReason}</TableCell>
+        </TableRow>
+      ));
+    } else {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.PointChangeDriver}</TableCell>
+          <TableCell>{item.PointChangeSponsor}</TableCell>
+          <TableCell>{item.PointChangeNumber}</TableCell>
+          <TableCell>{item.PointChangeAction}</TableCell>
+          <TableCell>{item.PointChangeDate}</TableCell>
+        </TableRow>
+      ));
+    }
+  };
+
   return (
     <div className="p-6">
-        <br />
-        <br /> 
-        <br />
+      <br />
+      <br />
+      <br />
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
       <div className="flex items-center gap-4 mb-4">
         <FormControl>
@@ -124,6 +192,7 @@ const Reports: React.FC = () => {
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
+            <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
             <MenuItem value="Sales By Sponsor">Sales By Sponsor</MenuItem>
             <MenuItem value="Invoice">Invoice</MenuItem>
@@ -140,26 +209,8 @@ const Reports: React.FC = () => {
           {viewMode === "table" ? (
             <TableContainer component={Paper}>
               <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>PointChangeDriver</TableCell>
-                    <TableCell>PointChangeSponsor</TableCell>
-                    <TableCell>PointChangeNumber</TableCell>
-                    <TableCell>PointChangeAction</TableCell>
-                    <TableCell>PointChangeDate</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {reportData.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.PointChangeDriver}</TableCell>
-                      <TableCell>{item.PointChangeSponsor}</TableCell>
-                      <TableCell>{item.PointChangeNumber}</TableCell>
-                      <TableCell>{item.PointChangeAction}</TableCell>
-                      <TableCell>{item.PointChangeDate}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                <TableHead>{renderTableHeaders()}</TableHead>
+                <TableBody>{renderTableRows()}</TableBody>
               </Table>
             </TableContainer>
           ) : (
