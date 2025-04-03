@@ -153,7 +153,7 @@ const Reports: React.FC = () => {
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <FormControl>
           <InputLabel>Report</InputLabel>
-          <Select value={selectedReport} onChange={(e: React.ChangeEvent<{ value: unknown }>) => setSelectedReport(e.target.value as string)}>
+          <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
             <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
             <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
@@ -170,20 +170,20 @@ const Reports: React.FC = () => {
               type="date"
               InputLabelProps={{ shrink: true }}
               value={startDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+              onChange={(e) => setStartDate(e.target.value)}
             />
             <TextField
               label="End Date"
               type="date"
               InputLabelProps={{ shrink: true }}
               value={endDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+              onChange={(e) => setEndDate(e.target.value)}
             />
             <TextField
               label="Sponsor ID"
               type="number"
               value={sponsorId}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSponsorId(e.target.value)}
+              onChange={(e) => setSponsorId(e.target.value)}
             />
           </>
         )}
