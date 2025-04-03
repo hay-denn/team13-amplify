@@ -233,26 +233,38 @@ export const AccountSettings: React.FC = () => {
       }
   
       setSuccessMessage("Password changed successfully.");
-      setShowChangePasswordForm(false);
+      setShowChangePasswordForm(false); 
       window.alert("✅ Password changed successfully.");
   
       // Log the password change
-      const logResponse = await fetch("https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1/passwordChanges", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user: email,
-          changeDate: new Date().toISOString(),
-          changeType: "manual change",
-        }),
+      console.log("Email:", email);
+      console.log("Change Date:", new Date().toISOString());
+      console.log("Request Body:", {
+        user: email,
+        changeDate: new Date().toISOString(),
+        changeType: "manual change",
       });
-  
-      if (!logResponse.ok) {
-        console.error("Failed to log password change:", await logResponse.text());
-      } else {
-        console.log("Password change logged successfully.");
+      try {
+        const logResponse = await fetch("https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1/passwordChanges", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user: email,
+            changeDate: new Date().toISOString(),
+            changeType: "manual change",
+          }),
+        });
+      
+        if (!logResponse.ok) {
+          const errorText = await logResponse.text();
+          console.error("Failed to log password change:", errorText);
+        } else {
+          console.log("Password change logged successfully.");
+        }
+      } catch (err) {
+        console.error("Error logging password change:", err);
       }
   
       // Signout and redirect after changing password
