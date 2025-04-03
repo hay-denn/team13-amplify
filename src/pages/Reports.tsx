@@ -107,8 +107,8 @@ const Reports: React.FC = () => {
         }
         break;
       case "Sales By Driver":
-        data = [{PurchaseDriver: "Driver1", PurchasePrice: "$8.99", PurchaseDate: "2000-12-10", PurhcaseStatus: "Complete"},
-            {PurchaseDriver: "Driver2", PurchasePrice: "$18.99", PurchaseDate: "2000-12-10", PurhcaseStatus: "Canceled"}
+        data = [{PurchaseDriver: "Driver1", PurchasePrice: "$8.99", PurchaseDate: "2000-12-10", PurchaseStatus: "Complete"},
+            {PurchaseDriver: "Driver2", PurchasePrice: "$18.99", PurchaseDate: "2000-12-10", PurchaseStatus: "Canceled"}
         ];
         break;
       default:
@@ -197,7 +197,7 @@ const Reports: React.FC = () => {
         return reportData.map((item, index) => (
           <TableRow key={index}>
             <TableCell>{item.PurchaseDriver}</TableCell>
-            <TableCell>{item.PurcahsePrice}</TableCell>
+            <TableCell>{item.PurchasePrice}</TableCell>
             <TableCell>{item.PurchaseDate}</TableCell>
             <TableCell>{item.PurchaseStatus}</TableCell>
           </TableRow>
