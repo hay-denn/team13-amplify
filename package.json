@@ -17,7 +17,7 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.750.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^6.4.8",
+    "@mui/material": "^6.4.10",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify": "^6.12.3",
     "axios": "^1.8.2",
@@ -31,7 +31,7 @@
     "react-dom": "^19.0.0",
     "react-oidc-context": "^3.2.0",
     "react-router-dom": "^7.2.0",
-    "recharts": "^2.15.1"
+    "recharts": "^2.15.2"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.14.0",

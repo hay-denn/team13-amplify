@@ -1,17 +1,42 @@
 import React, { useState } from "react";
 import {
-  Button, Select, MenuItem, FormControl, InputLabel, TextField, Card,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField,
+  Card,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 
-async function getSpecificPointChnages(startDate: string, endDate: string, driverEmail: string) {
+// Point Changes API with optional filters
+async function getPointChanges(startDate?: string, endDate?: string, driverEmail?: string) {
+  const url = new URL(`${REPORTS_URL}/pointChanges`);
+  if (startDate) url.searchParams.append("StartDate", startDate);
+  if (endDate) url.searchParams.append("EndDate", endDate);
+  if (driverEmail) url.searchParams.append("DriverEmail", driverEmail);
+
   try {
-    const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}&DriverEmail=${driverEmail}`);
+    const response = await fetch(url.toString());
     if (!response.ok) throw new Error("Failed to fetch point changes");
     return await response.json();
   } catch (error) {
@@ -20,20 +45,21 @@ async function getSpecificPointChnages(startDate: string, endDate: string, drive
   }
 }
 
-async function getAllPointChanges(startDate: string, endDate: string) {
-  try {
-    const response = await fetch(`${REPORTS_URL}/pointChanges?StartDate=${startDate}&EndDate=${endDate}`);
-    if (!response.ok) throw new Error("Failed to fetch point changes");
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching point changes:", error);
-    return [];
-  }
-}
+// Driver Applications API with optional filters
+async function getDriverApplications(
+  startDate?: string,
+  endDate?: string,
+  sponsorId?: string,
+  driverEmail?: string
+) {
+  const url = new URL(`${REPORTS_URL}/driverApplications`);
+  if (startDate) url.searchParams.append("StartDate", startDate);
+  if (endDate) url.searchParams.append("EndDate", endDate);
+  if (sponsorId) url.searchParams.append("SponsorID", sponsorId);
+  if (driverEmail) url.searchParams.append("DriverEmail", driverEmail);
 
-async function getDriverApplications(startDate: string, endDate: string, sponsorId: string) {
   try {
-    const response = await fetch(`${REPORTS_URL}/driverApplications?StartDate=${startDate}&EndDate=${endDate}&SponsorID=${sponsorId}`);
+    const response = await fetch(url.toString());
     if (!response.ok) throw new Error("Failed to fetch driver applications");
     return await response.json();
   } catch (error) {
@@ -44,36 +70,35 @@ async function getDriverApplications(startDate: string, endDate: string, sponsor
 
 const sampleData = [
   {
-    PointChangeDriver: 'jrbrany@clemson.edu',
-    PointChangeSponsor: 'jrbrany+s@clemson.edu',
-    PointChangeNumber: '5.00',
-    PointChangeAction: 'Subtract',
-    PointChangeDate: '2025-03-31T00:00:00.000Z'
-  }
+    PointChangeDriver: "jrbrany@clemson.edu",
+    PointChangeSponsor: "jrbrany+s@clemson.edu",
+    PointChangeNumber: "5.00",
+    PointChangeAction: "Subtract",
+    PointChangeDate: "2025-03-31T00:00:00.000Z",
+  },
 ];
 
 const Reports: React.FC = () => {
-  const [selectedReport, setSelectedReport] = useState("All Driver Point Changes");
+  const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState<any[]>(sampleData);
-  const [startDate, setStartDate] = useState("2000-01-01");
-  const [endDate, setEndDate] = useState("3000-01-01");
-  const [sponsorId, setSponsorId] = useState("3");
+
+  // Shared filters
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sponsorId, setSponsorId] = useState("");
+  const [driverEmail, setDriverEmail] = useState("");
 
   const generateReport = async () => {
     let data: any[] = [];
 
     switch (selectedReport) {
-      case "All Driver Point Changes":
-        data = await getAllPointChanges(startDate, endDate);
-        data = data[0];
-        break;
-      case "Specific Driver Point Changes":
-        data = await getSpecificPointChnages(startDate, endDate, "jrbrany@clemson.edu");
+      case "Driver Point Changes":
+        data = await getPointChanges(startDate, endDate, driverEmail);
         data = data[0];
         break;
       case "Driver Applications":
-        data = await getDriverApplications(startDate, endDate, sponsorId);
+        data = await getDriverApplications(startDate, endDate, sponsorId, driverEmail);
         data = data[0];
         break;
       default:
@@ -144,6 +169,45 @@ const Reports: React.FC = () => {
     }
   };
 
+  const renderFilters = () => {
+    if (selectedReport === "Driver Point Changes" || selectedReport === "Driver Applications") {
+      return (
+        <div className="flex flex-col gap-4 mb-4">
+          <TextField
+            label="Start Date"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={startDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+          />
+          <TextField
+            label="End Date"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={endDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+          />
+          {selectedReport === "Driver Applications" && (
+            <TextField
+              label="Sponsor ID"
+              type="number"
+              value={sponsorId}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSponsorId(e.target.value)}
+            />
+          )}
+          <TextField
+            label="Driver Email"
+            type="email"
+            value={driverEmail}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDriverEmail(e.target.value)}
+          />
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="p-6">
       <br />
@@ -153,47 +217,39 @@ const Reports: React.FC = () => {
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <FormControl>
           <InputLabel>Report</InputLabel>
-          <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
-            <MenuItem value="All Driver Point Changes">All Driver Point Changes</MenuItem>
-            <MenuItem value="Specific Driver Point Changes">Specific Driver Point Changes</MenuItem>
+          <Select
+            value={selectedReport}
+            onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
+              setSelectedReport(e.target.value as string)
+            }
+          >
+            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
             <MenuItem value="Sales By Sponsor">Sales By Sponsor</MenuItem>
             <MenuItem value="Invoice">Invoice</MenuItem>
           </Select>
         </FormControl>
-
-        {selectedReport === "Driver Applications" && (
-          <>
-            <TextField
-              label="Start Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <TextField
-              label="End Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-            <TextField
-              label="Sponsor ID"
-              type="number"
-              value={sponsorId}
-              onChange={(e) => setSponsorId(e.target.value)}
-            />
-          </>
-        )}
-
-        <Button variant="contained" onClick={generateReport}>Generate</Button>
+        <Button variant="contained" onClick={generateReport}>
+          Generate
+        </Button>
       </div>
 
+      {renderFilters()}
+
       <div className="flex items-center gap-4 mb-4">
-        <Button variant={viewMode === "table" ? "contained" : "outlined"} onClick={() => setViewMode("table")}>Table</Button>
-        <Button variant={viewMode === "chart" ? "contained" : "outlined"} onClick={() => setViewMode("chart")}>Chart</Button>
+        <Button
+          variant={viewMode === "table" ? "contained" : "outlined"}
+          onClick={() => setViewMode("table")}
+        >
+          Table
+        </Button>
+        <Button
+          variant={viewMode === "chart" ? "contained" : "outlined"}
+          onClick={() => setViewMode("chart")}
+        >
+          Chart
+        </Button>
       </div>
 
       <Card>
@@ -218,7 +274,9 @@ const Reports: React.FC = () => {
         </div>
       </Card>
 
-      <Button className="mt-4" variant="contained" onClick={downloadPDF}>Download PDF</Button>
+      <Button className="mt-4" variant="contained" onClick={downloadPDF}>
+        Download PDF
+      </Button>
     </div>
   );
 };
