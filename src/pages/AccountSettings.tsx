@@ -183,7 +183,7 @@ export const AccountSettings: React.FC = () => {
     setErrorMessage("");
     setSuccessMessage("");
     setMissingRequirements([]);
-
+  
     // Collect any missing requirements
     const issues: string[] = [];
     if (!hasNumber) issues.push("Must contain at least 1 number");
@@ -191,27 +191,27 @@ export const AccountSettings: React.FC = () => {
     if (!hasUpperCase) issues.push("Must contain at least 1 uppercase letter");
     if (!hasLowerCase) issues.push("Must contain at least 1 lowercase letter");
     if (!isLongEnough) issues.push("Must be at least 8 characters long");
-
+  
     // If any requirement is missing, display them and stop
     if (issues.length > 0) {
       setMissingRequirements(issues);
       setErrorMessage("New password does not meet the requirements.");
       return;
     }
-
+  
     // Check if newPassword & confirmNewPassword match
     if (newPassword !== confirmNewPassword) {
       setErrorMessage("New passwords do not match.");
       return;
     }
-
+  
     // Confirm we have an access token
     const userAccessToken = auth.user?.access_token;
     if (!userAccessToken) {
       setErrorMessage("Cannot change password: no access token is available.");
       return;
     }
-
+  
     try {
       // Make the POST request to Cognito
       const response = await fetch(COGNITO_API_URL, {
@@ -226,21 +226,40 @@ export const AccountSettings: React.FC = () => {
           AccessToken: userAccessToken,
         }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Error changing password");
       }
-
+  
       setSuccessMessage("Password changed successfully.");
       setShowChangePasswordForm(false);
       window.alert("✅ Password changed successfully.");
-
-      // Signout and redirect after changing pw
+  
+      // Log the password change
+      const logResponse = await fetch("https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1/passwordChanges", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: email,
+          changeDate: new Date().toISOString(),
+          changeType: "manual change",
+        }),
+      });
+  
+      if (!logResponse.ok) {
+        console.error("Failed to log password change:", await logResponse.text());
+      } else {
+        console.log("Password change logged successfully.");
+      }
+  
+      // Signout and redirect after changing password
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await authContext?.removeUser();
       signOutRedirect();
-
+  
     } catch (err: any) {
       console.error("Error changing password:", err);
       setErrorMessage(err.message || "Error changing password");
