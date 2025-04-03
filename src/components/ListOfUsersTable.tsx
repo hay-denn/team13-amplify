@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Modal, Button } from "react-bootstrap";
-import { ViewOrgModal } from "./Modal";
+
+// IMPORTANT: rename the default export from "./Modal" so it doesn't clash
+// with react-bootstrap's Modal.
+import UserModal, { ViewOrgModal } from "./Modal";
 
 interface Driver {
   DriverEmail: string;
@@ -42,14 +45,33 @@ export const ListOfUsersTable = ({
 }: Props) => {
   const auth = useAuth();
 
+  // Track organization for sponsor
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
+
+  // For "ViewOrg" functionality
   const [isViewOrgModalOpen, setIsViewOrgModalOpen] = useState<boolean>(false);
   const [viewOrgEmail, setViewOrgEmail] = useState<string>("");
+
+  // For the "Actions" modal (points, impersonation, etc.)
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [currentPoints, setCurrentPoints] = useState<number | null>(null);
   const [pointsChange, setPointsChange] = useState<number>(0);
 
+  // For the "Edit" modal (creating/updating user info)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+
+  // Build a single list of all user emails for the modal’s validation
+  const allEmails = [
+    ...driverTable.map((d) => d.DriverEmail),
+    ...sponsorTable.map((s) => s.UserEmail),
+    ...adminTable.map((a) => a.AdminEmail),
+  ];
+
+  // =========================================
+  // SPONSOR ORGANIZATION ID FETCH
+  // =========================================
   useEffect(() => {
     const fetchSponsorOrg = async () => {
       try {
@@ -83,6 +105,9 @@ export const ListOfUsersTable = ({
     }
   }, [auth.user?.profile?.email]);
 
+  // =========================================
+  // ACTIONS MODAL METHODS
+  // =========================================
   const handleViewOrg = (pemail: string) => {
     setViewOrgEmail(pemail);
     setIsViewOrgModalOpen(true);
@@ -101,6 +126,7 @@ export const ListOfUsersTable = ({
   };
 
   const handleViewAsDriver = (targetRoute: string) => {
+    if (!selectedUser) return;
     localStorage.setItem(
       "impersonatingDriver",
       JSON.stringify({
@@ -114,6 +140,7 @@ export const ListOfUsersTable = ({
   };
 
   const handleEditOrders = (targetRoute: string) => {
+    if (!selectedUser) return;
     const currentSponsorEmail = auth.user?.profile?.email || "";
     localStorage.setItem(
       "driverEmailForEdit",
@@ -188,6 +215,54 @@ export const ListOfUsersTable = ({
     }
   };
 
+  // =========================================
+  // EDIT MODAL METHODS
+  // =========================================
+  const handleEditUser = (user: any, userType: string) => {
+    // Build up initialData in the shape the modal expects
+    let firstName = "";
+    let familyName = "";
+    let email = "";
+    let org = "";
+
+    if (userType === "Driver") {
+      firstName = user.DriverFName;
+      familyName = user.DriverLName;
+      email = user.DriverEmail;
+      // Drivers may not have an org here (they may have multiple sponsors)
+      // so we can leave org as "" or handle it if you store a single sponsor:
+      // org = user.DriverSponsor;
+    } else if (userType === "Sponsor") {
+      firstName = user.UserFName;
+      familyName = user.UserLName;
+      email = user.UserEmail;
+      org = user.UserOrganization; // sponsor org
+    } else if (userType === "Admin") {
+      firstName = user.AdminFName;
+      familyName = user.AdminLName;
+      email = user.AdminEmail;
+      // admin typically has no org
+    }
+
+    setEditData({
+      firstName,
+      familyName,
+      email,
+      userType,
+      newUser: false, // We are editing an existing user
+      org,
+    });
+
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+  };
+
+  // =========================================
+  // RENDER
+  // =========================================
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -223,7 +298,10 @@ export const ListOfUsersTable = ({
               )}
               {!isSponsor && (
                 <td>
-                  <button className="btn btn-primary" onClick={() => {}}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleEditUser(driver, "Driver")}
+                  >
                     Edit
                   </button>
                 </td>
@@ -238,6 +316,7 @@ export const ListOfUsersTable = ({
               </td>
             </tr>
           ))}
+
           {sponsorTable.map((sponsor, index) => (
             <tr key={`sponsor-${index}`}>
               <th scope="row">{driverTable.length + index + 1}</th>
@@ -248,7 +327,10 @@ export const ListOfUsersTable = ({
               {!isSponsor && <td>{sponsor.UserOrganization || "N / A"}</td>}
               {!isSponsor && (
                 <td>
-                  <button className="btn btn-primary" onClick={() => {}}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleEditUser(sponsor, "Sponsor")}
+                  >
                     Edit
                   </button>
                 </td>
@@ -263,6 +345,7 @@ export const ListOfUsersTable = ({
               </td>
             </tr>
           ))}
+
           {adminTable.map((admin, index) => (
             <tr key={`admin-${index}`}>
               <th scope="row">
@@ -275,7 +358,10 @@ export const ListOfUsersTable = ({
               {!isSponsor && <td>Administrator</td>}
               {!isSponsor && (
                 <td>
-                  <button className="btn btn-primary" onClick={() => {}}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleEditUser(admin, "Admin")}
+                  >
                     Edit
                   </button>
                 </td>
@@ -292,14 +378,20 @@ export const ListOfUsersTable = ({
           ))}
         </tbody>
       </table>
+
+      {/* View Organizations Modal */}
       <ViewOrgModal
         isOpen={isViewOrgModalOpen}
         onClose={() => setIsViewOrgModalOpen(false)}
         email={viewOrgEmail}
       />
+
+      {/* Actions Modal (Points, Impersonation, etc.) */}
       <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
-          <Modal.Title style={{ width: "100%", textAlign: "center" }}>Edit Driver</Modal.Title>
+          <Modal.Title style={{ width: "100%", textAlign: "center" }}>
+            Edit Driver
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
@@ -386,6 +478,14 @@ export const ListOfUsersTable = ({
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Our renamed User-Editing Modal */}
+      <UserModal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        initialData={editData}
+        emailList={allEmails}
+      />
     </div>
   );
 };
