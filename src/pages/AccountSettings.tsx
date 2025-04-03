@@ -238,12 +238,11 @@ export const AccountSettings: React.FC = () => {
   
       // Log the password change
       console.log("Email:", email);
-      console.log("Change Date:", new Date().toISOString());
       console.log("Request Body:", {
         user: email,
-        changeDate: new Date().toISOString(),
         changeType: "manual change",
       });
+
       try {
         const logResponse = await fetch("https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1/passwordChanges", {
           method: "POST",
@@ -252,11 +251,10 @@ export const AccountSettings: React.FC = () => {
           },
           body: JSON.stringify({
             user: email,
-            changeDate: new Date().toISOString(),
             changeType: "manual change",
           }),
         });
-      
+
         if (!logResponse.ok) {
           const errorText = await logResponse.text();
           console.error("Failed to log password change:", errorText);
