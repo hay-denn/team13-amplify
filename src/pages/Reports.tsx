@@ -43,7 +43,7 @@ async function getPointChanges(startDate?: string, endDate?: string, driverEmail
       throw new Error("Failed to fetch point changes");
     }
     const data = await response.json();
-    data.forEach(item => console.log("Point Change Data:", item));
+    data.forEach((item: any) => console.log("Point Change Data:", item));
     return await data;
   } catch (error) {
     console.error("Error fetching point changes:", error);
@@ -72,7 +72,7 @@ async function getDriverApplications(
       throw new Error("Failed to fetch driver applications");
     }
     const data = await response.json();
-    data.forEach(item => console.log("Driver Application Data:", item));
+    data.forEach((item: any) => console.log("Driver Application Data:", item));
     return await data;
   } catch (error) {
     console.error("Error fetching driver applications:", error);
