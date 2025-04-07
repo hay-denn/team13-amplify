@@ -90,7 +90,7 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
   }, [applicationTable]);
 
   const filteredApps = applist.filter(
-    (app) => app.ApplicationOrganization.toString() === sponsorsID
+    (app) => app.ApplicationOrganization.toString() === sponsorsID.toString()
   );
 
   const printLists = () => {
