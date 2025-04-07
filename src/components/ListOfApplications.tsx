@@ -93,6 +93,11 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
     (app) => app.ApplicationOrganization.toString() === sponsorsID
   );
 
+  const printLists = () => {
+    console.log("currentSponsorId: ", sponsorsID);
+    console.log("applicationTable: ", applicationTable);
+  };
+
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -173,6 +178,7 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <button onClick={printLists}> Print Ids </button>
     </div>
   );
 };
