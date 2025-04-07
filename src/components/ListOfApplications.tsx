@@ -93,22 +93,6 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
     (app) => app.ApplicationOrganization.toString() === sponsorsID.toString()
   );
 
-  const printLists = () => {
-    console.log("currentSponsorId: ", sponsorsID);
-    console.log("applicationTable: ", applicationTable);
-    console.log("Sponsor ID:", sponsorsID, typeof sponsorsID);
-    applist.forEach((app) => {
-      console.log(
-        "App ID:",
-        app.ApplicationOrganization,
-        "Stringified:",
-        app.ApplicationOrganization.toString(),
-        "Type:",
-        typeof app.ApplicationOrganization
-      );
-    });
-  };
-
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -189,7 +173,6 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <button onClick={printLists}> Print Ids </button>
     </div>
   );
 };
