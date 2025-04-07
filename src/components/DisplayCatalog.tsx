@@ -195,42 +195,48 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     <div className="catalog-container">
       <hr />
 
-      {/* Filters */}
-      <div className="catalog-header">
-        <label className="me-2">Sort by Price:</label>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as "asc" | "desc" | "")}
-          className="me-4"
-        >
-          <option value="">None</option>
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
+      <div className="container-fluid my-0">
+        {/* Filters */}
+        <div className="d-flex align-items-center mb-3">
+          <label className="me-2">Sort by Price:</label>
+          <select
+            value={sortOrder}
+            onChange={(e) =>
+              setSortOrder(e.target.value as "asc" | "desc" | "")
+            }
+            className="me-4"
+          >
+            <option value="">None</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
 
-        <label className="me-2">Search by Artist:</label>
-        <input
-          type="text"
-          value={artistFilter}
-          onChange={(e) => setArtistFilter(e.target.value)}
-          placeholder="Type artist name"
-        />
-      </div>
-
-      <div className="container my-5">
-        <div className="row mb-4">
+          <label className="me-2">Search by Artist:</label>
+          <input
+            type="text"
+            value={artistFilter}
+            onChange={(e) => setArtistFilter(e.target.value)}
+            placeholder="Type artist name"
+          />
+        </div>
+        <div className="row mb-3">
           <div className="col text-center">
-            <h5 className="mb-3">Catalog Results</h5>
-            <p>
-              For organization{" "}
-              <strong>{organizationData.OrganizationName}</strong> (ID=
-              {organizationData.OrganizationID})
-            </p>
-            <p>
+            <span>
               Max Price: <strong>${maxPrice}</strong> | Point to Dollar Ratio:{" "}
-              <strong>{priceToPointRatio}</strong>
-            </p>
-            {organizationData.LogoUrl && (
+              <strong>{priceToPointRatio}</strong> | Organization Category
+              (Term):
+              {!organizationData.SearchTerm ? (
+                <span>
+                  <b> Your Org Has Selected The Default Catalog</b>
+                </span>
+              ) : (
+                <span>
+                  <b> {organizationData.SearchTerm}</b>
+                </span>
+              )}
+            </span>
+
+            {/* {organizationData.LogoUrl && (
               <div className="my-3">
                 <img
                   src={organizationData.LogoUrl}
@@ -238,7 +244,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
                   style={{ width: "100px", height: "100px" }}
                 />
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

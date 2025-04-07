@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DisplayCatalog from "../components/DisplayCatalog";
 import { DriverCatalogsTest } from "./DriverCatalogsTest";
-
+import "./DriverCatalogs.css";
 interface DriverCatalogsProps {
   inputUserEmail: string;
 }
@@ -15,16 +15,23 @@ export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
   };
 
   return (
-    <div>
-      <div className="shopTitle">
-        <h1>Purchase Items from Your Sponsors</h1>
+    <div className="driver-catalogs-wrapper">
+      <div className="CatalogTitle">
+        <h1>🎁 Redeem Your Points</h1>
+        <p className="centered-paragraph">
+          Browse and purchase items from your sponsor organizations.
+          <br />
+          Select a Sponsor from your organizations from the list below to view
+          their catalog!
+        </p>
       </div>
+
       <DriverCatalogsTest
         inputUserEmail={inputUserEmail}
         onOrganizationSelect={handleSelectedOrgChange}
-      ></DriverCatalogsTest>
+      />
 
-      <DisplayCatalog currentCatalog={selectedOrgId}></DisplayCatalog>
+      <DisplayCatalog currentCatalog={selectedOrgId} />
     </div>
   );
 };

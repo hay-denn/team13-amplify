@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useCart } from "./CartContext";
+// import { useCart } from "./CartContext";
 import "./Catalog.css";
 
 const ORGANIZATIONS_API_URL =
@@ -107,76 +107,82 @@ export const DriverCatalogsTest = ({
   };
 
   // Testing adding items to cart
-  const { addToCart } = useCart();
+  // const { addToCart } = useCart();
 
-  const handleTestAddItems = () => {
-    const testItems = [
-      {
-        name: "C.O.U.N.T.R.Y.",
-        cost: 1.29,
-        quantity: 1,
-        org: 4,
-        id: 977746853,
-      },
-      { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338 },
-      { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338 },
-      {
-        name: "C.O.U.N.T.R.Y.",
-        cost: 1.29,
-        quantity: 1,
-        org: 7,
-        id: 977746853,
-      },
-    ];
-    testItems.forEach(addToCart);
-    alert("Test items added to cart!");
-  };
+  // const handleTestAddItems = () => {
+  //   const testItems = [
+  //     {
+  //       name: "C.O.U.N.T.R.Y.",
+  //       cost: 1.29,
+  //       quantity: 1,
+  //       org: 4,
+  //       id: 977746853,
+  //     },
+  //     { name: "Blown Away", cost: 1.29, quantity: 1, org: 7, id: 510168338 },
+  //     { name: "Blown Away", cost: 1.29, quantity: 1, org: 4, id: 510168338 },
+  //     {
+  //       name: "C.O.U.N.T.R.Y.",
+  //       cost: 1.29,
+  //       quantity: 1,
+  //       org: 7,
+  //       id: 977746853,
+  //     },
+  //   ];
+  //   testItems.forEach(addToCart);
+  //   alert("Test items added to cart!");
+  // };
+  const selectedOrgInfo = organizations.find(
+    (o) => o.OrganizationID === selectedOrganizationID
+  );
 
+  const orgName = selectedOrgInfo
+    ? selectedOrgInfo.OrganizationName
+    : "Unknown Organization";
+  const orgId = selectedOrgInfo?.OrganizationID;
   return (
     <div>
-      <h3>Select an organization to view their catalog</h3>
+      <div className="container-fluid">
+        {/* Row of clickable organization boxes */}
+        <div className="organizations-row">
+          {filteredOrgs.map((org) => {
+            const organizationInfo = organizations.find(
+              (o) => o.OrganizationID === org.DriversSponsorID
+            );
 
-      {/* Row of clickable organization boxes */}
-      <div className="organizations-row">
-        {filteredOrgs.map((org) => {
-          const organizationInfo = organizations.find(
-            (o) => o.OrganizationID === org.DriversSponsorID
-          );
+            return (
+              <div
+                key={org.DriversSponsorID}
+                className={`org-box ${
+                  org.DriversSponsorID === selectedOrganizationID
+                    ? "selected"
+                    : ""
+                }`}
+                onClick={() => handleOrganizationClick(org.DriversSponsorID)}
+              >
+                {organizationInfo
+                  ? organizationInfo.OrganizationName
+                  : "Unknown Organization"}
+              </div>
+            );
+          })}
+        </div>
 
-          return (
-            <div
-              key={org.DriversSponsorID}
-              className={`org-box ${
-                org.DriversSponsorID === selectedOrganizationID
-                  ? "selected"
-                  : ""
-              }`}
-              onClick={() => handleOrganizationClick(org.DriversSponsorID)}
-            >
-              {organizationInfo
-                ? organizationInfo.OrganizationName
-                : "Unknown Organization"}
-            </div>
-          );
-        })}
-      </div>
+        <div className="point-balance">
+          <b>
+            Current Point Balance For {orgName} (ID={orgId}):{"  "}
+            {selectedOrganization?.DriversPoints !== undefined
+              ? selectedOrganization.DriversPoints
+              : "N/A"}
+          </b>
+        </div>
 
-      <br />
-      <b>
-        Current Point Balance:
-        {"  "}
-        {selectedOrganization?.DriversPoints !== undefined
-          ? selectedOrganization.DriversPoints
-          : "N/A"}
-      </b>
-      <br />
-
-      <button
+        {/* <button
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         onClick={handleTestAddItems}
       >
         Add Test Items
-      </button>
+      </button> */}
+      </div>
     </div>
   );
 };
