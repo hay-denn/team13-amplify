@@ -123,6 +123,7 @@ export const DriverManagement = () => {
               <p className="card-text">Manage User Applications below</p>
               <ApplicationTable
                 applicationTable={applicationList}
+                sponsorsID={currentSponsorId}
               ></ApplicationTable>
             </div>
           </div>

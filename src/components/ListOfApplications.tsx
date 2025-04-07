@@ -18,9 +18,10 @@ interface Application {
 
 interface Props {
   applicationTable: Application[];
+  sponsorsID: string;
 }
 
-export const ApplicationTable = ({ applicationTable }: Props) => {
+export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
   const auth = useAuth();
 
   const [driver_email] = useState(auth.user?.profile.email || "");
@@ -88,6 +89,10 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
     setApps(applicationTable);
   }, [applicationTable]);
 
+  const filteredApps = applist.filter(
+    (app) => app.ApplicationOrganization.toString() === sponsorsID
+  );
+
   return (
     <div>
       <table className="table table-striped table-bordered table-hover align-middle">
@@ -103,7 +108,7 @@ export const ApplicationTable = ({ applicationTable }: Props) => {
           </tr>
         </thead>
         <tbody>
-          {applist.map((app, index) => (
+          {filteredApps.map((app, index) => (
             <tr key={`app-${index}`}>
               <td>{app.ApplicationID}</td>
               <td>{app.ApplicationDriver}</td>
