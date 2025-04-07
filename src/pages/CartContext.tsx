@@ -80,6 +80,7 @@ const PUR_API = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
 const PROD_PUR_API = "https://ptgem248l6.execute-api.us-east-1.amazonaws.com/dev1";
 const POINT_CHANGE_API = "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_API = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1"
+const EMAIL_API = "https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1";
 
 
 //API call function for purchases
@@ -286,6 +287,14 @@ export const CartPage: React.FC = () => {
                 indicesToRemove.forEach((index) => {
                   removeFromCart(index);
                 });
+
+                const emailData = {
+                  "username" : userEmail,
+                  "emailSubject" : "Thanks for your purchase!",
+                  "emailBody" : "Your recent order was successfully completed. Thanks!"
+                };
+                callAPI(`${EMAIL_API}/send-email`, "POST", emailData);
+
                 alert("Purchase success!");
               } else {
                 console.log("Could not retrieve a sponsor ID for the purchase");

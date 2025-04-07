@@ -243,6 +243,13 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
           "PurchaseStatus": "Canceled"
         };
         await callAPI("https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1/purchase", "PUT", purchaseData);
+
+        const emailData = {
+          "username" : userEmail,
+          "emailSubject" : "Update to your order",
+          "emailBody" : "Your order has been canceled."
+        }
+        await callAPI("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/send-email", "POST", emailData);
   
         // Update local state so that the Purchase Status is updated to "Canceled"
         setPurchases(prevPurchases =>
