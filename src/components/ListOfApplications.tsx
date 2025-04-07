@@ -96,6 +96,17 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
   const printLists = () => {
     console.log("currentSponsorId: ", sponsorsID);
     console.log("applicationTable: ", applicationTable);
+    console.log("Sponsor ID:", sponsorsID, typeof sponsorsID);
+    applist.forEach((app) => {
+      console.log(
+        "App ID:",
+        app.ApplicationOrganization,
+        "Stringified:",
+        app.ApplicationOrganization.toString(),
+        "Type:",
+        typeof app.ApplicationOrganization
+      );
+    });
   };
 
   return (
