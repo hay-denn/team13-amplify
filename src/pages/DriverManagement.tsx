@@ -113,7 +113,7 @@ export const DriverManagement = () => {
 
   return (
     <>
-      {currentSponsorId && (
+      {currentSponsorId != "" && (
         <div className="container manage-users-container py-3 m-5">
           <div className="card manage-users-card mt-5">
             <div className="card-body">
