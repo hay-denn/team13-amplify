@@ -8,11 +8,15 @@ import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
 
 export const DriverDashBoard = () => {
-  // 1) Auth & Impersonation
+  //Auth & Impersonation
   const authContext = useContext(AuthContext);
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
-  const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
+  const impersonation = storedImpersonation
+    ? JSON.parse(storedImpersonation)
+    : null;
 
+  const [organizationsDoneLoading, setorganizationsDoneLoading] =
+    useState(false);
   const userEmail = impersonation
     ? impersonation.email
     : authContext?.user?.profile?.email || "";
@@ -21,7 +25,6 @@ export const DriverDashBoard = () => {
     ? impersonation.firstName
     : authContext?.user?.profile?.given_name || "";
 
-  // 2) Local state
   const [showModal, setShowModal] = useState(false);
 
   // Driver-sponsor relationships (for point balance and selected org)
@@ -36,7 +39,9 @@ export const DriverDashBoard = () => {
       )
     : currentOrganizations;
 
-  const [selectedOrganizationID, setSelectedOrganizationID] = useState<number | null>(null);
+  const [selectedOrganizationID, setSelectedOrganizationID] = useState<
+    number | null
+  >(null);
 
   // Handle initial selection once filtered orgs load
   useEffect(() => {
@@ -49,7 +54,7 @@ export const DriverDashBoard = () => {
     (org) => org.DriversSponsorID === selectedOrganizationID
   );
 
-  // 3) Fetch all organizations (so we can display org name) and the driver's relationships
+  //Fetch all organizations (so we can display org name) and the driver's relationships
   const [organizations, setOrganizations] = useState<
     { OrganizationID: number; OrganizationName: string }[]
   >([]);
@@ -66,7 +71,7 @@ export const DriverDashBoard = () => {
           "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"
         );
         const data = await response.json();
-
+        setorganizationsDoneLoading(true);
         if (!Array.isArray(data)) {
           console.error("Unexpected response format:", data);
           return;
@@ -107,59 +112,114 @@ export const DriverDashBoard = () => {
     getDriverRelationships();
   }, [userEmail]);
 
-  // 4) Organization dropdown
   const handleOrganizationChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setSelectedOrganizationID(Number(event.target.value));
   };
 
-  // 5) Render
   return (
     <>
       <h1 className="text-center mb-5 mt-5">Welcome Back {userFName}!</h1>
+      {organizationsDoneLoading ? (
+        filteredOrganizations.length > 0 ? (
+          // If the driver is part of at least one sponsor org
+          <div className="container">
+            {/* Top row: left box + selected org info */}
+            <div className="row">
+              <div className="col-md-4">
+                <div className="box box1">
+                  <TopBox />
+                </div>
+              </div>
+              <div className="col-md-8">
+                <div className="box box2">
+                  <b>
+                    Current Point Balance:{" "}
+                    {selectedOrganization?.DriversPoints || "N/A"}
+                  </b>
+                  <br />
+                  <label htmlFor="organizationDropdown">
+                    Select Organization:{" "}
+                  </label>
+                  <select
+                    id="organizationDropdown"
+                    className="form-control"
+                    value={selectedOrganizationID || ""}
+                    onChange={handleOrganizationChange}
+                  >
+                    <option value="" disabled>
+                      Select an Organization
+                    </option>
+                    {filteredOrganizations.map((org) => {
+                      const orgInfo = organizations.find(
+                        (o) => o.OrganizationID === org.DriversSponsorID
+                      );
+                      return (
+                        <option
+                          key={org.DriversSponsorID}
+                          value={org.DriversSponsorID}
+                        >
+                          {orgInfo
+                            ? orgInfo.OrganizationName
+                            : "Unknown Organization"}
+                        </option>
+                      );
+                    })}
+                  </select>
 
-      {filteredOrganizations.length > 0 ? (
-        // If the driver is part of at least one sponsor org
-        <div className="container">
-          {/* Top row: left box + selected org info */}
-          <div className="row">
-            <div className="col-md-4">
-              <div className="box box1">
-                <TopBox />
+                  {/* LINKS to My Applications and My Sponsors */}
+                  <div className="mt-4">
+                    <Link
+                      to="/myapplications"
+                      className="btn btn-secondary mr-2"
+                    >
+                      My Applications
+                    </Link>
+                    <Link to="/mysponsors" className="btn btn-secondary">
+                      My Sponsors
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="col-md-8">
-              <div className="box box2">
-                <b>Current Point Balance: {selectedOrganization?.DriversPoints || "N/A"}</b>
-                <br />
-                <label htmlFor="organizationDropdown">
-                  Select Organization:{" "}
-                </label>
-                <select
-                  id="organizationDropdown"
-                  className="form-control"
-                  value={selectedOrganizationID || ""}
-                  onChange={handleOrganizationChange}
-                >
-                  <option value="" disabled>
-                    Select an Organization
-                  </option>
-                  {filteredOrganizations.map((org) => {
-                    const orgInfo = organizations.find(
-                      (o) => o.OrganizationID === org.DriversSponsorID
-                    );
-                    return (
-                      <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-                        {orgInfo ? orgInfo.OrganizationName : "Unknown Organization"}
-                      </option>
-                    );
-                  })}
-                </select>
 
-                {/* LINKS to My Applications and My Sponsors */}
-                <div className="mt-4">
-                  <Link to="/myapplications" className="btn btn-secondary mr-2">
+            {/* Placeholder rows/items */}
+            <div className="row mt-3">
+              <div className="col-md-4">
+                <div className="box box3">Placeholder Item</div>
+              </div>
+              <div className="col-md-4">
+                <div className="box box4">Placeholder Item</div>
+              </div>
+              <div className="col-md-4">
+                <div className="box box5">My Point Progress Chart:</div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // If the driver has no sponsor relationships yet
+          <div className="container-fluid">
+            <div className="row align-items-center">
+              <div className="col-md-5 left-col">
+                <h2>Next Steps:</h2>
+                <p>
+                  Now that you have completed registration as a driver, it is
+                  time for you to start applying to a sponsor of your choice.
+                </p>
+                <button
+                  className="btn btn-primary mb-3"
+                  onClick={() => setShowModal(true)}
+                >
+                  Apply Now!
+                </button>
+
+                <div style={{ marginTop: "1rem" }}>
+                  <Link
+                    to="/myapplications"
+                    className="btn btn-secondary"
+                    style={{ marginRight: "1rem" }}
+                  >
                     My Applications
                   </Link>
                   <Link to="/mysponsors" className="btn btn-secondary">
@@ -167,67 +227,22 @@ export const DriverDashBoard = () => {
                   </Link>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Placeholder rows/items */}
-          <div className="row mt-3">
-            <div className="col-md-4">
-              <div className="box box3">Placeholder Item</div>
-            </div>
-            <div className="col-md-4">
-              <div className="box box4">Placeholder Item</div>
-            </div>
-            <div className="col-md-4">
-              <div className="box box5">My Point Progress Chart:</div>
+              <div className="col-md-7 right-col">
+                <CarouselTemplate />
+              </div>
             </div>
           </div>
-        </div>
+        )
       ) : (
-        // If the driver has no sponsor relationships yet
-        <div className="container-fluid">
-          <div className="row align-items-center">
-            <div className="col-md-5 left-col">
-              <h2>Next Steps:</h2>
-              <p>
-                Now that you have completed registration as a driver,
-                it is time for you to start applying to a sponsor of your choice.
-              </p>
-              <button
-                className="btn btn-primary mb-3"
-                onClick={() => setShowModal(true)}
-              >
-                Apply Now!
-              </button>
-
-              <div style={{ marginTop: "1rem" }}>
-              <Link
-                to="/myapplications"
-                className="btn btn-secondary"
-                style={{ marginRight: "1rem" }}
-              >
-                My Applications
-              </Link>
-              <Link to="/mysponsors" className="btn btn-secondary">
-                My Sponsors
-              </Link>
-            </div>
-
-            </div>
-
-            <div className="col-md-7 right-col">
-              <CarouselTemplate />
-            </div>
-          </div>
-        </div>
+        <div>Loading Organizations...</div>
       )}
 
       <SponsorApplyModal
         show={showModal}
         handleClose={() => setShowModal(false)}
         driverEmail={userEmail}
-        fetchApplications={() => {
-        }}
+        fetchApplications={() => {}}
       />
     </>
   );
