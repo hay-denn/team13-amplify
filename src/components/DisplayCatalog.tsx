@@ -192,7 +192,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     const cartItem = [
       {
         name: item.artistName,
-        cost: item.trackPrice,
+        cost: (item.trackPrice * priceToPointRatio),
         quantity: 1,
         org: organizationData.OrganizationID,
         id: item.trackId,
