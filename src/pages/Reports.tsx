@@ -27,14 +27,9 @@ import {
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-// ===================== CONSTANTS =====================
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_DRIVERS_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
-
-/** ===================== API FUNCTIONS ===================== */
-
-// All functions cast parameters to string before calling .trim()
 
 async function getPointChanges(
   startDate?: string | number,
@@ -42,7 +37,6 @@ async function getPointChanges(
   driverEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/pointChanges`);
-
   if (startDate && String(startDate).trim() !== "") {
     url.searchParams.append("StartDate", String(startDate));
   }
@@ -52,21 +46,14 @@ async function getPointChanges(
   if (driverEmail && String(driverEmail).trim() !== "") {
     url.searchParams.append("DriverEmail", String(driverEmail));
   }
-
-  console.log("DEBUG: getPointChanges() -> fetching:", url.toString());
-
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ERROR in getPointChanges:", errorText);
+      await response.text();
       return [];
     }
-    const data = await response.json();
-    console.log("DEBUG: Raw data from getPointChanges:", data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("ERROR in getPointChanges:", error);
     return [];
   }
 }
@@ -78,7 +65,6 @@ async function getDriverApplications(
   driverEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/driverApplications`);
-
   if (startDate && String(startDate).trim() !== "") {
     url.searchParams.append("StartDate", String(startDate));
   }
@@ -91,21 +77,14 @@ async function getDriverApplications(
   if (driverEmail && String(driverEmail).trim() !== "") {
     url.searchParams.append("DriverEmail", String(driverEmail));
   }
-
-  console.log("DEBUG: getDriverApplications() -> fetching:", url.toString());
-
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ERROR in getDriverApplications:", errorText);
+      await response.text();
       return [];
     }
-    const data = await response.json();
-    console.log("DEBUG: Raw data from getDriverApplications:", data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("ERROR in getDriverApplications:", error);
     return [];
   }
 }
@@ -116,7 +95,6 @@ async function getPasswordChanges(
   userEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/passwordChanges`);
-
   if (startDate && String(startDate).trim() !== "") {
     url.searchParams.append("StartDate", String(startDate));
   }
@@ -126,21 +104,14 @@ async function getPasswordChanges(
   if (userEmail && String(userEmail).trim() !== "") {
     url.searchParams.append("UserEmail", String(userEmail));
   }
-
-  console.log("DEBUG: getPasswordChanges() -> fetching:", url.toString());
-
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ERROR in getPasswordChanges:", errorText);
+      await response.text();
       return [];
     }
-    const data = await response.json();
-    console.log("DEBUG: Raw data from getPasswordChanges:", data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("ERROR in getPasswordChanges:", error);
     return [];
   }
 }
@@ -151,7 +122,6 @@ async function getLoginAttempts(
   userEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/loginAttempts`);
-
   if (startDate && String(startDate).trim() !== "") {
     url.searchParams.append("StartDate", String(startDate));
   }
@@ -161,21 +131,14 @@ async function getLoginAttempts(
   if (userEmail && String(userEmail).trim() !== "") {
     url.searchParams.append("UserEmail", String(userEmail));
   }
-
-  console.log("DEBUG: getLoginAttempts() -> fetching:", url.toString());
-
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ERROR in getLoginAttempts:", errorText);
+      await response.text();
       return [];
     }
-    const data = await response.json();
-    console.log("DEBUG: Raw data from getLoginAttempts:", data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("ERROR in getLoginAttempts:", error);
     return [];
   }
 }
@@ -187,7 +150,6 @@ async function getPurchaseData(
   driverEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/purchases`);
-
   if (startDate && String(startDate).trim() !== "") {
     url.searchParams.append("StartDate", String(startDate));
   }
@@ -200,21 +162,14 @@ async function getPurchaseData(
   if (driverEmail && String(driverEmail).trim() !== "") {
     url.searchParams.append("DriverEmail", String(driverEmail));
   }
-
-  console.log("DEBUG: getPurchaseData() -> fetching:", url.toString());
-
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ERROR in getPurchaseData:", errorText);
+      await response.text();
       return [];
     }
-    const data = await response.json();
-    console.log("DEBUG: Raw data from getPurchaseData:", data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("ERROR in getPurchaseData:", error);
     return [];
   }
 }
@@ -222,128 +177,66 @@ async function getPurchaseData(
 async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[]> {
   const url = new URL(`${SPONSOR_DRIVERS_URL}/driverssponsors`);
   url.searchParams.append("DriversSponsorID", String(sponsorOrgID));
-
-  console.log("DEBUG: getSponsorDrivers() -> fetching:", url.toString());
-
   try {
     const response = await fetch(url.toString());
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ERROR in getSponsorDrivers:", errorText);
+      await response.text();
       return [];
     }
     const data = await response.json();
-    console.log("DEBUG: Raw data from getSponsorDrivers:", data);
-
-    // Extract the "DriversEmail" from each object
-    const emails = data.map((item: any) => item.DriversEmail);
-    console.log("DEBUG: Extracted driverEmails:", emails);
-    return emails;
+    return data.map((item: any) => item.DriversEmail);
   } catch (error) {
-    console.error("ERROR fetching sponsor drivers:", error);
     return [];
   }
 }
 
-/** ===================== COMPONENT ===================== */
 const Reports: React.FC = () => {
-  console.log("DEBUG: <Reports /> component mounting...");
-
-  // 1) Auth + Sponsor detection
   const auth = useAuth();
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
-
   useEffect(() => {
     const maybeGroups = auth.user?.profile?.["cognito:groups"];
     const groups = Array.isArray(maybeGroups) ? maybeGroups : [];
-    const sponsorCheck = groups.includes("Sponsor");
-    setIsSponsor(sponsorCheck);
-    console.log("DEBUG: user groups is:", groups, "-> isSponsor?", sponsorCheck);
+    setIsSponsor(groups.includes("Sponsor"));
   }, [auth.user]);
-
-  // 2) Sponsor org ID + driver emails
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
   const [driverEmails, setDriverEmails] = useState<string[]>([]);
-
-  // A) Get sponsorOrgID
   useEffect(() => {
-    if (!isSponsor) {
-      console.log("DEBUG: Not a sponsor -> skipping sponsorOrgID fetch.");
-      return;
-    }
-    if (!auth.user?.profile?.email) {
-      console.log("DEBUG: No email found -> skipping sponsorOrgID fetch.");
-      return;
-    }
+    if (!isSponsor || !auth.user?.profile?.email) return;
     const fetchSponsorOrg = async () => {
       try {
         const sponsorEmail = encodeURIComponent(auth.user?.profile?.email || "");
         const url = `${SPONSOR_BASE_URL}/sponsor?UserEmail=${sponsorEmail}`;
-        console.log("DEBUG: fetchSponsorOrg() -> fetching:", url);
         const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch sponsor: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Failed to fetch sponsor: ${response.status}`);
         const data = await response.json();
-        console.log("DEBUG: raw sponsor data returned:", data);
-        let sponsor;
-        if (Array.isArray(data)) {
-          sponsor = data.find((s: any) => s.UserEmail === auth.user?.profile?.email);
-        } else {
-          sponsor = data;
-        }
+        let sponsor = Array.isArray(data)
+          ? data.find((s: any) => s.UserEmail === auth.user?.profile?.email)
+          : data;
         if (sponsor && sponsor.UserOrganization) {
-          console.log("DEBUG: sponsorOrgID found:", sponsor.UserOrganization);
-          setSponsorOrgID(String(sponsor.UserOrganization)); // ensure it's a string
-        } else {
-          console.log("DEBUG: sponsor object didn't have a UserOrganization property");
+          setSponsorOrgID(String(sponsor.UserOrganization));
         }
-      } catch (error) {
-        console.error("ERROR fetching sponsor organization:", error);
-      }
+      } catch (error) {}
     };
     fetchSponsorOrg();
   }, [isSponsor, auth.user]);
-
-  // B) Once sponsorOrgID is known, fetch the sponsor's drivers
   useEffect(() => {
-    if (!sponsorOrgID) {
-      return;
-    }
-    console.log("DEBUG: sponsorOrgID -> fetch sponsor drivers...");
+    if (!sponsorOrgID) return;
     const fetchDrivers = async () => {
       const emails = await getSponsorDrivers(sponsorOrgID);
       setDriverEmails(emails || []);
     };
     fetchDrivers();
   }, [sponsorOrgID]);
-
-  // 3) Report state & fields
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState<any[]>([]);
-  // Additional filters (entered by admin, if needed)
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sponsorId, setSponsorId] = useState("");
   const [driverEmail, setDriverEmail] = useState("");
-
-  // 4) Generate Report
   const generateReport = async () => {
-    console.log("DEBUG: generateReport() -> selectedReport:", selectedReport);
-    console.log("DEBUG: startDate:", startDate, "endDate:", endDate);
-    console.log("DEBUG: userProvided sponsorId:", sponsorId, "driverEmail:", driverEmail);
-    console.log("DEBUG: isSponsor:", isSponsor, "sponsorOrgID:", sponsorOrgID);
-    console.log("DEBUG: driverEmails array:", driverEmails);
-
-    // Unified handling of the sponsor id:
-    // If sponsorOrgID exists, use it; otherwise, use the sponsorId entered by the admin.
     const finalSponsorId = String(sponsorOrgID || sponsorId || "");
-
-    console.log("DEBUG: finalSponsorId =", finalSponsorId);
-
     let data: any[] = [];
-
     try {
       switch (selectedReport) {
         case "Driver Point Changes": {
@@ -351,122 +244,82 @@ const Reports: React.FC = () => {
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
-          console.log("DEBUG: Full pointChanges data before filter:", fetched);
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.PointChangeDriver)
             );
-            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
           data = fetched;
           break;
         }
         case "Driver Applications": {
-          console.log("DEBUG: About to call getDriverApplications with:", {
-            startDate,
-            endDate,
-            finalSponsorId,
-            driverEmail,
-          });
           let fetched = await getDriverApplications(startDate, endDate, finalSponsorId, driverEmail);
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
-          console.log("DEBUG: Full driverApplications data before filter:", fetched);
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.ApplicationDriver)
             );
-            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
           data = fetched;
           break;
         }
         case "Purchases": {
-          console.log("DEBUG: About to call getPurchaseData with:", {
-            startDate,
-            endDate,
-            finalSponsorId,
-            driverEmail,
-          });
           let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail);
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
-          console.log("DEBUG: Full purchases data before filter:", fetched);
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.PurchaseDriver)
             );
-            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
           data = fetched;
           break;
         }
         case "Password Change Logs": {
           let fetched = await getPasswordChanges(startDate, endDate, driverEmail);
-          console.log("DEBUG: Full passwordChanges data before filter:", fetched);
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.user)
             );
-            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
           data = fetched;
           break;
         }
         case "Login Attempts Logs": {
           let fetched = await getLoginAttempts(startDate, endDate, driverEmail);
-          console.log("DEBUG: Full loginAttempts data before filter:", fetched);
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.user)
             );
-            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
           data = fetched;
           break;
         }
         default:
-          console.log("DEBUG: Unrecognized report, returning empty data");
           data = [];
           break;
       }
     } catch (err) {
-      console.error("ERROR in generateReport switch/catch:", err);
       data = [];
     }
-
-    console.log("DEBUG: final data from generateReport:", data);
     setReportData(data);
   };
-
-  // 5) Download PDF
   const downloadPDF = async () => {
-    console.log("DEBUG: Attempting to download PDF");
     const element = document.getElementById("report-content");
-    if (!element) {
-      console.error("ERROR: #report-content element not found");
-      return;
-    }
+    if (!element) return;
     try {
       const canvas = await html2canvas(element);
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF();
       pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
       pdf.save("report.pdf");
-    } catch (error) {
-      console.error("ERROR in downloadPDF:", error);
-    }
+    } catch (error) {}
   };
-
-  // 6) Download CSV
   const downloadCSV = () => {
-    console.log("DEBUG: Attempting to download CSV for data:", reportData);
-    if (!reportData || !Array.isArray(reportData) || reportData.length === 0) {
-      console.error("ERROR: No data available for CSV download.");
-      return;
-    }
+    if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
     const headers = Object.keys(reportData[0]).join(",");
     const rows = reportData.map((item) =>
       Object.values(item)
@@ -482,8 +335,6 @@ const Reports: React.FC = () => {
     link.click();
     URL.revokeObjectURL(url);
   };
-
-  // 7) Render Table Headers
   const renderTableHeaders = () => {
     if (selectedReport === "Driver Applications") {
       return (
@@ -531,7 +382,6 @@ const Reports: React.FC = () => {
         </TableRow>
       );
     } else {
-      // fallback / "Invoice" etc.
       return (
         <TableRow>
           <TableCell>Purchase Driver</TableCell>
@@ -542,13 +392,8 @@ const Reports: React.FC = () => {
       );
     }
   };
-
-  // 8) Render Table Rows
   const renderTableRows = () => {
-    if (!Array.isArray(reportData)) {
-      console.log("DEBUG: reportData is not an array, no rows to render");
-      return null;
-    }
+    if (!Array.isArray(reportData)) return null;
     if (selectedReport === "Driver Applications") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
@@ -607,8 +452,6 @@ const Reports: React.FC = () => {
       ));
     }
   };
-
-  // 9) Render Additional Filters (UI)
   const renderFilters = () => {
     const hideSponsorIdField =
       (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
@@ -658,8 +501,6 @@ const Reports: React.FC = () => {
     }
     return null;
   };
-
-  // ===================== RENDER COMPONENT =====================
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
@@ -681,16 +522,10 @@ const Reports: React.FC = () => {
       </div>
       {renderFilters()}
       <div className="flex items-center gap-4 mb-4">
-        <Button
-          variant={viewMode === "table" ? "contained" : "outlined"}
-          onClick={() => setViewMode("table")}
-        >
+        <Button variant={viewMode === "table" ? "contained" : "outlined"} onClick={() => setViewMode("table")}>
           Table
         </Button>
-        <Button
-          variant={viewMode === "chart" ? "contained" : "outlined"}
-          onClick={() => setViewMode("chart")}
-        >
+        <Button variant={viewMode === "chart" ? "contained" : "outlined"} onClick={() => setViewMode("chart")}>
           Chart
         </Button>
       </div>
