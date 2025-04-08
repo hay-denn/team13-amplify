@@ -502,14 +502,20 @@ export const SponsorApplyModal = ({
       alert("Driver email is required.");
       return;
     }
-    if (!selectedOrg) {
+    if (!selectedOrg && organizationIDInput === -1) {
       alert("Please select a sponsor.");
       return;
     }
 
+    if (!reason.trim()) {
+      alert("Reason for application is required.");
+      return;
+    }
+    const selectedOrgID = organizationIDInput !== -1 ? organizationIDInput : selectedOrg;
+
     const applicationData = {
       ApplicationDriver: driverEmail,
-      ApplicationOrganization: selectedOrg,
+      ApplicationOrganization: selectedOrgID,
       ApplicationStatus: "Submitted",
       ApplicationReason: reason,
     };
