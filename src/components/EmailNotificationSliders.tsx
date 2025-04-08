@@ -24,7 +24,7 @@ const EmailNotificationSliders: React.FC<EmailNotificationSlidersProps> = ({ ema
       const data = await response.json();
       setPointChangeEmail(data.DriverPointChangeNotification);
       setOrderPlaceEmail(data.DriverOrderPlacedNotification);
-      setOrderIssueEmail(data.DriverOrderIssueNotificaiton);
+      setOrderIssueEmail(data.DriverOrderIssueNotification);
     } catch (error) {
       console.error("Error fetching driver data:", error);
     }
@@ -55,7 +55,7 @@ const EmailNotificationSliders: React.FC<EmailNotificationSlidersProps> = ({ ema
       "DriverLName": lastName,
       "DriverPointChangeNotification": pointChangeEmail,
       "DriverOrderPlacedNotification": orderPlaceEmail,
-      "DriverOrderIssueNotificaiton": orderIssueEmail
+      "DriverOrderIssueNotification": orderIssueEmail
     };
     console.log(payload);
 

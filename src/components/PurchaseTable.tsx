@@ -93,9 +93,9 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
               "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1/driver?DriverEmail=" + encodeURIComponent(userEmail)
             );
             const data = await response.json();
-            if (data && data.DriverOrderIssueNotificaiton !== undefined) {
+            if (data && data.DriverOrderIssueNotification !== undefined) {
               // Here we assume the attribute appears only once and is either 1 or 0
-              setOrderIssueEmails(data.DriverOrderIssueNotificaiton);
+              setOrderIssueEmails(data.DriverOrderIssueNotification);
             }
           } catch (error) {
             console.error("Error fetching organizations:", error);
