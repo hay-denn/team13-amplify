@@ -102,6 +102,28 @@ async function getPasswordChanges(startDate?: string, endDate?: string, userEmai
   }
 }
 
+async function getLoginAttempts(startDate?: string, endDate?: string, userEmail?: string) {
+  const url = new URL(`${REPORTS_URL}/loginAttempts`);
+  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
+  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
+  if (userEmail && userEmail.trim() !== "") url.searchParams.append("UserEmail", userEmail);
+
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to fetch login attempts");
+    }
+    const data = await response.json();
+    data.forEach((item: any) => console.log("Login Attempt Data:", item));
+    return data;
+  } catch (error) {
+    console.error("Error fetching login attempts:", error);
+    return [];
+  }
+}
+
 async function getPurchaseData(startDate?: string, endDate?: string, sponsorId?: string, driverEmail?: string) {
     const url = new URL(`${REPORTS_URL}/purchases`);
     if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
@@ -153,6 +175,9 @@ const Reports: React.FC = () => {
         break;
       case "Password Change Logs":
         data = await getPasswordChanges(startDate, endDate, driverEmail);
+        break;
+      case "Login Attempts Logs":
+        data = await getLoginAttempts(startDate, endDate, driverEmail);
         break;
       case "Purchases":
         data = await getPurchaseData(startDate, endDate, sponsorId, driverEmail);
@@ -241,6 +266,14 @@ const Reports: React.FC = () => {
           <TableCell>Change Date</TableCell>
         </TableRow>
       );
+    } else if (selectedReport === "Login Attempts Logs") {
+        return (
+        <TableRow>
+            <TableCell>User Email</TableCell>
+            <TableCell>Attempt Date</TableCell>
+            <TableCell>Status</TableCell>
+        </TableRow>
+        );
     } else if (selectedReport === "Purchases") {
         return (
           <TableRow>
@@ -293,6 +326,14 @@ const Reports: React.FC = () => {
           <TableCell>{item.changeDate}</TableCell>
         </TableRow>
       ));
+    } else if (selectedReport === "Login Attempts Logs") {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.userEmail}</TableCell>
+          <TableCell>{item.attemptDate}</TableCell>
+          <TableCell>{item.status === 1 ? "Success" : item.status === 0 ? "Failed" : item.status}</TableCell>
+        </TableRow>
+      )); 
     } else if (selectedReport === "Purchases") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
@@ -319,7 +360,8 @@ const Reports: React.FC = () => {
       selectedReport === "Driver Point Changes" ||
       selectedReport === "Driver Applications" ||
       selectedReport === "Password Change Logs" ||
-      selectedReport === "Purchases"
+      selectedReport === "Purchases" ||
+      selectedReport === "Login Attempts Logs"
     ) {
       return (
         <div className="flex flex-col gap-4 mb-4">
@@ -346,7 +388,7 @@ const Reports: React.FC = () => {
             />
           )}
           <TextField
-            label={selectedReport === "Password Change Logs" ? "User Email" : "Driver Email"}
+            label={(selectedReport === "Password Change Logs" || selectedReport === "Login Attempts Logs") ? "User Email" : "Driver Email"}
             type="email"
             value={driverEmail}
             onChange={(e) => setDriverEmail(e.target.value)}
@@ -355,7 +397,6 @@ const Reports: React.FC = () => {
       );
     }
     
-
     return null;
   };
 
@@ -372,6 +413,7 @@ const Reports: React.FC = () => {
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
+            <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
             <MenuItem value="Purchases">Purchases</MenuItem>
             <MenuItem value="Invoice">Invoice</MenuItem>
           </Select>
