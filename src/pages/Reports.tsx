@@ -537,7 +537,7 @@ const Reports: React.FC = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-          {(selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReports === "Invoices") && !hideSponsorIdField && (
+          {(selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReport === "Invoices") && !hideSponsorIdField && (
             <TextField
               label="Sponsor ID"
               type="text"
