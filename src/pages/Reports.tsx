@@ -102,6 +102,29 @@ async function getPasswordChanges(startDate?: string, endDate?: string, userEmai
   }
 }
 
+async function getPurchaseData(startDate?: string, endDate?: string, driverEmail?: string, organizationID?: string) {
+    const url = new URL(`${REPORTS_URL}/purchases`);
+    if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
+    if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
+    if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
+    if (organizationID && organizationID.trim() !== "") url.searchParams.append("OrganizationID", organizationID);
+  
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error:", errorText);
+        throw new Error("Failed to fetch point changes");
+      }
+      const data = await response.json();
+      data.forEach((item: any) => console.log("Purchases Data:", item));
+      return await data;
+    } catch (error) {
+      console.error("Error fetching point changes:", error);
+      return [];
+    }
+  }
+
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
@@ -135,6 +158,12 @@ const Reports: React.FC = () => {
         break;
       case "Password Change Logs":
         data = await getPasswordChanges(startDate, endDate, driverEmail);
+        break;
+      case "Sales":
+        data = await getPurchaseData(startDate, endDate, driverEmail);
+        if (Array.isArray(data) && Array.isArray(data[0])) {
+          data = data[0];
+        }
         break;
       default:
         data = [];
@@ -190,6 +219,15 @@ const Reports: React.FC = () => {
           <TableCell>Change Date</TableCell>
         </TableRow>
       );
+    } else if (selectedReport === "Purchases") {
+        return (
+          <TableRow>
+            <TableCell>PurchaseDriver</TableCell>
+            <TableCell>OrganizationName</TableCell>
+            <TableCell>PurchaseDate</TableCell>
+            <TableCell>PurchaseStatus</TableCell>
+          </TableRow>
+        );
     } else {
         return (
         <TableRow>
@@ -233,6 +271,15 @@ const Reports: React.FC = () => {
           <TableCell>{item.changeDate}</TableCell>
         </TableRow>
       ));
+    } else if (selectedReport === "Purchases") {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+           <TableCell>{item.PurchaseDriver}</TableCell>
+           <TableCell>{item.OrganizationName}</TableCell>
+           <TableCell>{item.PurchaseDate}</TableCell>
+           <TableCell>{item.PurchaseStatus}</TableCell>
+        </TableRow>
+        ));
     } else {
         return reportData.map((item, index) => (
           <TableRow key={index}>
@@ -249,7 +296,8 @@ const Reports: React.FC = () => {
     if (
       selectedReport === "Driver Point Changes" ||
       selectedReport === "Driver Applications" ||
-      selectedReport === "Password Change Logs"
+      selectedReport === "Password Change Logs" ||
+      selectedReport === "Purchases"
     ) {
       return (
         <div className="flex flex-col gap-4 mb-4">
@@ -302,8 +350,7 @@ const Reports: React.FC = () => {
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
-            <MenuItem value="Sales By Driver">Sales By Driver</MenuItem>
-            <MenuItem value="Sales By Sponsor">Sales By Sponsor</MenuItem>
+            <MenuItem value="Purchases">Purchases</MenuItem>
             <MenuItem value="Invoice">Invoice</MenuItem>
           </Select>
         </FormControl>
