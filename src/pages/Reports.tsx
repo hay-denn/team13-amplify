@@ -54,7 +54,6 @@ async function getPointChanges(
       return [];
     }
     const data = await response.json();
-
     console.log("DEBUG: Raw data from getPointChanges:", data);
     return data;
   } catch (error) {
@@ -85,7 +84,6 @@ async function getDriverApplications(
       return [];
     }
     const data = await response.json();
-
     console.log("DEBUG: Raw data from getDriverApplications:", data);
     return data;
   } catch (error) {
@@ -188,22 +186,19 @@ const Reports: React.FC = () => {
   const auth = useAuth();
   console.log("DEBUG: Auth object:", auth);
 
-  // Check if the user is recognized as Sponsor
-  // For many Cognito setups, the sponsor role is in "custom:role"
+  // We'll store whether user is sponsor based on Cognito groups
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
 
   useEffect(() => {
-    // Adjust this if your ID token stores the role differently
-    const tokenRole = auth.user?.profile?.["custom:role"];
-    const sponsorCheck = tokenRole === "Sponsor";
+    // 1) Check the user's "cognito:groups" array in the ID token
+    console.log("DEBUG: user profile is:", auth.user?.profile);
+
+    const groupsTest = auth.user?.profile?.["cognito:groups"];
+    const groups = Array.isArray(groupsTest) ? groupsTest : [];
+    const sponsorCheck = groups.includes("Sponsor");
     setIsSponsor(sponsorCheck);
 
-    console.log(
-      "DEBUG: user role is:", 
-      tokenRole,
-      " -> isSponsor?",
-      sponsorCheck
-    );
+    console.log("DEBUG: user groups is:", groups, "-> isSponsor?", sponsorCheck);
   }, [auth.user]);
 
   // 2. Store sponsorOrgID from your DB
