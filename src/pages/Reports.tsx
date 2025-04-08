@@ -33,15 +33,25 @@ const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com
 const SPONSOR_DRIVERS_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
 
 /** ===================== API FUNCTIONS ===================== */
+
+// -- All updated to cast parameters to string before .trim()
+
 async function getPointChanges(
-  startDate?: string,
-  endDate?: string,
-  driverEmail?: string
+  startDate?: string | number,
+  endDate?: string | number,
+  driverEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/pointChanges`);
-  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
-  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-  if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
+
+  if (startDate && String(startDate).trim() !== "") {
+    url.searchParams.append("StartDate", String(startDate));
+  }
+  if (endDate && String(endDate).trim() !== "") {
+    url.searchParams.append("EndDate", String(endDate));
+  }
+  if (driverEmail && String(driverEmail).trim() !== "") {
+    url.searchParams.append("DriverEmail", String(driverEmail));
+  }
 
   console.log("DEBUG: getPointChanges() -> fetching:", url.toString());
 
@@ -62,16 +72,25 @@ async function getPointChanges(
 }
 
 async function getDriverApplications(
-  startDate?: string,
-  endDate?: string,
-  sponsorId?: string,
-  driverEmail?: string
+  startDate?: string | number,
+  endDate?: string | number,
+  sponsorId?: string | number,
+  driverEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/driverApplications`);
-  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
-  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-  if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
-  if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
+
+  if (startDate && String(startDate).trim() !== "") {
+    url.searchParams.append("StartDate", String(startDate));
+  }
+  if (endDate && String(endDate).trim() !== "") {
+    url.searchParams.append("EndDate", String(endDate));
+  }
+  if (sponsorId && String(sponsorId).trim() !== "") {
+    url.searchParams.append("SponsorID", String(sponsorId));
+  }
+  if (driverEmail && String(driverEmail).trim() !== "") {
+    url.searchParams.append("DriverEmail", String(driverEmail));
+  }
 
   console.log("DEBUG: getDriverApplications() -> fetching:", url.toString());
 
@@ -92,14 +111,21 @@ async function getDriverApplications(
 }
 
 async function getPasswordChanges(
-  startDate?: string,
-  endDate?: string,
-  userEmail?: string
+  startDate?: string | number,
+  endDate?: string | number,
+  userEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/passwordChanges`);
-  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
-  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-  if (userEmail && userEmail.trim() !== "") url.searchParams.append("UserEmail", userEmail);
+
+  if (startDate && String(startDate).trim() !== "") {
+    url.searchParams.append("StartDate", String(startDate));
+  }
+  if (endDate && String(endDate).trim() !== "") {
+    url.searchParams.append("EndDate", String(endDate));
+  }
+  if (userEmail && String(userEmail).trim() !== "") {
+    url.searchParams.append("UserEmail", String(userEmail));
+  }
 
   console.log("DEBUG: getPasswordChanges() -> fetching:", url.toString());
 
@@ -120,14 +146,21 @@ async function getPasswordChanges(
 }
 
 async function getLoginAttempts(
-  startDate?: string,
-  endDate?: string,
-  userEmail?: string
+  startDate?: string | number,
+  endDate?: string | number,
+  userEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/loginAttempts`);
-  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
-  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-  if (userEmail && userEmail.trim() !== "") url.searchParams.append("UserEmail", userEmail);
+
+  if (startDate && String(startDate).trim() !== "") {
+    url.searchParams.append("StartDate", String(startDate));
+  }
+  if (endDate && String(endDate).trim() !== "") {
+    url.searchParams.append("EndDate", String(endDate));
+  }
+  if (userEmail && String(userEmail).trim() !== "") {
+    url.searchParams.append("UserEmail", String(userEmail));
+  }
 
   console.log("DEBUG: getLoginAttempts() -> fetching:", url.toString());
 
@@ -148,16 +181,25 @@ async function getLoginAttempts(
 }
 
 async function getPurchaseData(
-  startDate?: string,
-  endDate?: string,
-  sponsorId?: string,
-  driverEmail?: string
+  startDate?: string | number,
+  endDate?: string | number,
+  sponsorId?: string | number,
+  driverEmail?: string | number
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/purchases`);
-  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
-  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-  if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
-  if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
+
+  if (startDate && String(startDate).trim() !== "") {
+    url.searchParams.append("StartDate", String(startDate));
+  }
+  if (endDate && String(endDate).trim() !== "") {
+    url.searchParams.append("EndDate", String(endDate));
+  }
+  if (sponsorId && String(sponsorId).trim() !== "") {
+    url.searchParams.append("SponsorID", String(sponsorId));
+  }
+  if (driverEmail && String(driverEmail).trim() !== "") {
+    url.searchParams.append("DriverEmail", String(driverEmail));
+  }
 
   console.log("DEBUG: getPurchaseData() -> fetching:", url.toString());
 
@@ -177,10 +219,6 @@ async function getPurchaseData(
   }
 }
 
-/** 
- * Fetch sponsor's drivers from 
- * e.g.: https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors?DriversSponsorID=3
- */
 async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[]> {
   const url = new URL(`${SPONSOR_DRIVERS_URL}/driverssponsors`);
   url.searchParams.append("DriversSponsorID", String(sponsorOrgID));
@@ -196,7 +234,6 @@ async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[
     }
 
     const data = await response.json();
-
     console.log("DEBUG: Raw data from getSponsorDrivers:", data);
 
     // We only want the "DriversEmail" from each object
@@ -211,9 +248,9 @@ async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[
 
 /** ===================== COMPONENT ===================== */
 const Reports: React.FC = () => {
-  console.log("DEBUG: <Reports /> mounting...");
+  console.log("DEBUG: <Reports /> component mounting...");
 
-  // 1) Auth + Sponsor detection (Cognito group)
+  // 1) Auth + Sponsor detection
   const auth = useAuth();
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
 
@@ -223,14 +260,14 @@ const Reports: React.FC = () => {
     const sponsorCheck = groups.includes("Sponsor");
     setIsSponsor(sponsorCheck);
 
-    console.log("DEBUG: user groups:", groups, "-> isSponsor?", sponsorCheck);
+    console.log("DEBUG: user groups is:", groups, "-> isSponsor?", sponsorCheck);
   }, [auth.user]);
 
-  // 2) Sponsor org ID + the driver emails for that sponsor
+  // 2) Sponsor org ID + driver emails
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
   const [driverEmails, setDriverEmails] = useState<string[]>([]);
 
-  // A) Fetch sponsor's org ID
+  // A) Get sponsorOrgID
   useEffect(() => {
     if (!isSponsor) {
       console.log("DEBUG: Not a sponsor -> skipping sponsorOrgID fetch.");
@@ -252,6 +289,7 @@ const Reports: React.FC = () => {
           throw new Error(`Failed to fetch sponsor: ${response.status}`);
         }
         const data = await response.json();
+
         console.log("DEBUG: raw sponsor data returned:", data);
 
         let sponsor;
@@ -263,7 +301,8 @@ const Reports: React.FC = () => {
 
         if (sponsor && sponsor.UserOrganization) {
           console.log("DEBUG: sponsorOrgID found:", sponsor.UserOrganization);
-          setSponsorOrgID(sponsor.UserOrganization);
+          // Convert to string so we don't have number vs. string issues
+          setSponsorOrgID(String(sponsor.UserOrganization));
         } else {
           console.log("DEBUG: sponsor object didn't have a UserOrganization property");
         }
@@ -275,7 +314,7 @@ const Reports: React.FC = () => {
     fetchSponsorOrg();
   }, [isSponsor, auth.user]);
 
-  // B) Once sponsorOrgID is known, fetch the sponsor's drivers
+  // B) Once we have sponsorOrgID, fetch sponsor's drivers
   useEffect(() => {
     if (!sponsorOrgID) {
       return;
@@ -326,7 +365,7 @@ const Reports: React.FC = () => {
           }
           console.log("DEBUG: Full pointChanges data before filter:", fetched);
 
-          // Filter by driverEmails
+          // Filter by driverEmails if sponsor
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.PointChangeDriver)
@@ -339,12 +378,7 @@ const Reports: React.FC = () => {
         }
 
         case "Driver Applications": {
-          let fetched = await getDriverApplications(
-            startDate,
-            endDate,
-            finalSponsorId,
-            driverEmail
-          );
+          let fetched = await getDriverApplications(startDate, endDate, finalSponsorId, driverEmail);
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
@@ -362,12 +396,7 @@ const Reports: React.FC = () => {
         }
 
         case "Purchases": {
-          let fetched = await getPurchaseData(
-            startDate,
-            endDate,
-            finalSponsorId,
-            driverEmail
-          );
+          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail);
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
@@ -388,7 +417,7 @@ const Reports: React.FC = () => {
           let fetched = await getPasswordChanges(startDate, endDate, driverEmail);
           console.log("DEBUG: Full passwordChanges data before filter:", fetched);
 
-          // If you want to only show logs for your sponsor drivers:
+          // Filter if you only want sponsor's drivers
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.user)
@@ -404,7 +433,7 @@ const Reports: React.FC = () => {
           let fetched = await getLoginAttempts(startDate, endDate, driverEmail);
           console.log("DEBUG: Full loginAttempts data before filter:", fetched);
 
-          // If you want to only show login attempts for your sponsor drivers:
+          // Filter if you only want sponsor's drivers
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.user)
@@ -601,7 +630,7 @@ const Reports: React.FC = () => {
     }
   };
 
-  // 9) Render Additional Filters in UI
+  // 9) Render Additional Filters (UI)
   const renderFilters = () => {
     const hideSponsorIdField =
       (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
