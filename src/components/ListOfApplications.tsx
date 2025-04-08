@@ -122,12 +122,13 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
               <td>{app.ApplicationStatus}</td>
               <td>{app.ApplicationDateSubmitted}</td>
               <td>
-                <button
-                  className="btn btn-link p-0"
-                  onClick={() => alert(app.ApplicationReason || "No reason provided")}
-                >
-                  View Reason
-                </button>
+                <div>
+                  {app.ApplicationReason ? (
+                  <span>{app.ApplicationReason}</span>
+                  ) : (
+                  <em>No reason provided</em>
+                  )}
+                </div>
               </td>
               <td>
                 <button
