@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "react-oidc-context"; // Make sure this is how you get auth
+import { useAuth } from "react-oidc-context"; // or however you're getting auth
 import {
   Button,
   Select,
@@ -27,7 +27,7 @@ import {
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-console.log("DEBUG: HELLO from the Reports component file!"); // Confirm file is loading
+console.log("DEBUG: HELLO from the Reports component file!");
 
 // ===================== CONSTANTS =====================
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
@@ -56,8 +56,6 @@ async function getPointChanges(
     const data = await response.json();
 
     console.log("DEBUG: Raw data from getPointChanges:", data);
-    // If data is an array of arrays, flatten it.
-    // We'll just return it as-is here; the caller can flatten if needed
     return data;
   } catch (error) {
     console.error("ERROR in getPointChanges:", error);
@@ -191,17 +189,21 @@ const Reports: React.FC = () => {
   console.log("DEBUG: Auth object:", auth);
 
   // Check if the user is recognized as Sponsor
-  // (Adjust this logic to match your actual user claims)
+  // For many Cognito setups, the sponsor role is in "custom:role"
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
 
   useEffect(() => {
-    // Example of how you might detect sponsor role
-    // If your ID token has a custom claim, e.g., auth.user?.profile?.["custom:role"] === "Sponsor"
-    const role = auth.user?.profile?.role; 
-    const sponsorCheck = (role === "Sponsor");
+    // Adjust this if your ID token stores the role differently
+    const tokenRole = auth.user?.profile?.["custom:role"];
+    const sponsorCheck = tokenRole === "Sponsor";
     setIsSponsor(sponsorCheck);
 
-    console.log("DEBUG: user role is:", role, " -> isSponsor?", sponsorCheck);
+    console.log(
+      "DEBUG: user role is:", 
+      tokenRole,
+      " -> isSponsor?",
+      sponsorCheck
+    );
   }, [auth.user]);
 
   // 2. Store sponsorOrgID from your DB
@@ -263,7 +265,7 @@ const Reports: React.FC = () => {
   // Additional filters
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [sponsorId, setSponsorId] = useState(""); // from user input
+  const [sponsorId, setSponsorId] = useState("");
   const [driverEmail, setDriverEmail] = useState("");
 
   // 4. Generate Report
@@ -273,8 +275,8 @@ const Reports: React.FC = () => {
     console.log("DEBUG: userProvided sponsorId:", sponsorId, "driverEmail:", driverEmail);
     console.log("DEBUG: isSponsor:", isSponsor, "sponsorOrgID:", sponsorOrgID);
 
-    // If the user is a sponsor, we override the sponsorId with sponsorOrgID
-    let finalSponsorId = sponsorId; 
+    // If the user is a sponsor, override the sponsorId with sponsorOrgID
+    let finalSponsorId = sponsorId;
     if (isSponsor && sponsorOrgID) {
       finalSponsorId = sponsorOrgID;
       console.log("DEBUG: Overriding sponsorId with sponsorOrgID ->", finalSponsorId);
@@ -287,17 +289,15 @@ const Reports: React.FC = () => {
         case "Driver Point Changes": {
           let fetched = await getPointChanges(startDate, endDate, driverEmail);
 
-          // If the data is arrays of arrays, flatten the first level
+          // Some APIs return [[...]]; flatten if needed
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
 
-          // If the backend doesn't filter by sponsor ID, do it manually (assuming there's an org field):
+          // Filter by sponsor org ID if sponsor
           if (isSponsor && sponsorOrgID) {
             console.log("DEBUG: Filtering pointChanges by sponsorOrgID:", sponsorOrgID);
-            // Adjust to match your actual org field in the data:
             fetched = fetched.filter((item: any) => {
-              // Example if your DB returns something like: item.PointChangeSponsorOrgID
               return item.PointChangeSponsorOrgID === sponsorOrgID;
             });
             console.log("DEBUG: Data AFTER sponsor org filter:", fetched);
@@ -522,11 +522,9 @@ const Reports: React.FC = () => {
 
   // 9. Optional filters in the UI
   const renderFilters = () => {
-    // For sponsor, you might hide the sponsorId field (if you want to force their org)
     const hideSponsorIdField =
       (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
 
-    // Show relevant filters
     if (
       selectedReport === "Driver Point Changes" ||
       selectedReport === "Driver Applications" ||
