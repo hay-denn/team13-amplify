@@ -512,7 +512,7 @@ const Reports: React.FC = () => {
   };
   const renderFilters = () => {
     const hideSponsorIdField =
-      (selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReport === "Invoices") && isSponsor;
+      (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
     if (
       selectedReport === "Driver Point Changes" ||
       selectedReport === "Driver Applications" ||
@@ -545,6 +545,7 @@ const Reports: React.FC = () => {
               onChange={(e) => setSponsorId(e.target.value)}
             />
           )}
+          {selectedReport !== "Invoices" && (
           <TextField
             label={
               selectedReport === "Password Change Logs" || selectedReport === "Login Attempts Logs"
@@ -555,6 +556,7 @@ const Reports: React.FC = () => {
             value={driverEmail}
             onChange={(e) => setDriverEmail(e.target.value)}
           />
+          )}
         </div>
       );
     }
