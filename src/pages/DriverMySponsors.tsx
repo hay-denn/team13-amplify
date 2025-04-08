@@ -26,9 +26,10 @@ export const DriverMySponsors: React.FC = () => {
     ? JSON.parse(storedImpersonation)
     : null;
 
-  const userEmail = impersonation
-    ? impersonation.email
-    : authContext?.user?.profile?.email || "";
+  // const userEmail = impersonation
+  //   ? impersonation.email
+  //   : authContext?.user?.profile?.email || "";
+  const userEmail = "noahnisbet3@gmail.com";
 
   const [sponsors, setSponsors] = useState<SponsorRecord[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -70,7 +71,7 @@ export const DriverMySponsors: React.FC = () => {
 
     const fetchSponsors = async () => {
       try {
-        const response = await fetch(`${sponsorApiUrl}/driversponsors?DriversEmail=${encodeURIComponent(userEmail)}`);
+        const response = await fetch(`${sponsorApiUrl}/driverssponsors?DriversEmail=${encodeURIComponent(userEmail)}`);
         const data = await response.json();
 
         if (!Array.isArray(data)) {
@@ -93,7 +94,7 @@ export const DriverMySponsors: React.FC = () => {
   const handleRemoveSponsor = async (sponsorID: number) => {
     try {
       const response = await fetch(
-        `${sponsorApiUrl}/driversponsor?DriversEmail=${encodeURIComponent(userEmail)}&DriversSponsorID=${sponsorID}`,
+        `${sponsorApiUrl}/driverssponsor?DriversEmail=${encodeURIComponent(userEmail)}&DriversSponsorID=${sponsorID}`,
         {
           method: "DELETE",
         }
