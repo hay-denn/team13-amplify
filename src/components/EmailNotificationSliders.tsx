@@ -57,6 +57,7 @@ const EmailNotificationSliders: React.FC<EmailNotificationSlidersProps> = ({ ema
       "DriverOrderPlacedNotification": orderPlaceEmail,
       "DriverOrderIssueNotificaiton": orderIssueEmail
     };
+    console.log(payload);
 
     try {
       const response = await fetch(
