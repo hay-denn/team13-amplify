@@ -420,10 +420,10 @@ const Reports: React.FC = () => {
         </div>
       </Card>
 
-      <Button className="mt-4" variant="contained" onClick={downloadPDF}>
+      <Button className="mt-4 mx-2" variant="contained" onClick={downloadPDF}>
         Download PDF
       </Button>
-      <Button className="mt-4" variant="contained" onClick={downloadCSV}>
+      <Button className="mt-4 mx-2" variant="contained" onClick={downloadCSV}>
         Download CSV
       </Button>
     </div>
