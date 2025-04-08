@@ -174,6 +174,33 @@ async function getPurchaseData(
   }
 }
 
+async function getInvoices(
+    startDate?: string | number,
+    endDate?: string | number,
+    sponsorId?: string | number
+  ): Promise<any[]> {
+    const url = new URL(`${REPORTS_URL}/purchases`);
+    if (startDate && String(startDate).trim() !== "") {
+      url.searchParams.append("StartDate", String(startDate));
+    }
+    if (endDate && String(endDate).trim() !== "") {
+      url.searchParams.append("EndDate", String(endDate));
+    }
+    if (sponsorId && String(sponsorId).trim() !== "") {
+      url.searchParams.append("SponsorID", String(sponsorId));
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        await response.text();
+        return [];
+      }
+      return await response.json();
+    } catch (error) {
+      return [];
+    }
+  }
+
 async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[]> {
   const url = new URL(`${SPONSOR_DRIVERS_URL}/driverssponsors`);
   url.searchParams.append("DriversSponsorID", String(sponsorOrgID));
@@ -278,6 +305,19 @@ const Reports: React.FC = () => {
           data = fetched;
           break;
         }
+        case "Invoices": {
+          let fetched = await getInvoices(startDate, endDate, finalSponsorId);
+          if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
+            fetched = fetched[0];
+          }
+          if (isSponsor && driverEmails.length > 0) {
+            fetched = fetched.filter((item) =>
+              driverEmails.includes(item.PurchaseDriver)
+            );
+          }
+          data = fetched;
+          break;
+        }
         case "Password Change Logs": {
           let fetched = await getPasswordChanges(startDate, endDate, driverEmail);
           if (isSponsor && driverEmails.length > 0) {
@@ -365,6 +405,15 @@ const Reports: React.FC = () => {
           <TableCell>PurchaseStatus</TableCell>
         </TableRow>
       );
+    } else if (selectedReport === "Invoices") {
+      return (
+        <TableRow>
+          <TableCell>PurchaseDriver</TableCell>
+          <TableCell>OrganizationName</TableCell>
+          <TableCell>PurchaseDate</TableCell>
+          <TableCell>PurchaseStatus</TableCell>
+        </TableRow>
+      );
     } else if (selectedReport === "Password Change Logs") {
       return (
         <TableRow>
@@ -415,6 +464,15 @@ const Reports: React.FC = () => {
         </TableRow>
       ));
     } else if (selectedReport === "Purchases") {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.PurchaseDriver}</TableCell>
+          <TableCell>{item.OrganizationName}</TableCell>
+          <TableCell>{item.PurchaseDate}</TableCell>
+          <TableCell>{item.PurchaseStatus}</TableCell>
+        </TableRow>
+      ));
+    } else if (selectedReport === "Invoices") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
           <TableCell>{item.PurchaseDriver}</TableCell>
@@ -478,7 +536,7 @@ const Reports: React.FC = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-          {(selectedReport === "Driver Applications" || selectedReport === "Purchases") && !hideSponsorIdField && (
+          {(selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReport === "Invoices") && !hideSponsorIdField && (
             <TextField
               label="Sponsor ID"
               type="text"
@@ -513,7 +571,7 @@ const Reports: React.FC = () => {
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
             <MenuItem value="Purchases">Purchases</MenuItem>
-            <MenuItem value="Invoice">Invoice</MenuItem>
+            <MenuItem value="Invoices">Invoices</MenuItem>
           </Select>
         </FormControl>
         <Button variant="contained" onClick={generateReport}>
