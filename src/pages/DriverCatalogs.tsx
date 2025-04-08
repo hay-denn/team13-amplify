@@ -2,12 +2,14 @@ import { useState } from "react";
 import DisplayCatalog from "../components/DisplayCatalog";
 import { DriverCatalogsTest } from "./DriverCatalogsTest";
 import "./DriverCatalogs.css";
+
 interface DriverCatalogsProps {
   inputUserEmail: string;
 }
 
 export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
-  const [selectedOrgId, setSelectedOrgId] = useState<number>(13);
+  // Use null to indicate no org is selected
+  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
 
   // This callback is passed down and called by the child when the user selects an org
   const handleSelectedOrgChange = (orgId: number) => {
@@ -21,8 +23,7 @@ export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
         <p className="centered-paragraph">
           Browse and purchase items from your sponsor organizations.
           <br />
-          Select a Sponsor from your organizations from the list below to view
-          their catalog!
+          Select a Sponsor from your organizations from the list below to view their catalog!
         </p>
       </div>
 
@@ -31,7 +32,14 @@ export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
         onOrganizationSelect={handleSelectedOrgChange}
       />
 
-      <DisplayCatalog currentCatalog={selectedOrgId} />
+      {/* Only display the catalog if an organization has been selected */}
+      {selectedOrgId ? (
+        <DisplayCatalog currentCatalog={selectedOrgId} />
+      ) : (
+        <div>Please select an organization to view the catalog.</div>
+      )}
     </div>
   );
 };
+
+export default DriverCatalogs;

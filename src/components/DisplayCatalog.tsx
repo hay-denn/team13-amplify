@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useCart } from "../pages/CartContext";
 import "./Catalog.css";
@@ -46,14 +46,13 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const [maxPrice, setMaxPrice] = useState(100);
 
   const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(0);
 
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
   const [artistFilter, setArtistFilter] = useState("");
 
   // Store all fetched results in memory
   const [allResults, setAllResults] = useState<CatalogItem[]>([]);
-  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
-  const [page, setPage] = useState(0);
 
   const { addToCart } = useCart();
 
@@ -71,12 +70,12 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     }
   };
 
-  //Loads the current catalog displayed based on the prop passed in
-  //runs when currOrgID changes
+  // Loads organization data when currOrgId changes
   useEffect(() => {
     fetchOrganization();
   }, [currOrgId]);
 
+  // Once we have org data, set relevant states
   useEffect(() => {
     if (!organizationData) return;
     setPageSize(organizationData.AmountOfProducts || 10);
@@ -86,11 +85,17 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
   }, [organizationData]);
 
+  // If the organization has a searchTerm, fetch
   useEffect(() => {
     if (searchTerm.trim()) {
       handleFetchAll();
     }
   }, [searchTerm, type, maxPrice, pageSize]);
+
+  // Reset pagination when sort or filter changes
+  useEffect(() => {
+    setPage(0);
+  }, [sortOrder, artistFilter]);
 
   const handleFetchAll = async () => {
     try {
@@ -107,7 +112,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         const response = await axios.get(url);
         const batch = response.data.results as CatalogItem[];
 
-        // If we got zero results, stop
         if (batch.length === 0) {
           keepFetching = false;
         } else {
@@ -119,19 +123,31 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         }
       }
 
-      setAllResults(fetchedItems);
-      setPage(0);
+      // Deduplicate by trackId
+      const seen = new Set<number>();
+      const uniqueItems = fetchedItems.filter((item) => {
+        if (seen.has(item.trackId)) return false;
+        seen.add(item.trackId);
+        return true;
+      });
+
+      setAllResults(uniqueItems);
     } catch (error) {
       console.error("Error fetching catalog:", error);
     }
   };
 
+  // If currentCatalog changes, update currOrgId
   useEffect(() => {
     setCurrOrgId(currentCatalog);
   }, [currentCatalog]);
 
-  useEffect(() => {
-    let filtered = allResults.filter((item) => item.trackPrice <= maxPrice);
+  // Now compute the filtered, sorted, and paginated catalog using useMemo
+  const catalog = useMemo(() => {
+    let filtered = allResults.filter((item) => {
+      const price = Number(item.trackPrice);
+      return price > 0 && price <= maxPrice;
+    });
 
     if (artistFilter.trim()) {
       filtered = filtered.filter((item) =>
@@ -140,24 +156,20 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     }
 
     if (sortOrder === "asc") {
-      filtered.sort((a, b) => a.trackPrice - b.trackPrice);
+      filtered.sort((a, b) => Number(a.trackPrice) - Number(b.trackPrice));
     } else if (sortOrder === "desc") {
-      filtered.sort((a, b) => b.trackPrice - a.trackPrice);
+      filtered.sort((a, b) => Number(b.trackPrice) - Number(a.trackPrice));
     }
 
-    // Now we do local pagination
     const startIdx = page * pageSize;
     const endIdx = startIdx + pageSize;
-    const pageResults = filtered.slice(startIdx, endIdx);
-
-    setCatalog(pageResults);
+    return filtered.slice(startIdx, endIdx);
   }, [allResults, sortOrder, artistFilter, page, pageSize, maxPrice]);
 
   // Pagination controls
   const handleNextPage = () => {
-    // Only go to next page if there are more items left
     const totalItems = allResults.filter(
-      (item) => item.trackPrice <= maxPrice
+      (item) => Number(item.trackPrice) > 0 && Number(item.trackPrice) <= maxPrice
     ).length;
     const maxPage = Math.floor(totalItems / pageSize);
     if (page < maxPage) {
@@ -175,8 +187,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return <div>Please Select An Organization</div>;
   }
 
-  //This function handles adding an item to cart
-
+  // Function to add an item to the cart
   const handleTestAddItems = (item: CatalogItem) => {
     const cartItem = [
       {
@@ -224,75 +235,64 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
             <span>
               Max Price: <strong>${maxPrice}</strong> | Point to Dollar Ratio:{" "}
               <strong>{priceToPointRatio}</strong> | Organization Category
-              (Term):
+              (Term):{" "}
               {!organizationData.SearchTerm ? (
-                <span>
-                  <b> Your Org Has Selected The Default Catalog</b>
-                </span>
+                <b>Your Org Has Selected The Default Catalog</b>
               ) : (
-                <span>
-                  <b> {organizationData.SearchTerm}</b>
-                </span>
+                <b>{organizationData.SearchTerm}</b>
               )}
             </span>
-
-            {/* {organizationData.LogoUrl && (
-              <div className="my-3">
-                <img
-                  src={organizationData.LogoUrl}
-                  alt={organizationData.OrganizationName}
-                  style={{ width: "100px", height: "100px" }}
-                />
-              </div>
-            )} */}
           </div>
         </div>
 
         {/* Catalog grid */}
         <div className="row">
-          {catalog.map((item) => (
-            <div key={item.trackId} className="col-sm-6 col-md-4 col-lg-3 mb-4">
-              <div className="card h-100 catalog-card">
-                <img
-                  src={item.artworkUrl100}
-                  alt={item.trackName}
-                  className="card-img-top"
-                />
+          {catalog.map((item) => {
+            const price = Number(item.trackPrice);
+            return (
+              <div key={item.trackId} className="col-sm-6 col-md-4 col-lg-3 mb-4">
+                <div className="card h-100 catalog-card">
+                  <img
+                    src={item.artworkUrl100}
+                    alt={item.trackName}
+                    className="card-img-top"
+                  />
 
-                <div className="card-body limited-card-height">
-                  <h6 className="card-title mb-2">{item.trackName}</h6>
-                  <p className="card-text text-muted mb-2">
-                    ${item.trackPrice} •{" "}
-                    {(item.trackPrice * priceToPointRatio).toFixed(2)} points
-                  </p>
-                  <p className="mb-1">
-                    <strong>Artist:</strong> {item.artistName}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Collection:</strong> {item.collectionName}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Release Date:</strong>{" "}
-                    {new Date(item.releaseDate).toLocaleDateString()}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Genre:</strong> {item.primaryGenreName}
-                  </p>
-                  <p className="card-text">
-                    {item.longDescription ||
-                      item.shortDescription ||
-                      "No description available."}
-                  </p>
+                  <div className="card-body limited-card-height">
+                    <h6 className="card-title mb-2">{item.trackName}</h6>
+                    <p className="card-text text-muted mb-2">
+                      ${price.toFixed(2)} •{" "}
+                      {(price * priceToPointRatio).toFixed(2)} points
+                    </p>
+                    <p className="mb-1">
+                      <strong>Artist:</strong> {item.artistName}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Collection:</strong> {item.collectionName}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Release Date:</strong>{" "}
+                      {new Date(item.releaseDate).toLocaleDateString()}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Genre:</strong> {item.primaryGenreName}
+                    </p>
+                    <p className="card-text">
+                      {item.longDescription ||
+                        item.shortDescription ||
+                        "No description available."}
+                    </p>
+                  </div>
+                  <button
+                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                    onClick={() => handleTestAddItems(item)}
+                  >
+                    Add To Cart
+                  </button>
                 </div>
-                <button
-                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={() => handleTestAddItems(item)}
-                >
-                  Add To Cart
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
