@@ -512,13 +512,14 @@ const Reports: React.FC = () => {
   };
   const renderFilters = () => {
     const hideSponsorIdField =
-      (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
+      (selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReport === "Invoices") && isSponsor;
     if (
       selectedReport === "Driver Point Changes" ||
       selectedReport === "Driver Applications" ||
       selectedReport === "Password Change Logs" ||
       selectedReport === "Purchases" ||
-      selectedReport === "Login Attempts Logs"
+      selectedReport === "Login Attempts Logs" ||
+      selectedReport === "Invoices"
     ) {
       return (
         <div className="flex flex-col gap-4 mb-4">
@@ -536,7 +537,7 @@ const Reports: React.FC = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-          {(selectedReport === "Driver Applications" || selectedReport === "Purchases") && !hideSponsorIdField && (
+          {(selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReports === "Invoices") && !hideSponsorIdField && (
             <TextField
               label="Sponsor ID"
               type="text"
