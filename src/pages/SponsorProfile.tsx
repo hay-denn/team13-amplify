@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { SponsorApplyModal } from "../components/Modal";
 import "./SponsorProfile.css";
 
 const APPLICATION_POST_URL =
@@ -33,6 +34,7 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
   const [sponsor, setSponsor] = useState<Sponsor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   // -- States for "Apply" button feedback --
   const [applyError, setApplyError] = useState<string | null>(null);
@@ -120,6 +122,7 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
 
   // 4) Layout with "Apply" button
   return (
+    <>
     <div className="sponsor-profile-container">
       {sponsor.LogoUrl && (
         <img
@@ -167,8 +170,11 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
       </div>
 
       <div className="mt-4">
-        <button className="apply-button" onClick={handleApply}>
-          Apply to Sponsor
+        <button
+          className="apply-button"
+          onClick={() => setShowModal(true)}
+        >
+          Apply Now!
         </button>
         {applyError && <p className="text-red-500 mt-2">{applyError}</p>}
         {applySuccess && (
@@ -176,5 +182,13 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
         )}
       </div>
     </div>
+    <SponsorApplyModal
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        driverEmail={userEmail}
+        organizationIDInput={sponsor.OrganizationID}
+        fetchApplications={() => {}}
+      />
+    </>
   );
 };

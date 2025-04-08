@@ -467,14 +467,18 @@ export const SponsorApplyModal = ({
   show, 
   handleClose, 
   driverEmail, 
-  fetchApplications}: { 
+  fetchApplications,
+  organizationIDInput=-1}: { 
     show: boolean; 
     handleClose: () => void; 
-    driverEmail: string; 
+    driverEmail: string;
     fetchApplications: () => void;
+    organizationIDInput?: number;
   }) => {
+  
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedOrg, setSelectedOrgID] = useState<number | null>(null);
+  const [reason, setReason] = useState<string>("");
   
   useEffect(() => {
     if (show) {
@@ -507,6 +511,8 @@ export const SponsorApplyModal = ({
       ApplicationDriver: driverEmail,
       ApplicationOrganization: selectedOrg,
       ApplicationStatus: "Submitted",
+      ApplicationReason: reason,
+      ApplicationDateSubmitted: new Date().toISOString(),
     };
 
     try {
@@ -551,22 +557,34 @@ export const SponsorApplyModal = ({
                   <Form.Group className="mb-3">
                     <Form.Label>Select Sponsor</Form.Label>
                     <Form.Select
-                      value={selectedOrg ?? ""}
+                      value={organizationIDInput !== -1 ? organizationIDInput : selectedOrg ?? ""}
                       onChange={(e) => setSelectedOrgID(Number(e.target.value))}
                       required
+                      disabled={organizationIDInput !== -1} // Make dropdown read-only if organizationIDInput is provided
                     >
                       <option value="" disabled>
-                        -- Select a Sponsor --
+                      -- Select a Sponsor --
                       </option>
                       {organizations.map((sponsor) => (
-                        <option
-                          key={sponsor.OrganizationID}
-                          value={sponsor.OrganizationID}
-                        >
-                          {sponsor.OrganizationName}
-                        </option>
+                      <option
+                        key={sponsor.OrganizationID}
+                        value={sponsor.OrganizationID}
+                      >
+                        {sponsor.OrganizationName}
+                      </option>
                       ))}
                     </Form.Select>
+                  </Form.Group>
+
+                  {/* Add application reason */}
+                  <Form.Group className="mb-3">
+                      <Form.Label>Reason for Application</Form.Label>
+                      <Form.Control
+                          as="textarea"
+                          rows={3}
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                      />
                   </Form.Group>
 
                   {/* Submit Button */}
