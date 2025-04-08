@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./HomeStyles.css";
+import "./DriverMyApplications.css";
 
 //-------------------------------------
 // Interfaces
@@ -11,6 +12,8 @@ interface Application {
   ApplicationSponsorUser: string | null;
   ApplicationStatus: string;
   ApplicationDateSubmitted: string;
+  ApplicationDecisionReason: string | null;
+  ApplicationReason: string | null;
   OrganizationName?: string;
 }
 
@@ -20,32 +23,29 @@ interface Organization {
 }
 
 interface DriverMyApplicationsProps {
-  inputUserEmail: string; 
+  inputUserEmail: string;
 }
-
 
 //-------------------------------------
 // Main Component
 //-------------------------------------
 export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) => {
+  const storedImpersonation = localStorage.getItem("impersonatingDriver");
+  const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
 
-	const storedImpersonation = localStorage.getItem("impersonatingDriver");
-  const impersonation = storedImpersonation
-    ? JSON.parse(storedImpersonation)
-    : null;
-
-	const userEmail = impersonation
+  const userEmail = impersonation
     ? impersonation.email
     : inputUserEmail.inputUserEmail || "";
-
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const applicationsPerPage = 5;
+
   const orgApiUrl = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
-  const appsApiUrl =
-    "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
+  const appsApiUrl = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
 
   //-------------------------------------
   // Fetch Organizations
@@ -103,6 +103,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
         });
 
         setApplications(appsWithOrgNames);
+        setCurrentPage(1); // Reset to first page when data is fetched
       } catch (error) {
         console.error("Error fetching applications:", error);
       }
@@ -115,7 +116,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
   // Cancel an Application
   //-------------------------------------
   const handleCancelApplication = async (applicationID: number) => {
-    console.log("Cancel button clicked for ID:", applicationID); // 👈 Add this
+    console.log("Cancel button clicked for ID:", applicationID);
 
     try {
       const response = await fetch(
@@ -124,20 +125,33 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
           method: "DELETE",
         }
       );
-  
+
       if (!response.ok) {
         throw new Error(`Failed to cancel application. Status: ${response.status}`);
       }
-  
+
       console.log("Application canceled successfully!");
-      setApplications((prev) =>
-        prev.filter((app) => app.ApplicationID !== applicationID)
-      );
+      setApplications((prev) => prev.filter((app) => app.ApplicationID !== applicationID));
     } catch (error) {
       console.error("Error canceling application:", error);
     }
   };
-  
+
+  //-------------------------------------
+  // Pagination Logic
+  //-------------------------------------
+  const indexOfLastApp = currentPage * applicationsPerPage;
+  const indexOfFirstApp = indexOfLastApp - applicationsPerPage;
+  const currentApplications = applications.slice(indexOfFirstApp, indexOfLastApp);
+  const totalPages = Math.ceil(applications.length / applicationsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
 
   //-------------------------------------
   // Render
@@ -149,40 +163,59 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
       {applications.length === 0 ? (
         <p>No applications found.</p>
       ) : (
-        <div className="applications-container">
-          {applications.map((app) => (
-            <div key={app.ApplicationID} className="application-card">
-              {/* Date submitted */}
-              <span className="application-date">
-                {app.ApplicationDateSubmitted
-                  ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  : "N/A"}
-              </span>
+        <>
+          <div className="applications-container">
+            {currentApplications.map((app) => (
+              <div key={app.ApplicationID} className="application-card">
+                <span className="application-date">
+                  {app.ApplicationDateSubmitted
+                    ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    : "N/A"}
+                </span>
 
-              {/* Current status (e.g., "Submitted") */}
-              <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
-                {app.ApplicationStatus}
-              </span>
+                <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
+                  {app.ApplicationStatus}
+                </span>
 
-              {/* Organization name */}
-              <p>{app.OrganizationName || "Unknown Organization"}</p>
+                <p>{app.OrganizationName || "Unknown Organization"}</p>
 
-              {/* "Cancel" button only if status is "Submitted" */}
-              {app.ApplicationStatus.toLowerCase() === "submitted" && (
-                <button
-                  className="btn btn-danger cancel-button"
-                  onClick={() => handleCancelApplication(app.ApplicationID)}
-                >
-                  Cancel
-                </button>
-              )}
+                <p>
+                  {app.ApplicationStatus.toLowerCase() !== "submitted" && (
+                    <>
+                      <strong>Application Decision Reason:</strong>
+                      {app.ApplicationDecisionReason || " No reason provided."}
+                    </>
+                  )}
+                </p>
+
+                {app.ApplicationStatus.toLowerCase() === "submitted" && (
+                  <button
+                    className="btn btn-danger cancel-button"
+                    onClick={() => handleCancelApplication(app.ApplicationID)}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination-controls">
+              <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                Previous
+              </button>
+              <span>Page {currentPage} of {totalPages}</span>
+              <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+                Next
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -32,6 +32,7 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [newStatus, setNewStatus] = useState("");
+  const [reason, setReason] = useState("");
 
   const handleShowModal = (app: Application) => {
     setSelectedApp(app);
@@ -61,6 +62,7 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
             ApplicationSponsorUser: driver_email,
             ApplicationID: selectedApp.ApplicationID,
             ApplicationStatus: newStatus,
+            ApplicationDecisionReason: reason
           }),
         }
       );
@@ -136,31 +138,44 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           {selectedApp && (
             <>
               <p>
-                <strong>Application ID: </strong>
-                {selectedApp.ApplicationID}
+              <strong>Application ID: </strong>
+              {selectedApp.ApplicationID}
               </p>
               <p>
-                <strong>Driver: </strong>
-                {selectedApp.ApplicationDriver}
+              <strong>Driver: </strong>
+              {selectedApp.ApplicationDriver}
               </p>
               <p>
-                <strong>Current Status: </strong>
-                {selectedApp.ApplicationStatus}
+              <strong>Current Status: </strong>
+              {selectedApp.ApplicationStatus}
               </p>
 
               <label htmlFor="statusSelect" className="form-label">
-                New Status:
+              New Status:
               </label>
               <select
-                id="statusSelect"
-                className="form-select"
-                value={newStatus}
-                onChange={handleStatusChange}
+              id="statusSelect"
+              className="form-select"
+              value={newStatus}
+              onChange={handleStatusChange}
               >
-                <option value="Submitted">Change Status</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
+              <option value="Submitted">Change Status</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
               </select>
+
+              <label htmlFor="reasonInput" className="form-label mt-3">
+              Reason for Status Change:
+              </label>
+              <textarea
+              className="form-control"
+              id="reasonInput"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Enter reason for status change"
+              rows={4}
+              style={{ resize: "vertical" }}
+              />
             </>
           )}
         </Modal.Body>
