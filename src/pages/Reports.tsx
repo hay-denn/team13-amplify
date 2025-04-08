@@ -329,9 +329,9 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Login Attempts Logs") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
-          <TableCell>{item.userEmail}</TableCell>
-          <TableCell>{item.attemptDate}</TableCell>
-          <TableCell>{item.status === 1 ? "Success" : item.status === 0 ? "Failed" : item.status}</TableCell>
+          <TableCell>{item.user}</TableCell>
+          <TableCell>{item.loginDate}</TableCell>
+          <TableCell>{item.success === 1 ? "Success" : item.success === 0 ? "Failed" : item.success}</TableCell>
         </TableRow>
       )); 
     } else if (selectedReport === "Purchases") {
