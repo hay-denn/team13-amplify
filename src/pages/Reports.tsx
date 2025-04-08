@@ -151,11 +151,6 @@ const Reports: React.FC = () => {
           data = data[0];
         }
         break;
-      case "Sales By Driver":
-        data = [{PurchaseDriver: "Driver1", PurchasePrice: "$8.99", PurchaseDate: "2000-12-10", PurchaseStatus: "Complete"},
-            {PurchaseDriver: "Driver2", PurchasePrice: "$18.99", PurchaseDate: "2000-12-10", PurchaseStatus: "Canceled"}
-        ];
-        break;
       case "Password Change Logs":
         data = await getPasswordChanges(startDate, endDate, driverEmail);
         break;
