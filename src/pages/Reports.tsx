@@ -43,7 +43,6 @@ async function getPointChanges(startDate?: string, endDate?: string, driverEmail
       throw new Error("Failed to fetch point changes");
     }
     const data = await response.json();
-    data.forEach((item: any) => console.log("Point Change Data:", item));
     return await data;
   } catch (error) {
     console.error("Error fetching point changes:", error);
@@ -72,7 +71,6 @@ async function getDriverApplications(
       throw new Error("Failed to fetch driver applications");
     }
     const data = await response.json();
-    data.forEach((item: any) => console.log("Driver Application Data:", item));
     return await data;
   } catch (error) {
     console.error("Error fetching driver applications:", error);
@@ -94,7 +92,6 @@ async function getPasswordChanges(startDate?: string, endDate?: string, userEmai
       throw new Error("Failed to fetch password change logs");
     }
     const data = await response.json();
-    data.forEach((item: any) => console.log("Password Change Data:", item));
     return await data;
   } catch (error) {
     console.error("Error fetching password changes:", error);
@@ -116,7 +113,6 @@ async function getLoginAttempts(startDate?: string, endDate?: string, userEmail?
       throw new Error("Failed to fetch login attempts");
     }
     const data = await response.json();
-    data.forEach((item: any) => console.log("Login Attempt Data:", item));
     return data;
   } catch (error) {
     console.error("Error fetching login attempts:", error);
@@ -139,7 +135,6 @@ async function getPurchaseData(startDate?: string, endDate?: string, sponsorId?:
         throw new Error("Failed to fetch point changes");
       }
       const data = await response.json();
-      data.forEach((item: any) => console.log("Purchases Data:", item));
       return await data;
     } catch (error) {
       console.error("Error fetching point changes:", error);
@@ -159,6 +154,7 @@ async function getPurchaseData(startDate?: string, endDate?: string, sponsorId?:
         console.error("Server error:", errorText);
         throw new Error("Failed to fetch drivers for sponsor");
       }
+      console.log("Response URL:", url.toString());
       return await response.json();
     } catch (error) {
       console.error("Error fetching drivers for sponsor:", error);
@@ -237,7 +233,6 @@ const Reports: React.FC = () => {
         data = data.filter((item) => allowedEmails.includes(item[filterKey]));
       }
     }
-    console.log("Fetched data:", data);
     setReportData(data);
   };
 
