@@ -1,78 +1,114 @@
-import { Link } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./CompanyList.css";
+import { Bar, BarChart, Cell, Legend, Tooltip, XAxis, YAxis } from "recharts";
 
-import {
-  Bar,
-  BarChart,
-  Legend,
-  Rectangle,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+interface OrganizationPurchases {
+  OrgId: number;
+  OrgName: string;
+  NumberOfPurchases?: number;
+}
+
 import { CartesianGrid, ResponsiveContainer } from "recharts";
 export const ListOfOrganizationsBox = () => {
-  const data = [
-    {
-      name: "January",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Febuary",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "March",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "April",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "May",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "June",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "July",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
+  const org_url = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+
+  const purchase_url =
+    "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
+
+  const [organizationPurchaseInfo, setOrganizationPurchaseInfo] = useState<
+    OrganizationPurchases[]
+  >([]);
+
+  const [purchaseIDs, setPurchaseIDs] = useState<number[]>([]);
+
+  const transformData = (data: any): OrganizationPurchases => ({
+    OrgId: data.OrganizationID,
+    OrgName: data.OrganizationName,
+    NumberOfPurchases: 0, //starts at 0
+  });
+
+  const fetchOrganizations = async () => {
+    try {
+      const response = await axios.get(`${org_url}/organizations`);
+
+      const newDataArray = Array.isArray(response.data)
+        ? response.data.map(transformData)
+        : [transformData(response.data)];
+
+      // Append the new data to the existing state
+      setOrganizationPurchaseInfo(newDataArray);
+    } catch (error) {
+      console.error("Error fetching organization data:", error);
+    }
+  };
+
+  const fetchPurchases = async () => {
+    try {
+      const response = await axios.get(`${purchase_url}/purchases`);
+
+      const ids: number[] = response.data.map(
+        (purchase: any) => purchase.PurchaseSponsorID
+      );
+      setPurchaseIDs(ids);
+    } catch (error) {
+      console.error("Error fetching organization data:", error);
+    }
+  };
+
+  const updateOrganizationPurchaseCounts = () => {
+    const updatedOrgs = organizationPurchaseInfo.map((org) => {
+      const count = purchaseIDs.filter((id) => id === org.OrgId).length;
+      return { ...org, NumberOfPurchases: count };
+    });
+    setOrganizationPurchaseInfo(updatedOrgs);
+  };
+
+  //This function gets the top 7 organizations
+  const getTopOrganizations = (
+    orgs: OrganizationPurchases[]
+  ): OrganizationPurchases[] => {
+    return [...orgs]
+      .sort((a, b) => (b.NumberOfPurchases ?? 0) - (a.NumberOfPurchases ?? 0))
+      .slice(0, 7);
+  };
+
+  useEffect(() => {
+    fetchOrganizations();
+    fetchPurchases();
+  }, []);
+
+  useEffect(() => {
+    if (organizationPurchaseInfo.length && purchaseIDs.length) {
+      updateOrganizationPurchaseCounts();
+    }
+  }, [organizationPurchaseInfo, purchaseIDs]);
+
+  const colors = [
+    "#8884d8",
+    "#82ca9d",
+    "#ffc658",
+    "#ff7f50",
+    "#87CEFA",
+    "#9370DB",
+    "#3CB371",
   ];
+
   return (
     <>
       <div className="chartBox">
         <div className="boxInfo">
           <div className="title">
-            <img src="/user.svg" alt="" />
-            <span>List Of Companies</span>
+            <img src="/images/Purchase.png" alt="" />
+            <span>Companies with the Most Purchases:</span>
           </div>
-
-          <h1>10</h1>
-          <Link to="/DriverManagement">"View users"</Link>
           <div className="chartInfo">
             <div className="chart"></div>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart
                 width={500}
                 height={300}
-                data={data}
+                data={getTopOrganizations(organizationPurchaseInfo)}
                 margin={{
                   top: 5,
                   right: 30,
@@ -81,26 +117,54 @@ export const ListOfOrganizationsBox = () => {
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+
+                <XAxis dataKey="OrgName" />
+                <YAxis
+                  label={{
+                    value: "Total Purchases",
+                    angle: -90,
+                    dx: -20,
+                    dy: 0,
+                  }}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar
-                  dataKey="pv"
-                  fill="#8884d8"
-                  activeBar={<Rectangle fill="pink" stroke="blue" />}
-                />
-                <Bar
-                  dataKey="uv"
-                  fill="#82ca9d"
-                  activeBar={<Rectangle fill="gold" stroke="purple" />}
-                />
+                <Bar dataKey="NumberOfPurchases">
+                  {getTopOrganizations(organizationPurchaseInfo).map(
+                    (_entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={colors[index % colors.length]}
+                      />
+                    )
+                  )}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
             <div className="texts"></div>
           </div>
         </div>
       </div>
+      {/* <div>
+        {organizationPurchaseInfo.map((org) => (
+          <div key={org.OrgId}>
+            <h2>{org.OrgName}</h2>
+            <p>Organization ID: {org.OrgId}</p>
+            <p>Total Purchases: {org.NumberOfPurchases}</p>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h1>Purchase IDs</h1>
+        <ul>
+          <ul>
+            {purchaseIDs.map((id) => (
+              <li key={id}>{id}</li>
+            ))}
+          </ul>
+        </ul>
+      </div> */}
     </>
   );
 };
