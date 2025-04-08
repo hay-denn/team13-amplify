@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "react-oidc-context"; // or however you're getting auth
+import { useAuth } from "react-oidc-context";
 import {
   Button,
   Select,
@@ -190,11 +190,9 @@ const Reports: React.FC = () => {
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
 
   useEffect(() => {
-    // 1) Check the user's "cognito:groups" array in the ID token
-    console.log("DEBUG: user profile is:", auth.user?.profile);
-
-    const groupsTest = auth.user?.profile?.["cognito:groups"];
-    const groups = Array.isArray(groupsTest) ? groupsTest : [];
+    // Grab the user's groups from cognito:groups
+    const maybeGroups = auth.user?.profile?.["cognito:groups"];
+    const groups = Array.isArray(maybeGroups) ? maybeGroups : [];
     const sponsorCheck = groups.includes("Sponsor");
     setIsSponsor(sponsorCheck);
 
@@ -283,29 +281,33 @@ const Reports: React.FC = () => {
       switch (selectedReport) {
         case "Driver Point Changes": {
           let fetched = await getPointChanges(startDate, endDate, driverEmail);
-        
-          // Flatten if your API returns [[...]]
+
+          // Some APIs return [[...]], flatten if needed
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
-        
-          // Log each item to confirm the property name & type
+
           console.log("DEBUG: Full pointChanges data before filter:", fetched);
-        
+
+          // If the backend doesn't filter by sponsor ID, do it manually
           if (isSponsor && sponsorOrgID) {
             console.log("DEBUG: Filtering pointChanges by sponsorOrgID:", sponsorOrgID);
-            fetched = fetched.filter((item) => {
-              console.log(
-                "DEBUG: item.PointChangeSponsorOrgID =", 
-                item.PointChangeSponsorOrgID
-              );
-        
-              // Compare them both as strings, for example
-              return String(item.PointChangeSponsorOrgID) === String(sponsorOrgID);
+
+            // LOG each item to see exactly which fields are there
+            fetched.forEach((item, idx) => {
+              console.log(`DEBUG: item #${idx}`, item);
             });
+
+            // *** If the actual field in your data is something else,
+            // *** change 'SponsorOrgID' below to match that field.
+            fetched = fetched.filter((item) => {
+              // Convert both sides to string if needed (in case it's "3" vs 3)
+              return String(item.SponsorOrgID) === String(sponsorOrgID);
+            });
+
             console.log("DEBUG: Data AFTER sponsor org filter:", fetched);
           }
-        
+
           data = fetched;
           break;
         }
