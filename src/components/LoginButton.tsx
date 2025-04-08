@@ -7,38 +7,39 @@ import { Link } from "react-router-dom";
 export const LoginButton = () => {
 	const auth = useAuth();
 	const authContext = useContext(AuthContext);
-
+  
 	const handleLogout = async () => {
-	try {
+	  try {
 		await authContext?.removeUser();
 		signOutRedirect();
 		console.log("User removed from session");
-	} catch (error) {
+	  } catch (error) {
 		console.error("Error removing user from session", error);
-	}
+	  }
 	};
-
+  
 	return auth.isAuthenticated ? (
-	<Link
+	  <Link
 		to="#"
 		onClick={(e) => {
-			e.preventDefault();
-			handleLogout();
+		  e.preventDefault();
+		  handleLogout();
 		}}
-		className="nav-links"
-	>
+		className="login-link"
+	  >
 		Sign Out
-	</Link>
+	  </Link>
 	) : (
-	<Link
+	  <Link
 		to="#"
 		onClick={(e) => {
-			e.preventDefault();
-			auth.signinRedirect();
+		  e.preventDefault();
+		  auth.signinRedirect();
 		}}
-		className="nav-links"
-	>
+		className="login-link"
+	  >
 		Sign In
-	</Link>
+	  </Link>
 	);
-};
+  };
+  

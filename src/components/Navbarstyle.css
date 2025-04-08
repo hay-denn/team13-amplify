@@ -15,6 +15,8 @@
     z-index: 1000;
 }
 
+
+    
 .topbar-right {
     display: flex;
     gap: 15px;
@@ -347,3 +349,26 @@ width: 100%;
     .nav-catalog:hover{
         color: white;
     }
+
+.login-link {
+    text-decoration: none;
+    color: white; /* desired default color */
+    /* Other styling as needed */
+    }
+    
+    @media screen and (max-width: 850px) {
+    .login-link {
+        color: white !important; /* force the color on smaller screens */
+    }
+    }
+    .login-link:hover {
+        background-color: rgb(71, 163, 109);
+    }
+
+    @media screen and (max-width: 600px) {
+        .site-name,
+        .topbar-tagline {
+          display: none;
+        }
+      }
+      
