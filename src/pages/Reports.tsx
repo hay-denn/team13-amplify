@@ -30,7 +30,7 @@ import { useAuth } from "react-oidc-context";
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
-// API calls (unchanged)
+// API calls
 async function getPointChanges(startDate?: string, endDate?: string, driverEmail?: string) {
   const url = new URL(`${REPORTS_URL}/pointChanges`);
   if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
@@ -161,11 +161,11 @@ async function getDriversForSponsor(sponsorId: string) {
 const Reports: React.FC = () => {
   const auth = useAuth();
 
-  // Track if logged in user is a sponsor and store sponsor ID (UserOrganization)
+  // Track if logged in user is a sponsor and store the sponsor ID (UserOrganization)
   const [isSponsor, setIsSponsor] = useState(false);
   const [sponsorId, setSponsorId] = useState("");
 
-  // Fetch sponsor details similar to your ListOfUsersTable logic.  
+  // Fetch sponsor details similar to your ListOfUsersTable logic.
   useEffect(() => {
     const email = auth.user?.profile?.email;
     if (!email) return; // Exit early if email is undefined.
@@ -192,10 +192,9 @@ const Reports: React.FC = () => {
         console.error("Error fetching sponsor organization:", err);
       }
     };
-  
+
     fetchSponsorOrg();
   }, [auth.user?.profile?.email]);
-  
 
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
@@ -243,6 +242,7 @@ const Reports: React.FC = () => {
       data = [];
     }
 
+    // If sponsorId exists, filter the data for allowed driver emails.
     if (sponsorId.trim() !== "") {
       const drivers = await getDriversForSponsor(sponsorId);
       console.log("Drivers for Sponsor:", drivers);
@@ -394,9 +394,11 @@ const Reports: React.FC = () => {
         <TableRow key={index}>
           <TableCell>{item.user}</TableCell>
           <TableCell>{item.loginDate}</TableCell>
-          <TableCell>{item.success === 1 ? "Success" : item.success === 0 ? "Failed" : item.success}</TableCell>
+          <TableCell>
+            {item.success === 1 ? "Success" : item.success === 0 ? "Failed" : item.success}
+          </TableCell>
         </TableRow>
-      )); 
+      ));
     } else if (selectedReport === "Purchases") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
@@ -475,7 +477,6 @@ const Reports: React.FC = () => {
         </div>
       );
     }
-    
     return null;
   };
 
