@@ -185,6 +185,33 @@ const Reports: React.FC = () => {
     }
   };
 
+  const downloadCSV = () => {
+    if (!reportData || !Array.isArray(reportData) || reportData.length === 0) {
+        console.error("No data available for CSV download.");
+        return;
+    }
+    
+    // Extract headers from the first data object
+    const headers = Object.keys(reportData[0]).join(",");
+    
+    // Generate rows
+    const rows = reportData.map(item =>
+        Object.values(item).map(value => `"${value}"`).join(",")
+    );
+    
+    // Combine headers and rows into CSV format
+    const csvContent = [headers, ...rows].join("\n");
+    
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "report.csv";
+    link.click();
+    URL.revokeObjectURL(url); // Clean up
+  };
+
   const renderTableHeaders = () => {
     if (selectedReport === "Driver Applications") {
       return (
@@ -395,6 +422,9 @@ const Reports: React.FC = () => {
 
       <Button className="mt-4" variant="contained" onClick={downloadPDF}>
         Download PDF
+      </Button>
+      <Button className="mt-4" variant="contained" onClick={downloadCSV}>
+        Download CSV
       </Button>
     </div>
   );
