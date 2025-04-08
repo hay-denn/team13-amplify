@@ -14,6 +14,8 @@ interface Application {
   ApplicationSponsorUser: string;
   ApplicationStatus: string;
   ApplicationDateSubmitted: string;
+  ApplicationDecisionReason: string | null;
+  ApplicationReason: string | null;
 }
 
 interface Props {
@@ -106,6 +108,7 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
             <th scope="col">Sponsor User</th>
             <th scope="col">Status</th>
             <th scope="col">Date Submitted</th>
+            <th scope="col">Application Reason</th>
             <th>Options</th>
           </tr>
         </thead>
@@ -118,6 +121,14 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
               <td>{app.ApplicationSponsorUser}</td>
               <td>{app.ApplicationStatus}</td>
               <td>{app.ApplicationDateSubmitted}</td>
+              <td>
+                <button
+                  className="btn btn-link p-0"
+                  onClick={() => alert(app.ApplicationReason || "No reason provided")}
+                >
+                  View Reason
+                </button>
+              </td>
               <td>
                 <button
                   className="btn btn-primary"
