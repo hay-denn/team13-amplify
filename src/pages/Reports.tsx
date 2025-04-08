@@ -102,12 +102,12 @@ async function getPasswordChanges(startDate?: string, endDate?: string, userEmai
   }
 }
 
-async function getPurchaseData(startDate?: string, endDate?: string, driverEmail?: string, organizationID?: string) {
+async function getPurchaseData(startDate?: string, endDate?: string, driverEmail?: string, sponsorId?: string) {
     const url = new URL(`${REPORTS_URL}/purchases`);
     if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
     if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
     if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
-    if (organizationID && organizationID.trim() !== "") url.searchParams.append("OrganizationID", organizationID);
+    if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
   
     try {
       const response = await fetch(url.toString());
@@ -159,8 +159,8 @@ const Reports: React.FC = () => {
       case "Password Change Logs":
         data = await getPasswordChanges(startDate, endDate, driverEmail);
         break;
-      case "Sales":
-        data = await getPurchaseData(startDate, endDate, driverEmail);
+      case "Purchases":
+        data = await getPurchaseData(startDate, endDate, sponsorId, driverEmail);
         if (Array.isArray(data) && Array.isArray(data[0])) {
           data = data[0];
         }
