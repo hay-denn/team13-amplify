@@ -16,7 +16,7 @@ export const MenuInfoSponsoredDriver = [
     title: "Explore Sponsors",
     url: "/sponsors",
     cName: "nav-links",
-    icon: "fa-solid fa-building"
+    icon: "fa-solid fa-building",
   },
 
   /*
@@ -40,7 +40,7 @@ export const MenuInfoSponsoredDriver = [
     url: "/myapplications",
     cName: "nav-links",
     icon: "fa-solid fa-file-signature",
-  }
+  },
 ];
 
 export const MenuInfoNewUser = [
@@ -60,8 +60,8 @@ export const MenuInfoNewUser = [
     title: "Explore Sponsors",
     url: "/sponsors",
     cName: "nav-links",
-    icon: "fa-solid fa-building"
-  }
+    icon: "fa-solid fa-building",
+  },
 ];
 
 export const MenuAdmin = [
@@ -78,11 +78,17 @@ export const MenuAdmin = [
     icon: "fa-solid fa-store",
   },
   {
+    title: "Manage Sponsors",
+    url: "/managesponsors",
+    cName: "nav-links",
+    icon: "fa-solid fa-store",
+  },
+  {
     title: "Reports",
     url: "/reports",
     cName: "nav-links",
     icon: "fa-solid fa-chart-simple",
-  }
+  },
 ];
 
 export const MenuInfoSponsor = [
