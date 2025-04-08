@@ -27,16 +27,9 @@ import {
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-console.log("DEBUG: HELLO from the Reports component file!");
-
-/** ===================== CONSTANTS ===================== */
+// ===================== CONSTANTS =====================
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-
-/** 
- * New endpoint to fetch sponsor drivers 
- * (update if the actual base URL differs) 
- */
 const SPONSOR_DRIVERS_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
 
 /** ===================== API FUNCTIONS ===================== */
@@ -184,12 +177,11 @@ async function getPurchaseData(
   }
 }
 
-/**
- * NEW function to get the sponsor's drivers. 
- * Replace field names with whatever your API returns.
+/** 
+ * Fetch sponsor's drivers from 
+ * e.g.: https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors?DriversSponsorID=3
  */
 async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[]> {
-  // Example: https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors?DriversSponsorID=3
   const url = new URL(`${SPONSOR_DRIVERS_URL}/driverssponsors`);
   url.searchParams.append("DriversSponsorID", String(sponsorOrgID));
 
@@ -207,13 +199,7 @@ async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[
 
     console.log("DEBUG: Raw data from getSponsorDrivers:", data);
 
-    // Each object looks like:
-    // {
-    //   "DriversEmail": "someemail@example.com",
-    //   "DriversSponsorID": 3,
-    //   "DriversPoints": "20.00"
-    // }
-    // We only want the email.
+    // We only want the "DriversEmail" from each object
     const emails = data.map((item: any) => item.DriversEmail);
     console.log("DEBUG: Extracted driverEmails:", emails);
     return emails;
@@ -225,32 +211,26 @@ async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[
 
 /** ===================== COMPONENT ===================== */
 const Reports: React.FC = () => {
-  console.log("DEBUG: <Reports /> component mounting...");
+  console.log("DEBUG: <Reports /> mounting...");
 
-  // ------------------ 1. Auth + Sponsor detection ------------------
+  // 1) Auth + Sponsor detection (Cognito group)
   const auth = useAuth();
-  console.log("DEBUG: Auth object:", auth);
-
-  // We'll store whether user is sponsor based on Cognito groups
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
 
   useEffect(() => {
-    // Grab the user's groups from "cognito:groups"
     const maybeGroups = auth.user?.profile?.["cognito:groups"];
     const groups = Array.isArray(maybeGroups) ? maybeGroups : [];
     const sponsorCheck = groups.includes("Sponsor");
     setIsSponsor(sponsorCheck);
 
-    console.log("DEBUG: user groups is:", groups, "-> isSponsor?", sponsorCheck);
+    console.log("DEBUG: user groups:", groups, "-> isSponsor?", sponsorCheck);
   }, [auth.user]);
 
-  // ------------------ 2. Store sponsorOrgID and fetch driver emails ------------------
+  // 2) Sponsor org ID + the driver emails for that sponsor
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
-
-  // We'll store the list of driver emails for that sponsor
   const [driverEmails, setDriverEmails] = useState<string[]>([]);
 
-  // A) Get sponsorOrgID
+  // A) Fetch sponsor's org ID
   useEffect(() => {
     if (!isSponsor) {
       console.log("DEBUG: Not a sponsor -> skipping sponsorOrgID fetch.");
@@ -260,9 +240,6 @@ const Reports: React.FC = () => {
       console.log("DEBUG: No email found -> skipping sponsorOrgID fetch.");
       return;
     }
-
-    // If sponsor, fetch the org
-    console.log("DEBUG: Attempting to fetch sponsor org for email:", auth.user.profile.email);
 
     const fetchSponsorOrg = async () => {
       try {
@@ -275,7 +252,6 @@ const Reports: React.FC = () => {
           throw new Error(`Failed to fetch sponsor: ${response.status}`);
         }
         const data = await response.json();
-
         console.log("DEBUG: raw sponsor data returned:", data);
 
         let sponsor;
@@ -299,13 +275,12 @@ const Reports: React.FC = () => {
     fetchSponsorOrg();
   }, [isSponsor, auth.user]);
 
-  // B) Once we have sponsorOrgID, fetch all drivers for that sponsor
+  // B) Once sponsorOrgID is known, fetch the sponsor's drivers
   useEffect(() => {
     if (!sponsorOrgID) {
-      console.log("DEBUG: sponsorOrgID is null, skipping driver fetch");
       return;
     }
-    console.log("DEBUG: sponsorOrgID has changed. Attempting to fetch sponsor drivers...");
+    console.log("DEBUG: sponsorOrgID -> fetch sponsor drivers...");
 
     const fetchDrivers = async () => {
       const emails = await getSponsorDrivers(sponsorOrgID);
@@ -315,7 +290,7 @@ const Reports: React.FC = () => {
     fetchDrivers();
   }, [sponsorOrgID]);
 
-  // ------------------ 3. Report state & fields ------------------
+  // 3) Report state & fields
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState<any[]>([]);
@@ -326,7 +301,7 @@ const Reports: React.FC = () => {
   const [sponsorId, setSponsorId] = useState("");
   const [driverEmail, setDriverEmail] = useState("");
 
-  // ------------------ 4. Generate Report ------------------
+  // 4) Generate Report
   const generateReport = async () => {
     console.log("DEBUG: generateReport() -> selectedReport:", selectedReport);
     console.log("DEBUG: startDate:", startDate, "endDate:", endDate);
@@ -334,7 +309,6 @@ const Reports: React.FC = () => {
     console.log("DEBUG: isSponsor:", isSponsor, "sponsorOrgID:", sponsorOrgID);
     console.log("DEBUG: driverEmails array:", driverEmails);
 
-    // If the user is a sponsor, override the sponsorId with sponsorOrgID
     let finalSponsorId = sponsorId;
     if (isSponsor && sponsorOrgID) {
       finalSponsorId = sponsorOrgID;
@@ -347,20 +321,16 @@ const Reports: React.FC = () => {
       switch (selectedReport) {
         case "Driver Point Changes": {
           let fetched = await getPointChanges(startDate, endDate, driverEmail);
-
-          // Some APIs return [[...]], flatten if needed
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
-
           console.log("DEBUG: Full pointChanges data before filter:", fetched);
 
-          // If the user is sponsor, filter by driverEmails
+          // Filter by driverEmails
           if (isSponsor && driverEmails.length > 0) {
-            fetched = fetched.filter((item) => {
-              // item.PointChangeDriver should match one of driverEmails
-              return driverEmails.includes(item.PointChangeDriver);
-            });
+            fetched = fetched.filter((item) =>
+              driverEmails.includes(item.PointChangeDriver)
+            );
             console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
 
@@ -369,14 +339,44 @@ const Reports: React.FC = () => {
         }
 
         case "Driver Applications": {
-          let fetched = await getDriverApplications(startDate, endDate, finalSponsorId, driverEmail);
+          let fetched = await getDriverApplications(
+            startDate,
+            endDate,
+            finalSponsorId,
+            driverEmail
+          );
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
           console.log("DEBUG: Full driverApplications data before filter:", fetched);
 
           if (isSponsor && driverEmails.length > 0) {
-            fetched = fetched.filter((item) => driverEmails.includes(item.ApplicationDriver));
+            fetched = fetched.filter((item) =>
+              driverEmails.includes(item.ApplicationDriver)
+            );
+            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
+          }
+
+          data = fetched;
+          break;
+        }
+
+        case "Purchases": {
+          let fetched = await getPurchaseData(
+            startDate,
+            endDate,
+            finalSponsorId,
+            driverEmail
+          );
+          if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
+            fetched = fetched[0];
+          }
+          console.log("DEBUG: Full purchases data before filter:", fetched);
+
+          if (isSponsor && driverEmails.length > 0) {
+            fetched = fetched.filter((item) =>
+              driverEmails.includes(item.PurchaseDriver)
+            );
             console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
 
@@ -385,32 +385,30 @@ const Reports: React.FC = () => {
         }
 
         case "Password Change Logs": {
-          // Probably these logs don't have a concept of "driver" or sponsor,
-          // but if you still want to filter by driverEmails, do so.
-          data = await getPasswordChanges(startDate, endDate, driverEmail);
+          let fetched = await getPasswordChanges(startDate, endDate, driverEmail);
+          console.log("DEBUG: Full passwordChanges data before filter:", fetched);
 
-          // If you want to filter out non-sponsor's drivers:
-          // data = data.filter((item) => driverEmails.includes(item.user));
+          // If you want to only show logs for your sponsor drivers:
+          if (isSponsor && driverEmails.length > 0) {
+            fetched = fetched.filter((item) =>
+              driverEmails.includes(item.user)
+            );
+            console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
+          }
+
+          data = fetched;
           break;
         }
 
         case "Login Attempts Logs": {
-          data = await getLoginAttempts(startDate, endDate, driverEmail);
-          // Similarly, if you only want sponsor drivers:
-          // data = data.filter((item) => driverEmails.includes(item.user));
-          break;
-        }
+          let fetched = await getLoginAttempts(startDate, endDate, driverEmail);
+          console.log("DEBUG: Full loginAttempts data before filter:", fetched);
 
-        case "Purchases": {
-          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail);
-          if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
-            fetched = fetched[0];
-          }
-
-          console.log("DEBUG: Full purchases data before filter:", fetched);
-
+          // If you want to only show login attempts for your sponsor drivers:
           if (isSponsor && driverEmails.length > 0) {
-            fetched = fetched.filter((item) => driverEmails.includes(item.PurchaseDriver));
+            fetched = fetched.filter((item) =>
+              driverEmails.includes(item.user)
+            );
             console.log("DEBUG: Data AFTER driverEmails filter:", fetched);
           }
 
@@ -432,7 +430,7 @@ const Reports: React.FC = () => {
     setReportData(data);
   };
 
-  // ------------------ 5. Download PDF ------------------
+  // 5) Download PDF
   const downloadPDF = async () => {
     console.log("DEBUG: Attempting to download PDF");
     const element = document.getElementById("report-content");
@@ -451,7 +449,7 @@ const Reports: React.FC = () => {
     }
   };
 
-  // ------------------ 6. Download CSV ------------------
+  // 6) Download CSV
   const downloadCSV = () => {
     console.log("DEBUG: Attempting to download CSV for data:", reportData);
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) {
@@ -476,7 +474,7 @@ const Reports: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  // ------------------ 7. Render Table Headers ------------------
+  // 7) Render Table Headers
   const renderTableHeaders = () => {
     if (selectedReport === "Driver Applications") {
       return (
@@ -498,6 +496,15 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
+    } else if (selectedReport === "Purchases") {
+      return (
+        <TableRow>
+          <TableCell>PurchaseDriver</TableCell>
+          <TableCell>OrganizationName</TableCell>
+          <TableCell>PurchaseDate</TableCell>
+          <TableCell>PurchaseStatus</TableCell>
+        </TableRow>
+      );
     } else if (selectedReport === "Password Change Logs") {
       return (
         <TableRow>
@@ -514,17 +521,8 @@ const Reports: React.FC = () => {
           <TableCell>Status</TableCell>
         </TableRow>
       );
-    } else if (selectedReport === "Purchases") {
-      return (
-        <TableRow>
-          <TableCell>PurchaseDriver</TableCell>
-          <TableCell>OrganizationName</TableCell>
-          <TableCell>PurchaseDate</TableCell>
-          <TableCell>PurchaseStatus</TableCell>
-        </TableRow>
-      );
     } else {
-      // fallback (e.g., "Invoice" or something else)
+      // fallback / "Invoice" etc.
       return (
         <TableRow>
           <TableCell>Purchase Driver</TableCell>
@@ -536,7 +534,7 @@ const Reports: React.FC = () => {
     }
   };
 
-  // ------------------ 8. Render Table Rows ------------------
+  // 8) Render Table Rows
   const renderTableRows = () => {
     if (!Array.isArray(reportData)) {
       console.log("DEBUG: reportData is not an array, no rows to render");
@@ -563,6 +561,15 @@ const Reports: React.FC = () => {
           <TableCell>{item.PointChangeReason}</TableCell>
         </TableRow>
       ));
+    } else if (selectedReport === "Purchases") {
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.PurchaseDriver}</TableCell>
+          <TableCell>{item.OrganizationName}</TableCell>
+          <TableCell>{item.PurchaseDate}</TableCell>
+          <TableCell>{item.PurchaseStatus}</TableCell>
+        </TableRow>
+      ));
     } else if (selectedReport === "Password Change Logs") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
@@ -581,15 +588,6 @@ const Reports: React.FC = () => {
           </TableCell>
         </TableRow>
       ));
-    } else if (selectedReport === "Purchases") {
-      return reportData.map((item, index) => (
-        <TableRow key={index}>
-          <TableCell>{item.PurchaseDriver}</TableCell>
-          <TableCell>{item.OrganizationName}</TableCell>
-          <TableCell>{item.PurchaseDate}</TableCell>
-          <TableCell>{item.PurchaseStatus}</TableCell>
-        </TableRow>
-      ));
     } else {
       // fallback
       return reportData.map((item, index) => (
@@ -603,7 +601,7 @@ const Reports: React.FC = () => {
     }
   };
 
-  // ------------------ 9. Render Additional Filters (UI) ------------------
+  // 9) Render Additional Filters in UI
   const renderFilters = () => {
     const hideSponsorIdField =
       (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
@@ -655,7 +653,7 @@ const Reports: React.FC = () => {
     return null;
   };
 
-  // ------------------ RENDERING THE COMPONENT ------------------
+  // ===================== RENDER =====================
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
@@ -706,7 +704,7 @@ const Reports: React.FC = () => {
             </TableContainer>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              {/* Simple example chart for "Driver Point Changes" */}
+              {/* Example chart for "Driver Point Changes" */}
               <BarChart data={reportData}>
                 <XAxis dataKey="PointChangeDriver" />
                 <YAxis />
