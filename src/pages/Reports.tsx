@@ -102,12 +102,12 @@ async function getPasswordChanges(startDate?: string, endDate?: string, userEmai
   }
 }
 
-async function getPurchaseData(startDate?: string, endDate?: string, driverEmail?: string, sponsorId?: string) {
+async function getPurchaseData(startDate?: string, endDate?: string, sponsorId?: string, driverEmail?: string) {
     const url = new URL(`${REPORTS_URL}/purchases`);
     if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
     if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-    if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
     if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
+    if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
   
     try {
       const response = await fetch(url.toString());
