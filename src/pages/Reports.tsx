@@ -283,21 +283,29 @@ const Reports: React.FC = () => {
       switch (selectedReport) {
         case "Driver Point Changes": {
           let fetched = await getPointChanges(startDate, endDate, driverEmail);
-
-          // Some APIs return [[...]]; flatten if needed
+        
+          // Flatten if your API returns [[...]]
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
-
-          // Filter by sponsor org ID if sponsor
+        
+          // Log each item to confirm the property name & type
+          console.log("DEBUG: Full pointChanges data before filter:", fetched);
+        
           if (isSponsor && sponsorOrgID) {
             console.log("DEBUG: Filtering pointChanges by sponsorOrgID:", sponsorOrgID);
-            fetched = fetched.filter((item: any) => {
-              return item.PointChangeSponsorOrgID === sponsorOrgID;
+            fetched = fetched.filter((item) => {
+              console.log(
+                "DEBUG: item.PointChangeSponsorOrgID =", 
+                item.PointChangeSponsorOrgID
+              );
+        
+              // Compare them both as strings, for example
+              return String(item.PointChangeSponsorOrgID) === String(sponsorOrgID);
             });
             console.log("DEBUG: Data AFTER sponsor org filter:", fetched);
           }
-
+        
           data = fetched;
           break;
         }
