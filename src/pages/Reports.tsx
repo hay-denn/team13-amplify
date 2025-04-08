@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Select,
@@ -25,10 +25,12 @@ import {
 } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { useAuth } from "react-oidc-context";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
-// Point Changes API using stored procedure with optional filters
+// API calls (unchanged)
 async function getPointChanges(startDate?: string, endDate?: string, driverEmail?: string) {
   const url = new URL(`${REPORTS_URL}/pointChanges`);
   if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
@@ -42,15 +44,13 @@ async function getPointChanges(startDate?: string, endDate?: string, driverEmail
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch point changes");
     }
-    const data = await response.json();
-    return await data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching point changes:", error);
     return [];
   }
 }
 
-// Driver Applications API using stored procedure with optional filters
 async function getDriverApplications(
   startDate?: string,
   endDate?: string,
@@ -70,8 +70,7 @@ async function getDriverApplications(
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch driver applications");
     }
-    const data = await response.json();
-    return await data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching driver applications:", error);
     return [];
@@ -91,8 +90,7 @@ async function getPasswordChanges(startDate?: string, endDate?: string, userEmai
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch password change logs");
     }
-    const data = await response.json();
-    return await data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching password changes:", error);
     return [];
@@ -112,8 +110,7 @@ async function getLoginAttempts(startDate?: string, endDate?: string, userEmail?
       console.error("Server error:", errorText);
       throw new Error("Failed to fetch login attempts");
     }
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching login attempts:", error);
     return [];
@@ -121,60 +118,96 @@ async function getLoginAttempts(startDate?: string, endDate?: string, userEmail?
 }
 
 async function getPurchaseData(startDate?: string, endDate?: string, sponsorId?: string, driverEmail?: string) {
-    const url = new URL(`${REPORTS_URL}/purchases`);
-    if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
-    if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
-    if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
-    if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
-  
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error:", errorText);
-        throw new Error("Failed to fetch point changes");
-      }
-      const data = await response.json();
-      return await data;
-    } catch (error) {
-      console.error("Error fetching point changes:", error);
-      return [];
-    }
-  }
+  const url = new URL(`${REPORTS_URL}/purchases`);
+  if (startDate && startDate.trim() !== "") url.searchParams.append("StartDate", startDate);
+  if (endDate && endDate.trim() !== "") url.searchParams.append("EndDate", endDate);
+  if (sponsorId && sponsorId.trim() !== "") url.searchParams.append("SponsorID", sponsorId);
+  if (driverEmail && driverEmail.trim() !== "") url.searchParams.append("DriverEmail", driverEmail);
 
-  async function getDriversForSponsor(sponsorId: string) {
-    const url = new URL("https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors");
-    if (sponsorId && sponsorId.trim() !== "") {
-      url.searchParams.append("DriversSponsorID", sponsorId);
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to fetch purchases");
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error:", errorText);
-        throw new Error("Failed to fetch drivers for sponsor");
-      }
-      console.log("Response URL:", url.toString());
-      return await response.json();
-    } catch (error) {
-      console.error("Error fetching drivers for sponsor:", error);
-      return [];
-    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching purchases:", error);
+    return [];
   }
+}
+
+async function getDriversForSponsor(sponsorId: string) {
+  const url = new URL("https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors");
+  if (sponsorId && sponsorId.trim() !== "") {
+    url.searchParams.append("DriversSponsorID", sponsorId);
+  }
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to fetch drivers for sponsor");
+    }
+    console.log("Response URL:", url.toString());
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching drivers for sponsor:", error);
+    return [];
+  }
+}
 
 const Reports: React.FC = () => {
+  const auth = useAuth();
+
+  // Track if logged in user is a sponsor and store sponsor ID (UserOrganization)
+  const [isSponsor, setIsSponsor] = useState(false);
+  const [sponsorId, setSponsorId] = useState("");
+
+  // Fetch sponsor details similar to your ListOfUsersTable logic.  
+  useEffect(() => {
+    const email = auth.user?.profile?.email;
+    if (!email) return; // Exit early if email is undefined.
+    const fetchSponsorOrg = async () => {
+      try {
+        const response = await fetch(
+          `${SPONSOR_BASE_URL}/sponsor?UserEmail=${encodeURIComponent(email)}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch sponsor: ${response.status}`);
+        }
+        const data = await response.json();
+        let sponsor;
+        if (Array.isArray(data)) {
+          sponsor = data.find((s: any) => s.UserEmail === email);
+        } else {
+          sponsor = data;
+        }
+        if (sponsor && sponsor.UserOrganization) {
+          setSponsorId(sponsor.UserOrganization);
+          setIsSponsor(true);
+        }
+      } catch (err) {
+        console.error("Error fetching sponsor organization:", err);
+      }
+    };
+  
+    fetchSponsorOrg();
+  }, [auth.user?.profile?.email]);
+  
+
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
   const [reportData, setReportData] = useState<any[]>([]);
-
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [sponsorId, setSponsorId] = useState("");
+  // driverEmail remains for filtering if needed.
   const [driverEmail, setDriverEmail] = useState("");
 
   const generateReport = async () => {
     let data: any[] = [];
-  
+
     switch (selectedReport) {
       case "Driver Point Changes":
         data = await getPointChanges(startDate, endDate, driverEmail);
@@ -204,7 +237,7 @@ const Reports: React.FC = () => {
         data = [];
         break;
     }
-  
+
     if (!Array.isArray(data)) {
       console.error("Unexpected API response format:", data);
       data = [];
@@ -249,29 +282,22 @@ const Reports: React.FC = () => {
 
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) {
-        console.error("No data available for CSV download.");
-        return;
+      console.error("No data available for CSV download.");
+      return;
     }
     
-    // Extract headers from the first data object
     const headers = Object.keys(reportData[0]).join(",");
-    
-    // Generate rows
     const rows = reportData.map(item =>
-        Object.values(item).map(value => `"${value}"`).join(",")
+      Object.values(item).map(value => `"${value}"`).join(",")
     );
-    
-    // Combine headers and rows into CSV format
     const csvContent = [headers, ...rows].join("\n");
-    
-    // Create a Blob and trigger download
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = "report.csv";
     link.click();
-    URL.revokeObjectURL(url); // Clean up
+    URL.revokeObjectURL(url);
   };
 
   const renderTableHeaders = () => {
@@ -304,31 +330,31 @@ const Reports: React.FC = () => {
         </TableRow>
       );
     } else if (selectedReport === "Login Attempts Logs") {
-        return (
+      return (
         <TableRow>
-            <TableCell>User Email</TableCell>
-            <TableCell>Attempt Date</TableCell>
-            <TableCell>Status</TableCell>
+          <TableCell>User Email</TableCell>
+          <TableCell>Attempt Date</TableCell>
+          <TableCell>Status</TableCell>
         </TableRow>
-        );
+      );
     } else if (selectedReport === "Purchases") {
-        return (
-          <TableRow>
-            <TableCell>PurchaseDriver</TableCell>
-            <TableCell>OrganizationName</TableCell>
-            <TableCell>PurchaseDate</TableCell>
-            <TableCell>PurchaseStatus</TableCell>
-          </TableRow>
-        );
-    } else {
-        return (
+      return (
         <TableRow>
-            <TableCell>Purchase Driver</TableCell>
-            <TableCell>Purchase Price</TableCell>
-            <TableCell>Purchase Date</TableCell>
-            <TableCell>Purchase Status</TableCell>
+          <TableCell>PurchaseDriver</TableCell>
+          <TableCell>OrganizationName</TableCell>
+          <TableCell>PurchaseDate</TableCell>
+          <TableCell>PurchaseStatus</TableCell>
         </TableRow>
-        );
+      );
+    } else {
+      return (
+        <TableRow>
+          <TableCell>Purchase Driver</TableCell>
+          <TableCell>Purchase Price</TableCell>
+          <TableCell>Purchase Date</TableCell>
+          <TableCell>Purchase Status</TableCell>
+        </TableRow>
+      );
     }
   };
 
@@ -374,21 +400,21 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Purchases") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
-           <TableCell>{item.PurchaseDriver}</TableCell>
-           <TableCell>{item.OrganizationName}</TableCell>
-           <TableCell>{item.PurchaseDate}</TableCell>
-           <TableCell>{item.PurchaseStatus}</TableCell>
+          <TableCell>{item.PurchaseDriver}</TableCell>
+          <TableCell>{item.OrganizationName}</TableCell>
+          <TableCell>{item.PurchaseDate}</TableCell>
+          <TableCell>{item.PurchaseStatus}</TableCell>
         </TableRow>
-        ));
+      ));
     } else {
-        return reportData.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell>{item.PurchaseDriver}</TableCell>
-            <TableCell>{item.PurchasePrice}</TableCell>
-            <TableCell>{item.PurchaseDate}</TableCell>
-            <TableCell>{item.PurchaseStatus}</TableCell>
-          </TableRow>
-        ));
+      return reportData.map((item, index) => (
+        <TableRow key={index}>
+          <TableCell>{item.PurchaseDriver}</TableCell>
+          <TableCell>{item.PurchasePrice}</TableCell>
+          <TableCell>{item.PurchaseDate}</TableCell>
+          <TableCell>{item.PurchaseStatus}</TableCell>
+        </TableRow>
+      ));
     }
   };
 
@@ -417,15 +443,31 @@ const Reports: React.FC = () => {
             onChange={(e) => setEndDate(e.target.value)}
           />
           {(selectedReport === "Driver Applications" || selectedReport === "Purchases") && (
-            <TextField
-              label="Sponsor ID"
-              type="number"
-              value={sponsorId}
-              onChange={(e) => setSponsorId(e.target.value)}
-            />
+            <>
+              {isSponsor ? (
+                <TextField
+                  label="Sponsor ID"
+                  type="text"
+                  value={sponsorId}
+                  disabled
+                />
+              ) : (
+                <TextField
+                  label="Sponsor ID"
+                  type="number"
+                  value={sponsorId}
+                  onChange={(e) => setSponsorId(e.target.value)}
+                />
+              )}
+            </>
           )}
           <TextField
-            label={(selectedReport === "Password Change Logs" || selectedReport === "Login Attempts Logs") ? "User Email" : "Driver Email"}
+            label={
+              selectedReport === "Password Change Logs" ||
+              selectedReport === "Login Attempts Logs"
+                ? "User Email"
+                : "Driver Email"
+            }
             type="email"
             value={driverEmail}
             onChange={(e) => setDriverEmail(e.target.value)}
