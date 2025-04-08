@@ -3,9 +3,6 @@ import { useParams } from "react-router-dom";
 import { SponsorApplyModal } from "../components/Modal";
 import "./SponsorProfile.css";
 
-const APPLICATION_POST_URL =
-  "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplication";
-
 const API_BASE_URL =
   "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
@@ -35,10 +32,6 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-
-  // -- States for "Apply" button feedback --
-  const [applyError, setApplyError] = useState<string | null>(null);
-  const [applySuccess, setApplySuccess] = useState<boolean>(false);
 
   // -- Determine current user's email --
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
@@ -74,46 +67,6 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
       fetchSponsor();
     }
   }, [id]);
-
-  // 2) “Apply to Sponsor” handler
-  const handleApply = async () => {
-    try {
-      setApplyError(null);
-      setApplySuccess(false);
-
-      if (!userEmail) {
-        setApplyError("No user email found. Are you logged in?");
-        return;
-      }
-      if (!id) {
-        setApplyError("No sponsor ID found in URL.");
-        return;
-      }
-
-
-
-      const response = await fetch(APPLICATION_POST_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // Example shape; adjust to match your actual API
-          ApplicationDriver: userEmail,
-          ApplicationOrganization: Number(id),
-          ApplicationStatus: "Submitted",
-          ApplicationSponsorUser: null,
-          ApplicationDateSubmitted: new Date().toISOString(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to apply. Status: ${response.status}`);
-      }
-
-      setApplySuccess(true);
-    } catch (err: any) {
-      setApplyError(err.message);
-    }
-  };
 
   // 3) Render states
   if (loading) return <div className="p-8 text-center">Loading...</div>;
@@ -176,10 +129,6 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
         >
           Apply Now!
         </button>
-        {applyError && <p className="text-red-500 mt-2">{applyError}</p>}
-        {applySuccess && (
-          <p className="text-green-500 mt-2">Application Submitted!</p>
-        )}
       </div>
     </div>
     <SponsorApplyModal

@@ -512,7 +512,6 @@ export const SponsorApplyModal = ({
       ApplicationOrganization: selectedOrg,
       ApplicationStatus: "Submitted",
       ApplicationReason: reason,
-      ApplicationDateSubmitted: new Date().toISOString(),
     };
 
     try {

@@ -26,10 +26,9 @@ export const DriverMySponsors: React.FC = () => {
     ? JSON.parse(storedImpersonation)
     : null;
 
-  // const userEmail = impersonation
-  //   ? impersonation.email
-  //   : authContext?.user?.profile?.email || "";
-  const userEmail = "noahnisbet3@gmail.com";
+  const userEmail = impersonation
+    ? impersonation.email
+    : authContext?.user?.profile?.email || "";
 
   const [sponsors, setSponsors] = useState<SponsorRecord[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
