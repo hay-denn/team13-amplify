@@ -5,14 +5,10 @@ import "./HomeStyles.css";
 //-------------------------------------
 // Interfaces
 //-------------------------------------
-interface Application {
-  ApplicationID: number;
-  ApplicationDriver: string;
-  ApplicationOrganization: number;
-  ApplicationSponsorUser: string | null;
-  ApplicationStatus: string;
-  ApplicationDateSubmitted: string;
-  OrganizationName?: string; // We'll add this after fetching org details
+interface SponsorRecord {
+  DriversEmail: string;
+  DriversSponsorID: number;
+  DriversPoints: number;
 }
 
 interface Organization {
@@ -24,27 +20,22 @@ interface Organization {
 // Main Component
 //-------------------------------------
 export const DriverMySponsors: React.FC = () => {
-  // 1) Determine current user's email
   const authContext = useContext(AuthContext);
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
   const impersonation = storedImpersonation
     ? JSON.parse(storedImpersonation)
     : null;
 
-  // If impersonating, use that email, otherwise use the AuthContext
   const userEmail = impersonation
     ? impersonation.email
     : authContext?.user?.profile?.email || "";
 
-  // 2) Local state for the "approved" sponsor applications & organizations
-  const [sponsors, setSponsors] = useState<Application[]>([]);
+  const [sponsors, setSponsors] = useState<SponsorRecord[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [orgsLoaded, setOrgsLoaded] = useState(false);
 
-  // 3) Endpoint URLs
   const orgApiUrl = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
-  const appsApiUrl =
-    "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications";
+  const sponsorApiUrl = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
 
   //-------------------------------------
   // Fetch Organizations
@@ -52,11 +43,11 @@ export const DriverMySponsors: React.FC = () => {
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
-        const response = await fetch(orgApiUrl);
+        const response = await fetch(`${orgApiUrl}`);
         const data = await response.json();
 
         if (!Array.isArray(data)) {
-          console.error("Unexpected response format:", data);
+          console.error("Unexpected orgs format:", data);
           return;
         }
         setOrganizations(data);
@@ -70,70 +61,51 @@ export const DriverMySponsors: React.FC = () => {
   }, []);
 
   //-------------------------------------
-  // Fetch "Approved" Sponsor Applications
+  // Fetch Driver’s Sponsors
   //-------------------------------------
   useEffect(() => {
+    console.log("Using userEmail:", userEmail);
+
     if (!userEmail || !orgsLoaded) return;
 
     const fetchSponsors = async () => {
       try {
-        // GET all applications for this driver
-        const response = await fetch(
-          `${appsApiUrl}?ApplicationDriver=${encodeURIComponent(userEmail)}`
-        );
-        const data = (await response.json()) as Application[];
+        const response = await fetch(`${sponsorApiUrl}/driversponsors?DriversEmail=${encodeURIComponent(userEmail)}`);
+        const data = await response.json();
 
         if (!Array.isArray(data)) {
-          console.error("Unexpected response format:", data);
+          console.error("Unexpected sponsors format:", data);
           return;
         }
 
-        // Filter for those with ApplicationStatus === "Approved"
-        const approvedApps = data.filter(
-          (app) => app.ApplicationStatus.toLowerCase() === "approved"
-        );
-
-        // Add organization names
-        const sponsorsWithOrgNames = approvedApps.map((app) => {
-          const matchingOrg = organizations.find(
-            (org) => org.OrganizationID === app.ApplicationOrganization
-          );
-          return {
-            ...app,
-            OrganizationName: matchingOrg
-              ? matchingOrg.OrganizationName
-              : "Unknown Organization",
-          };
-        });
-
-        setSponsors(sponsorsWithOrgNames);
+        setSponsors(data);
       } catch (error) {
         console.error("Error fetching sponsors:", error);
       }
     };
 
     fetchSponsors();
-  }, [userEmail, orgsLoaded, organizations]);
+  }, [userEmail, orgsLoaded]);
 
   //-------------------------------------
-  // Remove a Sponsor (i.e., remove an approved application)
+  // Remove a Sponsor
   //-------------------------------------
-  const handleRemoveSponsor = async (applicationID: number) => {
+  const handleRemoveSponsor = async (sponsorID: number) => {
     try {
-      const response = await fetch(appsApiUrl, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ApplicationID: applicationID }),
-      });
+      const response = await fetch(
+        `${sponsorApiUrl}/driversponsor?DriversEmail=${encodeURIComponent(userEmail)}&DriversSponsorID=${sponsorID}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to remove sponsor. Status: ${response.status}`);
       }
 
       console.log("Sponsor removed successfully!");
-      // Filter out the removed sponsor from local state
       setSponsors((prev) =>
-        prev.filter((app) => app.ApplicationID !== applicationID)
+        prev.filter((s) => s.DriversSponsorID !== sponsorID)
       );
     } catch (error) {
       console.error("Error removing sponsor:", error);
@@ -151,34 +123,28 @@ export const DriverMySponsors: React.FC = () => {
         <p>No sponsors found.</p>
       ) : (
         <div className="applications-container">
-          {sponsors.map((sponsor) => (
-            <div key={sponsor.ApplicationID} className="application-card">
-              <span className="application-date">
-                {sponsor.ApplicationDateSubmitted
-                  ? new Date(sponsor.ApplicationDateSubmitted).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  : "N/A"}
-              </span>
-              <p>
-                <strong>Organization:</strong>{" "}
-                {sponsor.OrganizationName || "Unknown Organization"}
-              </p>
-              <p>
-                <strong>Sponsor User:</strong>{" "}
-                {sponsor.ApplicationSponsorUser || "N/A"}
-              </p>
-
-              <button
-                className="btn btn-danger cancel-button"
-                onClick={() => handleRemoveSponsor(sponsor.ApplicationID)}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
+          {sponsors.map((sponsor) => {
+            const org = organizations.find(
+              (org) => org.OrganizationID === sponsor.DriversSponsorID
+            );
+            return (
+              <div key={sponsor.DriversSponsorID} className="application-card">
+                <p>
+                  <strong>Organization:</strong>{" "}
+                  {org ? org.OrganizationName : "Unknown Organization"}
+                </p>
+                <p>
+                  <strong>Points:</strong> {sponsor.DriversPoints}
+                </p>
+                <button
+                  className="btn btn-danger cancel-button"
+                  onClick={() => handleRemoveSponsor(sponsor.DriversSponsorID)}
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -45,7 +45,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
 
   const orgApiUrl = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
   const appsApiUrl =
-    "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications";
+    "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
 
   //-------------------------------------
   // Fetch Organizations
@@ -80,7 +80,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
     const getDriverApplications = async () => {
       try {
         const response = await fetch(
-          `${appsApiUrl}?ApplicationDriver=${encodeURIComponent(userEmail)}`
+          `${appsApiUrl}/driversponsorapplications?ApplicationDriver=${encodeURIComponent(userEmail)}`
         );
         const data = (await response.json()) as Application[];
 
@@ -115,17 +115,20 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
   // Cancel an Application
   //-------------------------------------
   const handleCancelApplication = async (applicationID: number) => {
-    try {
-      const response = await fetch(appsApiUrl, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ApplicationID: applicationID }),
-      });
+    console.log("Cancel button clicked for ID:", applicationID); // 👈 Add this
 
+    try {
+      const response = await fetch(
+        `${appsApiUrl}/driversponsorapplication?ApplicationID=${applicationID}`,
+        {
+          method: "DELETE",
+        }
+      );
+  
       if (!response.ok) {
         throw new Error(`Failed to cancel application. Status: ${response.status}`);
       }
-
+  
       console.log("Application canceled successfully!");
       setApplications((prev) =>
         prev.filter((app) => app.ApplicationID !== applicationID)
@@ -134,6 +137,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
       console.error("Error canceling application:", error);
     }
   };
+  
 
   //-------------------------------------
   // Render
