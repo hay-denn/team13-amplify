@@ -6,6 +6,8 @@ import "./SponsorProfile.css";
 const API_BASE_URL =
   "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
+const DRIVER_SPONSOR_URL="https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+
 interface Sponsor {
   OrganizationID: number;
   OrganizationName: string;
@@ -23,6 +25,23 @@ interface Sponsor {
 
 interface SponsorProfileProps {
   inputUserEmail: string;
+}
+
+// handle check if driver is already sponsored by this sponsor
+const checkIfDriverIsSponsored = async (
+  driverEmail: string,
+  sponsorID: number
+) => {
+  try {
+    const response = await fetch(
+      `${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${driverEmail}&DriversSponsorID=${sponsorID}`
+    );
+    const data = await response.json();
+    return data.length > 0;
+  } catch (error) {
+    console.error("Error checking sponsorship:", error);
+    return false;
+  }
 }
 
 export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
@@ -123,14 +142,24 @@ export const SponsorProfile = (inputUserEmail: SponsorProfileProps) => {
       </div>
 
       <div className="mt-4">
-        <button
-          className="apply-button"
-          onClick={() => setShowModal(true)}
-        >
-          Apply Now!
-        </button>
+        {sponsor && (
+          <button
+        className="apply-button"
+        onClick={async () => {
+          const isSponsored = await checkIfDriverIsSponsored(userEmail, sponsor.OrganizationID);
+          if (!isSponsored) {
+            setShowModal(true);
+          } else {
+            alert("You are already sponsored by this organization.");
+          }
+        }}
+          >
+        Apply Now!
+          </button>
+        )}
       </div>
     </div>
+    
     <SponsorApplyModal
         show={showModal}
         handleClose={() => setShowModal(false)}
