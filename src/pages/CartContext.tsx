@@ -150,6 +150,29 @@ export const CartPage: React.FC = () => {
     DriversPoints: number
   }[]>([]);
 
+
+  const [orderPlacedEmails, setOrderPlacedEmails] = useState<number>(0);
+  // Fetch driver order placed notification preference
+   useEffect(() => {
+    if (userEmail) {
+      const fetchNotificationPref = async () => {
+        try {
+          const response = await fetch(
+            "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1/driver?DriverEmail=" + encodeURIComponent(userEmail)
+          );
+          const data = await response.json();
+          if (data && data.DriverOrderPlacedNotification !== undefined) {
+            // Here we assume the attribute appears only once and is either 1 or 0
+            setOrderPlacedEmails(data.DriverOrderPlacedNotification);
+          }
+        } catch (error) {
+          console.error("Error fetching organizations:", error);
+        }
+    };
+    fetchNotificationPref();
+    }
+  }, [userEmail]);
+
   // Fetch all organizations
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -263,7 +286,8 @@ export const CartPage: React.FC = () => {
                   "PointChangeAction": "Subtract"
                 }
                 callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
-
+                
+                let emailBody = "Thank you for your order!\nProducts Purchased:\n";
                 await Promise.all(
                   filteredCart.map((item) => {
                     const productData = {
@@ -271,6 +295,7 @@ export const CartPage: React.FC = () => {
                       "PurchaseAssociatedID": purchaseID,
                       "ProductPurchaseQuantity": item.quantity
                     };
+                    emailBody = emailBody + item.name + "\n"
                     console.log(productData);
                     
                     return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
@@ -287,14 +312,14 @@ export const CartPage: React.FC = () => {
                 indicesToRemove.forEach((index) => {
                   removeFromCart(index);
                 });
-
-                const emailData = {
-                  "username" : userEmail,
-                  "emailSubject" : "Thanks for your purchase!",
-                  "emailBody" : "Your recent order was successfully completed. Thanks!"
-                };
-                callAPI(`${EMAIL_API}/send-email`, "POST", emailData);
-
+                if (orderPlacedEmails === 1) {
+                  const emailData = {
+                    "username" : userEmail,
+                    "emailSubject" : "Thanks for your purchase!",
+                    "emailBody" : emailBody
+                  };
+                  callAPI(`${EMAIL_API}/send-email`, "POST", emailData);
+                }
                 alert("Purchase success!");
               } else {
                 console.log("Could not retrieve a sponsor ID for the purchase");

@@ -83,6 +83,28 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   // Tracks which purchase rows have been expanded (viewed)
   const [expandedPurchases, setExpandedPurchases] = useState<{ [key: string]: boolean }>({});
 
+    const [orderIssueEmail, setOrderIssueEmails] = useState<number>(0);
+    // Fetch driver order placed notification preference
+     useEffect(() => {
+      if (userEmail) {
+        const fetchNotificationPref = async () => {
+          try {
+            const response = await fetch(
+              "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1/driver?DriverEmail=" + encodeURIComponent(userEmail)
+            );
+            const data = await response.json();
+            if (data && data.DriverOrderIssueNotificaiton !== undefined) {
+              // Here we assume the attribute appears only once and is either 1 or 0
+              setOrderIssueEmails(data.DriverOrderIssueNotificaiton);
+            }
+          } catch (error) {
+            console.error("Error fetching organizations:", error);
+          }
+      };
+      fetchNotificationPref();
+      }
+    }, [userEmail]);
+
   // Function to fetch purchases.
   const getPurchases = async (): Promise<Purchase[]> => {
     try {
@@ -244,13 +266,15 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
         };
         await callAPI("https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1/purchase", "PUT", purchaseData);
 
-        const emailData = {
-          "username" : userEmail,
-          "emailSubject" : "Update to your order",
-          "emailBody" : "Your order has been canceled."
+        if (orderIssueEmail === 1) {
+          const emailData = {
+            "username" : userEmail,
+            "emailSubject" : "Update to your order",
+            "emailBody" : "Your order has been canceled."
+          }
+          await callAPI("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/send-email", "POST", emailData);
         }
-        await callAPI("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/send-email", "POST", emailData);
-  
+
         // Update local state so that the Purchase Status is updated to "Canceled"
         setPurchases(prevPurchases =>
           prevPurchases.map(p =>
