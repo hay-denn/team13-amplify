@@ -147,6 +147,25 @@ async function getPurchaseData(startDate?: string, endDate?: string, sponsorId?:
     }
   }
 
+  async function getDriversForSponsor(sponsorId: string) {
+    const url = new URL("https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors");
+    if (sponsorId && sponsorId.trim() !== "") {
+      url.searchParams.append("DriversSponsorID", sponsorId);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error:", errorText);
+        throw new Error("Failed to fetch drivers for sponsor");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching drivers for sponsor:", error);
+      return [];
+    }
+  }
+
 const Reports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("Driver Point Changes");
   const [viewMode, setViewMode] = useState("table");
@@ -194,7 +213,30 @@ const Reports: React.FC = () => {
       console.error("Unexpected API response format:", data);
       data = [];
     }
-    
+
+    if (sponsorId.trim() !== "") {
+      const drivers = await getDriversForSponsor(sponsorId);
+      console.log("Drivers for Sponsor:", drivers);
+      const allowedEmails = drivers.map((d: any) => d.DriverEmail);
+      console.log("Allowed Emails:", allowedEmails);
+
+      let filterKey = "";
+      if (selectedReport === "Driver Applications") {
+        filterKey = "ApplicationDriver";
+      } else if (selectedReport === "Purchases") {
+        filterKey = "PurchaseDriver";
+      } else if (selectedReport === "Driver Point Changes") {
+        filterKey = "PointChangeDriver";
+      } else if (selectedReport === "Password Change Logs") {
+        filterKey = "user";
+      } else if (selectedReport === "Login Attempts Logs") {
+        filterKey = "user";
+      }
+
+      if (filterKey) {
+        data = data.filter((item) => allowedEmails.includes(item[filterKey]));
+      }
+    }
     console.log("Fetched data:", data);
     setReportData(data);
   };
