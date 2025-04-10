@@ -5,31 +5,35 @@
   text-align: center;
 }
 
+/* Navbar container */
 .navbar {
   display: flex;
-  justify-content: space-between; 
-  align-items: center; 
+  justify-content: space-between; /* Puts nav links on the left, buttons on the right */
+  align-items: center; /* Centers items vertically */
   padding: 1rem;
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #242424; 
-  z-index: 1000; 
+  background-color: #242424; /* Adjust color if needed */
+  z-index: 1000; /* Ensure navbar is above other content */
 }
 
+/* Navigation links (left side) */
 .nav-links {
   display: flex;
-  gap: 1rem; 
+  gap: 1rem; /* Adds spacing between links */
 }
 
+/* Auth buttons (right side) */
 .auth-buttons {
   display: flex;
-  gap: 0.5rem; 
+  gap: 0.5rem; /* Adds spacing between buttons */
 }
 
+/* Fix body spacing to prevent content from being covered by navbar */
 body {
-  padding-top: 70px;
+  padding-top: 70px; /* Adjust based on navbar height */
   background: linear-gradient(135deg, #e0f7fa, #ffffff);
   font-family: 'Inter', sans-serif;
 }
