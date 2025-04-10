@@ -438,7 +438,7 @@ export const ListOfUsersTable = ({
       />
 
       {/* Actions Modal (Points, Impersonation, etc.) */}
-      <Modal size='xl' show={showActionsModal} onHide={handleCloseActionsModal}>
+      <Modal centered show={showActionsModal} onHide={handleCloseActionsModal} dialogAs={(props) => <div {...props} style={{...props.style, maxWidth: "900px", margin: "1.75rem auto"}} />}>
         <Modal.Header closeButton>
           <Modal.Title style={{ width: "100%", textAlign: "center" }}>
             Edit Driver
