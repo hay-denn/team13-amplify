@@ -14,7 +14,7 @@ const cognitoAuthConfig = {
   scope: "email openid phone profile aws.cognito.signin.user.admin",
   storage: window.localStorage
 };
-
+// test
 export const signOutRedirect = () => {
   const clientId = "3dqm8u7ca6uul82i7c1i4elolh";
   const logoutUri = "https://sprint-10.d1zgxgaa1s4k42.amplifyapp.com/";
