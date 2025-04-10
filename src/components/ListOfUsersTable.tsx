@@ -438,7 +438,7 @@ export const ListOfUsersTable = ({
       />
 
       {/* Actions Modal (Points, Impersonation, etc.) */}
-      <Modal centered show={showActionsModal} onHide={handleCloseActionsModal} dialogAs={(props) => <div {...props} style={{...props.style, maxWidth: "900px", margin: "1.75rem auto"}} />}>
+      <Modal centered show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
           <Modal.Title style={{ width: "100%", textAlign: "center" }}>
             Edit Driver
@@ -507,7 +507,7 @@ export const ListOfUsersTable = ({
                   onClick={handleSetRecurringPoints}
                   title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
                 >
-                  Set Recurring Points
+                  Set Recurring
                 </button>
               </div>
             </>
