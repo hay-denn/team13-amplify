@@ -235,10 +235,6 @@ export const ListOfUsersTable = ({
   };
 
   const handleSetRecurringPoints = async () => {
-    if (recurringPointsChange === 0) {
-      alert("Please set a non-zero daily points value.");
-      return;
-    }
     const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
     const sponsorID = Number(sponsorOrgID);
     try {
@@ -438,7 +434,7 @@ export const ListOfUsersTable = ({
       />
 
       {/* Actions Modal (Points, Impersonation, etc.) */}
-      <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
+      <Modal dialogClassName="modal-lg" show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
           <Modal.Title style={{ width: "100%", textAlign: "center" }}>
             Edit Driver
@@ -507,7 +503,7 @@ export const ListOfUsersTable = ({
                   onClick={handleSetRecurringPoints}
                   title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
                 >
-                  Set Recurring Points (24hr)
+                  Set Recurring Points
                 </button>
               </div>
             </>
