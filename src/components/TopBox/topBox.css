@@ -1,18 +1,38 @@
-.topBox {
-    h1{
-        margin-bottom: 20px;
-    }
 
-    .list{
-        .listItem{
-            .user{
-                img{
-                    width: 40px;
-                    height: 40px;
-                    object-fit: cover;
-                }
-                
-            }
-        }
-    }
-}
+.topBox {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 10px;
+   
+  }
+
+  .topBox h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .purchase-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .purchase-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  .purchase-item div {
+    margin-bottom: 5px;
+  }
+  
