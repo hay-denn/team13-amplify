@@ -1,5 +1,5 @@
 import { AuthContext, useAuth } from "react-oidc-context";
-import { signOutRedirect } from "../main";
+// import { signOutRedirect } from "../main";
 import "./Navbarstyle.css";
 import { useContext } from "react";
 import { Link } from "react-router-dom";

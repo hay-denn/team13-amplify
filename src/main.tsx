@@ -4,12 +4,13 @@ import './index.css';
 import App from './App.tsx';
 import { AuthProvider } from "react-oidc-context";
 import { Amplify } from 'aws-amplify';
+import {  secret } from '@aws-amplify/backend';
 
 const cognitoAuthConfig = {
-  authority: import.meta.env.VITE_COGNITO_AUTHORITY,
-  client_id: import.meta.env.VITE_COGNITO_CLIENT_ID,
-  client_secret: import.meta.env.VITE_COGNITO_CLIENT_SECRET,
-  redirect_uri: import.meta.env.VITE_COGNITO_REDIRECT_URI,
+  authority: secret('VITE_COGNITO_AUTHORITY'),
+  client_id: secret('VITE_COGNITO_CLIENT_ID'),
+  client_secret: secret('VITE_COGNITO_CLIENT_SECRET'),
+  redirect_uri: secret('VITE_COGNITO_REDIRECT_URI'),
   response_type: "code",
   scope: "email openid phone profile aws.cognito.signin.user.admin",
   storage: window.localStorage
