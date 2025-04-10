@@ -56,8 +56,9 @@ export const ListOfUsersTable = ({
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [currentPoints, setCurrentPoints] = useState<number | null>(null);
-  const [recurringPointsChange, setRecurringPointsChange] = useState<number>(0);
   const [pointsChange, setPointsChange] = useState<number>(0);
+  const [recurringPoints, setRecurringPoints] = useState<number | null>(null);
+  const [recurringPointsChange, setRecurringPointsChange] = useState<number>(0);
 
   // For the "Edit" modal (creating/updating user info)
   const [showEditModal, setShowEditModal] = useState(false);
@@ -183,10 +184,13 @@ export const ListOfUsersTable = ({
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
-      setRecurringPointsChange(Number(data.DailyPoints));
+      const fetched = Number(data.DailyPoints);
+      setRecurringPoints(fetched);
+      setRecurringPointsChange(fetched);
     } catch (error) {
       console.error("Error fetching recurring points:", error);
       setRecurringPointsChange(0);
+      setRecurringPoints(null);
     }
   };
 
@@ -434,7 +438,7 @@ export const ListOfUsersTable = ({
       />
 
       {/* Actions Modal (Points, Impersonation, etc.) */}
-      <Modal dialogClassName="modal-lg" show={showActionsModal} onHide={handleCloseActionsModal}>
+      <Modal size='xl' show={showActionsModal} onHide={handleCloseActionsModal}>
         <Modal.Header closeButton>
           <Modal.Title style={{ width: "100%", textAlign: "center" }}>
             Edit Driver
@@ -455,7 +459,7 @@ export const ListOfUsersTable = ({
               </p>
               <p>
                 <strong>Recurring Points: </strong>
-                {recurringPointsChange !== null ? recurringPointsChange : "Loading..."}
+                {recurringPoints !== null ? recurringPoints : "Loading..."}
               </p>
               <div
                 style={{
