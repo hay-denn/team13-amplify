@@ -11,15 +11,15 @@ const cognitoAuthConfig = {
   authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_uN566DiPO",
   client_id: "3dqm8u7ca6uul82i7c1i4elolh",
   client_secret: "2kgslpdmdnia6mffkqrc47furuiv6e3hhe15fidvn4tmodcavu5",
-  redirect_uri: `https://${deployment}.d1zgxgaa1s4k42.amplifyapp.com/`,
+  redirect_uri: "https://sprint-10.d1zgxgaa1s4k42.amplifyapp.com/",
   response_type: "code",
   scope: "email openid phone profile aws.cognito.signin.user.admin",
   storage: window.localStorage
 };
-
+// test
 export const signOutRedirect = () => {
   const clientId = "3dqm8u7ca6uul82i7c1i4elolh";
-  const logoutUri = `https://${deployment}.d1zgxgaa1s4k42.amplifyapp.com/`;
+  const logoutUri = "https://sprint-10.d1zgxgaa1s4k42.amplifyapp.com/";
   const cognitoDomain = "https://us-east-1un566dipo.auth.us-east-1.amazoncognito.com";
   
   window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
