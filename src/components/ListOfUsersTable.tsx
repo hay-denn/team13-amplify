@@ -56,7 +56,7 @@ export const ListOfUsersTable = ({
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [currentPoints, setCurrentPoints] = useState<number | null>(null);
-  const [recurringPoints, setRecurringPoints] = useState<number | null>(null);
+  const [recurringPointsChange, setRecurringPointsChange] = useState<number>(0);
   const [pointsChange, setPointsChange] = useState<number>(0);
 
   // For the "Edit" modal (creating/updating user info)
@@ -183,10 +183,10 @@ export const ListOfUsersTable = ({
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
-      setRecurringPoints(Number(data.DailyPoints));
+      setRecurringPointsChange(Number(data.DailyPoints));
     } catch (error) {
       console.error("Error fetching recurring points:", error);
-      setRecurringPoints(null);
+      setRecurringPointsChange(0);
     }
   };
 
@@ -235,7 +235,7 @@ export const ListOfUsersTable = ({
   };
 
   const handleSetRecurringPoints = async () => {
-    if (pointsChange === 0) {
+    if (recurringPointsChange === 0) {
       alert("Please set a non-zero daily points value.");
       return;
     }
@@ -250,15 +250,16 @@ export const ListOfUsersTable = ({
           body: JSON.stringify({
             DriversEmail: driverEmail,
             DriversSponsorID: sponsorID,
-            DailyPoints: pointsChange,
+            DailyPoints: recurringPointsChange,
           }),
         }
       );
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      alert("Daily points set successfully");
-      setPointsChange(0);
+      await fetchRecurringPoints(driverEmail);
+      alert("Daily recurring points set successfully");
+      setRecurringPointsChange(0);
     } catch (error) {
       console.error("Error setting daily points:", error);
       alert("Failed to set daily points.");
@@ -458,7 +459,7 @@ export const ListOfUsersTable = ({
               </p>
               <p>
                 <strong>Recurring Points: </strong>
-                {recurringPoints !== null ? recurringPoints : "Loading..."}
+                {recurringPointsChange !== null ? recurringPointsChange : "Loading..."}
               </p>
               <div
                 style={{
@@ -466,6 +467,7 @@ export const ListOfUsersTable = ({
                   alignItems: "center",
                   gap: "10px",
                   marginBottom: "10px",
+                  flexWrap: "wrap",
                 }}
               >
                 <button
@@ -485,16 +487,18 @@ export const ListOfUsersTable = ({
                   Change Points
                 </button>
 
+                <br style={{ flexBasis: "100%", height: 0 }} />
+
                 <button
                   className="btn btn-secondary"
-                  onClick={() => setPointsChange(pointsChange - 1)}
+                  onClick={() => setRecurringPointsChange(recurringPointsChange - 1)}
                 >
                   -
                 </button>
-                <span>{pointsChange}</span>
+                <span>{recurringPointsChange}</span>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => setPointsChange(pointsChange + 1)}
+                  onClick={() => setRecurringPointsChange(recurringPointsChange + 1)}
                 >
                   +
                 </button>
