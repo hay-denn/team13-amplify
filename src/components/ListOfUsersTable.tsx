@@ -56,6 +56,7 @@ export const ListOfUsersTable = ({
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [currentPoints, setCurrentPoints] = useState<number | null>(null);
+  const [recurringPoints, setRecurringPoints] = useState<number | null>(null);
   const [pointsChange, setPointsChange] = useState<number>(0);
 
   // For the "Edit" modal (creating/updating user info)
@@ -172,11 +173,29 @@ export const ListOfUsersTable = ({
     }
   };
 
+  const fetchRecurringPoints = async (driverEmail: string) => {
+    try {
+      const url = `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/dailypoints?DriversEmail=${encodeURIComponent(
+        driverEmail
+      )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      setRecurringPoints(Number(data.DailyPoints));
+    } catch (error) {
+      console.error("Error fetching recurring points:", error);
+      setRecurringPoints(null);
+    }
+  };
+
   useEffect(() => {
     if (selectedUser && sponsorOrgID) {
       const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
       if (driverEmail) {
         fetchCurrentPoints(driverEmail);
+        fetchRecurringPoints(driverEmail);
       }
     }
   }, [selectedUser, sponsorOrgID]);
@@ -212,6 +231,37 @@ export const ListOfUsersTable = ({
     } catch (error) {
       console.error("Error changing points:", error);
       alert("Failed to change points.");
+    }
+  };
+
+  const handleSetRecurringPoints = async () => {
+    if (pointsChange === 0) {
+      alert("Please set a non-zero daily points value.");
+      return;
+    }
+    const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
+    const sponsorID = Number(sponsorOrgID);
+    try {
+      const response = await fetch(
+        "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/dailypoints",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            DriversEmail: driverEmail,
+            DriversSponsorID: sponsorID,
+            DailyPoints: pointsChange,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      alert("Daily points set successfully");
+      setPointsChange(0);
+    } catch (error) {
+      console.error("Error setting daily points:", error);
+      alert("Failed to set daily points.");
     }
   };
 
@@ -406,6 +456,10 @@ export const ListOfUsersTable = ({
                 <strong>User Points: </strong>
                 {currentPoints !== null ? currentPoints : "Loading..."}
               </p>
+              <p>
+                <strong>Recurring Points: </strong>
+                {recurringPoints !== null ? recurringPoints : "Loading..."}
+              </p>
               <div
                 style={{
                   display: "flex",
@@ -429,6 +483,27 @@ export const ListOfUsersTable = ({
                 </button>
                 <button className="btn btn-primary" onClick={handleChangePoints}>
                   Change Points
+                </button>
+
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setPointsChange(pointsChange - 1)}
+                >
+                  -
+                </button>
+                <span>{pointsChange}</span>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setPointsChange(pointsChange + 1)}
+                >
+                  +
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSetRecurringPoints}
+                  title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
+                >
+                  Set Recurring Points (24hr)
                 </button>
               </div>
             </>
