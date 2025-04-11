@@ -1,4 +1,4 @@
-import { TopBox } from "../components/TopBox/TopBox";
+import { RecentSponsorPurchases } from "../components/SponsorDashBoardBoxes/RecentSponsorPurchases";
 import { ChartBox } from "../components/Charts/chartBox";
 import "./SponsorDashboard.css";
 import { useAuth } from "react-oidc-context";
@@ -75,7 +75,7 @@ export const SponsorDashboard = () => {
       <div className="row g-3">
         <div className="col-md-4">
           <div className="box box1">
-            <TopBox />
+            <RecentSponsorPurchases SponsorID={currentSponsorId} />
           </div>
         </div>
 
