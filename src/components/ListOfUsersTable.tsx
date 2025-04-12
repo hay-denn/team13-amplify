@@ -514,7 +514,7 @@ export const ListOfUsersTable = ({
                   onClick={handleSetRecurringPoints}
                   title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
                 >
-                  Set Recurring Points
+                  Recurring Points
                 </button>
               </div>
             </>
