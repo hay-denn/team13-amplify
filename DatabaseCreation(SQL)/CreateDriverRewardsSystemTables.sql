@@ -113,7 +113,7 @@ delimiter $
 -- Add points to every driver daily
 CREATE EVENT Add_Daily_Points
 ON SCHEDULE EVERY 1 DAY
-STARTS '2025-04-10 7:06:00'
+STARTS '2025-04-10 19:10:00'
 DO
 BEGIN
     insert into DRS.temppointchanges (TempPointChangeDriver, TempPointChangeSponsor, TempPointChangeNumber, TempPointChangeAction, TempPointChangeDate, TempPointChnagesReason)
