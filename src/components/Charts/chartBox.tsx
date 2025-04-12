@@ -60,7 +60,7 @@ export const ChartBox = () => {
       <div className="chartBox">
         <div className="boxInfo">
           <div className="title">
-            <img src="/user.svg" alt="" />
+            <img src="/images/DefaultOrg.jpg" alt="" />
             <span>New Users By Month</span>
           </div>
 
