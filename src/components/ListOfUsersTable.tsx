@@ -58,6 +58,12 @@ export const ListOfUsersTable = ({
   const [currentPoints, setCurrentPoints] = useState<number | null>(null);
   const [pointsChange, setPointsChange] = useState<number>(0);
 
+  // Corrected recurring points states:
+  // recurringPoints holds the value fetched from the API (for display)
+  const [recurringPoints, setRecurringPoints] = useState<number | null>(null);
+  // recurringPointsEdit is used by the plus/minus controls to adjust value
+  const [recurringPointsEdit, setRecurringPointsEdit] = useState<number>(0);
+
   // For the "Edit" modal (creating/updating user info)
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState<any>(null);
@@ -172,11 +178,34 @@ export const ListOfUsersTable = ({
     }
   };
 
+  // Updated fetch function for recurring points:
+  // It sets both the API value and the editable value.
+  const fetchRecurringPoints = async (driverEmail: string) => {
+    try {
+      const url = `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/dailypoints?DriversEmail=${encodeURIComponent(
+        driverEmail
+      )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      const fetched = Number(data.DailyPoints);
+      setRecurringPoints(fetched); // API value for display
+      setRecurringPointsEdit(fetched); // Value editable by plus/minus buttons
+    } catch (error) {
+      console.error("Error fetching recurring points:", error);
+      setRecurringPoints(0);
+      setRecurringPointsEdit(0);
+    }
+  };
+
   useEffect(() => {
     if (selectedUser && sponsorOrgID) {
       const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
       if (driverEmail) {
         fetchCurrentPoints(driverEmail);
+        fetchRecurringPoints(driverEmail);
       }
     }
   }, [selectedUser, sponsorOrgID]);
@@ -215,11 +244,38 @@ export const ListOfUsersTable = ({
     }
   };
 
+  const handleSetRecurringPoints = async () => {
+    const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
+    const sponsorID = Number(sponsorOrgID);
+    try {
+      const response = await fetch(
+        "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/dailypoints",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            DriversEmail: driverEmail,
+            DriversSponsorID: sponsorID,
+            DailyPoints: recurringPointsEdit, // use editable value for update
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      await fetchRecurringPoints(driverEmail); // refresh after updating
+      alert("Daily recurring points set successfully");
+    } catch (error) {
+      console.error("Error setting daily points:", error);
+      alert("Failed to set daily points.");
+    }
+  };
+
   // =========================================
   // EDIT MODAL METHODS
   // =========================================
   const handleEditUser = (user: any, userType: string) => {
-    // Build up initialData in the shape the modal expects
+    // Build initial data for the edit modal
     let firstName = "";
     let familyName = "";
     let email = "";
@@ -229,19 +285,15 @@ export const ListOfUsersTable = ({
       firstName = user.DriverFName;
       familyName = user.DriverLName;
       email = user.DriverEmail;
-      // Drivers may not have an org here (they may have multiple sponsors)
-      // so we can leave org as "" or handle it if you store a single sponsor:
-      // org = user.DriverSponsor;
     } else if (userType === "Sponsor") {
       firstName = user.UserFName;
       familyName = user.UserLName;
       email = user.UserEmail;
-      org = user.UserOrganization; // sponsor org
+      org = user.UserOrganization;
     } else if (userType === "Admin") {
       firstName = user.AdminFName;
       familyName = user.AdminLName;
       email = user.AdminEmail;
-      // admin typically has no org
     }
 
     setEditData({
@@ -249,7 +301,7 @@ export const ListOfUsersTable = ({
       familyName,
       email,
       userType,
-      newUser: false, // We are editing an existing user
+      newUser: false,
       org,
     });
 
@@ -379,7 +431,7 @@ export const ListOfUsersTable = ({
         </tbody>
       </table>
 
-      {/* View Organizations Modal */}
+      {/* View Organization Modal */}
       <ViewOrgModal
         isOpen={isViewOrgModalOpen}
         onClose={() => setIsViewOrgModalOpen(false)}
@@ -387,7 +439,11 @@ export const ListOfUsersTable = ({
       />
 
       {/* Actions Modal (Points, Impersonation, etc.) */}
-      <Modal show={showActionsModal} onHide={handleCloseActionsModal}>
+      <Modal
+        dialogClassName="modal-lg"
+        show={showActionsModal}
+        onHide={handleCloseActionsModal}
+      >
         <Modal.Header closeButton>
           <Modal.Title style={{ width: "100%", textAlign: "center" }}>
             Edit Driver
@@ -406,14 +462,20 @@ export const ListOfUsersTable = ({
                 <strong>User Points: </strong>
                 {currentPoints !== null ? currentPoints : "Loading..."}
               </p>
+              <p>
+                <strong>Recurring Points: </strong>
+                {recurringPoints !== null ? recurringPoints : "Loading..."}
+              </p>
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
                   marginBottom: "10px",
+                  flexWrap: "wrap",
                 }}
               >
+                {/* One-time point adjustment */}
                 <button
                   className="btn btn-secondary"
                   onClick={() => setPointsChange(pointsChange - 1)}
@@ -429,6 +491,30 @@ export const ListOfUsersTable = ({
                 </button>
                 <button className="btn btn-primary" onClick={handleChangePoints}>
                   Change Points
+                </button>
+
+                <br style={{ flexBasis: "100%", height: 0 }} />
+
+                {/* Recurring (Daily) points controls */}
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setRecurringPointsEdit(recurringPointsEdit - 1)}
+                >
+                  -
+                </button>
+                <span>{recurringPointsEdit}</span>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setRecurringPointsEdit(recurringPointsEdit + 1)}
+                >
+                  +
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSetRecurringPoints}
+                  title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
+                >
+                  Set Recurring Points
                 </button>
               </div>
             </>
@@ -479,7 +565,7 @@ export const ListOfUsersTable = ({
         </Modal.Footer>
       </Modal>
 
-      {/* Our renamed User-Editing Modal */}
+      {/* User Editing Modal */}
       <UserModal
         isOpen={showEditModal}
         onClose={handleCloseEditModal}
