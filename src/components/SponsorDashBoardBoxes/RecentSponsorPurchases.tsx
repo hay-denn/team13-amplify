@@ -41,7 +41,8 @@ export const RecentSponsorPurchases = ({
         const data: Purchase[] = await response.json();
 
         const filteredPurchases = data.filter(
-          (purchase) => purchase.PurchaseSponsorID.toString() === SponsorID
+          (purchase) =>
+            purchase.PurchaseSponsorID.toString() === SponsorID.toString()
         );
         setPurchases(filteredPurchases);
 
