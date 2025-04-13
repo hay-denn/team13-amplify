@@ -30,6 +30,7 @@ export const SponsorDashboard = () => {
   const [organizationData, setOrganizationData] =
     useState<OrganizationData | null>(null);
 
+  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(false);
   const url_getSponsorID =
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
@@ -42,6 +43,7 @@ export const SponsorDashboard = () => {
         `${url_getSponsorID}/sponsor?UserEmail=${currsponsor_email}`
       );
       setCurrentSponsorId(response.data.UserOrganization);
+      setSponsorIdLoaded(true);
     } catch (error) {
       console.error("Error fetching driver info:", error);
     }
@@ -65,6 +67,10 @@ export const SponsorDashboard = () => {
 
     fetchOrganization();
   }, [currentSponsorId]);
+
+  if (!sponsorIdLoaded) {
+    return <div>Loading Org Info...</div>;
+  }
 
   return (
     <div className="container my-4 ">
