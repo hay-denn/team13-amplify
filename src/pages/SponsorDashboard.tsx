@@ -5,6 +5,8 @@ import { useAuth } from "react-oidc-context";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Faststats } from "../components/SponsorDashBoardBoxes/faststats";
+import { PurchaseByMonth } from "../components/SponsorDashBoardBoxes/PurchaseByMonth";
+
 interface OrganizationData {
   OrganizationID: number;
   OrganizationName: string;
@@ -75,39 +77,44 @@ export const SponsorDashboard = () => {
 
   return (
     <div className="container-fluid my-0">
-      <h1 className="text-center mb-4 mt-3">
+      <h6 className="text-center mb-3 mt-2">
         <div className="welcome-message">Welcome Back {currsponsor_name}!</div>
-      </h1>
+      </h6>
 
-      <div className="row g-3">
+      <div className="row g-2 mt-2">
         <div className="col-md-4">
-          <div className="box box1">
-            <RecentSponsorPurchases SponsorID={currentSponsorId} />
+          <div className="box box3 p-2">
+            <PurchaseByMonth SponsorID={13} />
           </div>
         </div>
 
         <div className="col-md-6">
-          <div className="box box2">
+          <div className="box box2 p-2">
             <ChartBox SponsorID={currentSponsorId} />
           </div>
         </div>
-        <div className="col-md-2 p-0">
+        <div className="col-md-2">
           <div className="box box1 m-0 p-2">
             <Faststats SponsorID={currentSponsorId} />
           </div>
         </div>
+      </div>
+
+      <div className="row g-2 mt-3">
+        <div className="col-md-4">
+          <div className="box box1 p-2">
+            <RecentSponsorPurchases SponsorID={currentSponsorId} />
+          </div>
+        </div>
 
         <div className="col-md-4">
-          <div className="box box3">Leading Users</div>
-        </div>
-        <div className="col-md-4">
-          <div className="box box4">
+          <div className="box box4 p-2">
             Company Notices From {organizationData?.OrganizationName}
           </div>
         </div>
         <div className="col-md-4">
-          <div className="box box5">
-            Number Of Products in the Catalog:
+          <div className="box box5 p-2">
+            Number Of Products in the Catalog:{" "}
             {organizationData?.AmountOfProducts}
           </div>
         </div>
