@@ -22,8 +22,9 @@ export default function About() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        const API_URL = import.meta.env.VITE_API_ABOUT;
 
-        const fetchTeamMembers = fetch("https://8xjqp87715.execute-api.us-east-1.amazonaws.com/dev1/teammembers")
+        const fetchTeamMembers = fetch(`${API_URL}/teammembers`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Team members fetch error! Status: ${response.status}`);
@@ -31,7 +32,7 @@ export default function About() {
                 return response.json() as Promise<TeamMember[]>;
             });
 
-        const fetchAboutTeam = fetch("https://8xjqp87715.execute-api.us-east-1.amazonaws.com/dev1/aboutteam")
+        const fetchAboutTeam = fetch(`${API_URL}/aboutteam`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`About team fetch error! Status: ${response.status}`);
@@ -42,7 +43,6 @@ export default function About() {
         Promise.all([fetchTeamMembers, fetchAboutTeam])
             .then(([membersData, aboutTeamData]) => {
                 setTeamMembers(membersData);
-                // aboutTeamData is an array, so we’ll assume it has at least one object
                 setAboutTeam(aboutTeamData[0] || null);
                 setLoading(false);
             })
