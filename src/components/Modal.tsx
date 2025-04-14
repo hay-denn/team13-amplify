@@ -663,6 +663,7 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
         <ul className="modal-list">
           {driverOrgs.map((driverOrg) => {
             const org = orgs.find((o) => o.OrganizationID === driverOrg.DriversSponsorID);
+            console.log(org);
             return org ? (
               <li key={org.OrganizationID}>
                 {org.OrganizationName} 
