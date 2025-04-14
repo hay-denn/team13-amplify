@@ -339,7 +339,7 @@ export const CartPage: React.FC = () => {
             PurchaseAssociatedID: purchaseID,
             ProductPurchaseQuantity: item.quantity,
           };
-          emailBody += `${item.name}\n`;
+          emailBody += `Product Name: ${item.name}\t Point Price: ${item.cost}\n`;
           return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
         })
       );
@@ -356,6 +356,7 @@ export const CartPage: React.FC = () => {
   
       // Send confirmation email if enabled
       if (orderPlacedEmails === 1) {
+        emailBody += "Order Total: " + totalCost;
         const emailData = {
           username: driverEmail,
           emailSubject: "Thanks for your purchase!",

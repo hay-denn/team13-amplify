@@ -7,6 +7,7 @@ interface Purchase {
   PurchaseDate: string; // Format: YYYY-MM-DD
   PurchaseStatus: string;
   PurchaseSponsorID: string;
+  PurchasePrice: number;
 }
 
 interface ProductPurchased {
@@ -270,7 +271,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
           const emailData = {
             "username" : userEmail,
             "emailSubject" : "Update to your order",
-            "emailBody" : "Your order has been canceled."
+            "emailBody" : "An order on your account was canceled. You have been refunded the order cost of " + purchaseCost + " points."
           }
           await callAPI("https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1/send-email", "POST", emailData);
         }
@@ -315,14 +316,6 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
               const purchaseProducts = productsPurchased.filter(
                 product => product.PurchaseAssociatedID === purchase.PurchaseID
               );
-              // If view is expanded, compute total cost.
-              const totalCost = expandedPurchases[purchase.PurchaseID]
-                ? purchaseProducts.reduce(
-                    (sum, product) =>
-                      sum + (productDetails[product.ProductPurchasedID]?.cost || 0),
-                    0
-                  )
-                : null;
 
               return (
                 <tr key={purchase.PurchaseID}>
@@ -346,13 +339,11 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                     )}
                   </td>
                   <td>
-                    {expandedPurchases[purchase.PurchaseID]
-                      ? `$${totalCost?.toFixed(2)}`
-                      : "Click View to See Cost"}
+                    {purchase.PurchasePrice.toFixed(2)}
                   </td>
                   <td>
                     {purchase.PurchaseDate.split('T')[0] === today && purchase.PurchaseStatus !== "Canceled" && (
-                      <button onClick={() => handleCancel(purchase.PurchaseSponsorID, purchase.PurchaseID, totalCost || 0)}>
+                      <button onClick={() => handleCancel(purchase.PurchaseSponsorID, purchase.PurchaseID, purchase.PurchasePrice || 0)}>
                         Cancel
                       </button>
                     )}
