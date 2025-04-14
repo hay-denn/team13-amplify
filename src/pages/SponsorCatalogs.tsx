@@ -75,7 +75,7 @@ export const SponsorCatalogs: React.FC = () => {
     try {
       const url = `https://b7tt4s7jl3.execute-api.us-east-1.amazonaws.com/dev1/itunes?term=${encodeURIComponent(
         searchTerm
-      )}&media=${type}&limit=${amount}`;
+      )}&media=${type}&limit=${amount}&explicit=No`;
 
       const response = await axios.get(url, {
         headers: { "Content-Type": "application/json" },

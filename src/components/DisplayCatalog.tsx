@@ -99,7 +99,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
 
   const handleFetchAll = async () => {
     try {
-      const limit = 50;
+      const limit = organizationData?.AmountOfProducts || 10;
       let offset = 0;
       let fetchedItems: CatalogItem[] = [];
       let keepFetching = true;
