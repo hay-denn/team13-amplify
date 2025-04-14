@@ -263,104 +263,115 @@ export const CartPage: React.FC = () => {
   const totalCost = filteredCart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
 
   const handleSubmitOrder = async () => {
-    if (selectedOrganizationID) {
-    //check point balance 
-
-    //get correct organization for point balance check
-    let curOrgIndex = -1;
-    if (impersonation) {
-      curOrgIndex = Number(impersonation.sponsorOrgID);
-    } else {
-      curOrgIndex = filteredOrgs.findIndex(
-        (driverorg) =>
-          driverorg.DriversSponsorID === selectedOrganizationID
-      );
-      console.log(curOrgIndex)
+    if (!selectedOrganizationID) {
+      alert("Select an organization before submitting the order!");
+      return;
     }
-
-    if (filteredOrgs[curOrgIndex].DriversPoints >= totalCost) {
-        //post purchase
-            const purchaseData = {
-              "PurchaseDriver" : userEmail,
-              "PurchaseDate": getCurrentMySQLDate(),
-              "PurchaseStatus":"Delivered",
-              "PurchaseSponsorID": selectedOrganizationID
-          }
-          try {
-            const purchaseResult = await callAPI(`${PUR_API}/purchase`, "POST", purchaseData);
-            const purchaseResultData = await purchaseResult;
-            const purchaseID = purchaseResultData?.PurchaseID;
-            if (purchaseID !== undefined) {
-              //Get a sponsor email from this organization for the point change
-              let sponsorEmail = "";
-              if (impersonation) {
-                sponsorEmail = impersonation.email;
-              } else {
-                const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${selectedOrganizationID}`);
-                const sponsorResultData = await sponsorResult;
-                sponsorEmail = sponsorResultData[0]?.UserEmail;
-              }
-              if (sponsorEmail !== undefined) {
-                const pointChange = (totalCost * -1);
-                const pointChangeData = {
-                  "PointChangeDriver": userEmail,
-                  "PointChangeSponsor": sponsorEmail, 
-                  "PointChangeNumber": pointChange,
-                  "PointChangeAction": "Subtract"
-                }
-                callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
-                
-                let emailBody = "Thank you for your order!\nProducts Purchased:\n";
-                await Promise.all(
-                  filteredCart.map((item) => {
-                    const productData = {
-                      "ProductPurchasedID": item.id,
-                      "PurchaseAssociatedID": purchaseID,
-                      "ProductPurchaseQuantity": item.quantity
-                    };
-                    emailBody = emailBody + item.name + "\n"
-                    console.log(productData);
-                    
-                    return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
-                  })
-                );
-
-                  // Remove all items in filteredCart from the global cart.
-                  // Compute the indices in the global cart that match the selected organization.
-                  const indicesToRemove = cart
-                  .map((item, index) => item.org === selectedOrganizationID ? index : -1)
-                  .filter((index) => index !== -1)
-                  .sort((a, b) => b - a); // Remove from highest index to lowest.
-
-                indicesToRemove.forEach((index) => {
-                  removeFromCart(index);
-                });
-                if (orderPlacedEmails === 1) {
-                  const emailData = {
-                    "username" : userEmail,
-                    "emailSubject" : "Thanks for your purchase!",
-                    "emailBody" : emailBody
-                  };
-                  callAPI(`${EMAIL_API}/send-email`, "POST", emailData);
-                }
-                alert("Purchase success!");
-              } else {
-                console.log("Could not retrieve a sponsor ID for the purchase");
-                alert("Error processing purchase. Please try again.");
-              }
-            }
-          } catch (error) {
-            console.error("Error occurred processing purchase", error);
-            alert("Error processing purchase. Please try again.")
-          }
-    } else {
+  
+    // Determine the driver context
+    const driverEmail = impersonation
+      ? impersonation.email // Impersonated driver
+      : userEmail; // Normal signed-in driver
+  
+    const sponsorOrgID = impersonation
+      ? Number(impersonation.sponsorOrgID) // Impersonated driver's sponsorOrgID
+      : selectedOrganizationID; // Selected organization for the signed-in driver
+  
+    // Ensure driverEmail and sponsorOrgID are available
+    if (!driverEmail || !sponsorOrgID) {
+      alert("Unable to process the order. Missing driver or organization information.");
+      return;
+    }
+  
+    // Check point balance
+    const orgIndex = currentOrganizations.findIndex(
+      (org) => org.DriversSponsorID === sponsorOrgID
+    );
+  
+    if (orgIndex === -1 || currentOrganizations[orgIndex].DriversPoints < totalCost) {
       alert("Insufficient points!");
+      return;
     }
-
-  } else {
-    alert("Select an organization before submitting order!");
-  }
-}
+  
+    // Prepare purchase data
+    const purchaseData = {
+      PurchaseDriver: driverEmail,
+      PurchaseDate: getCurrentMySQLDate(),
+      PurchaseStatus: "Delivered",
+      PurchaseSponsorID: sponsorOrgID,
+    };
+  
+    try {
+      // Post purchase
+      const purchaseResult = await callAPI(`${PUR_API}/purchase`, "POST", purchaseData);
+      const purchaseID = purchaseResult?.PurchaseID;
+  
+      if (!purchaseID) {
+        throw new Error("Failed to create purchase.");
+      }
+  
+      // Get sponsor email for point change
+      let sponsorEmail = "";
+      if (impersonation) {
+        sponsorEmail = impersonation.email;
+      } else {
+        const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${sponsorOrgID}`);
+        sponsorEmail = sponsorResult[0]?.UserEmail;
+      }
+  
+      if (!sponsorEmail) {
+        throw new Error("Failed to retrieve sponsor email.");
+      }
+  
+      // Subtract points
+      const pointChangeData = {
+        PointChangeDriver: driverEmail,
+        PointChangeSponsor: sponsorEmail,
+        PointChangeNumber: -totalCost,
+        PointChangeAction: "Subtract",
+      };
+      await callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
+  
+      // Add purchased products
+      let emailBody = "Thank you for your order!\nProducts Purchased:\n";
+      await Promise.all(
+        filteredCart.map((item) => {
+          const productData = {
+            ProductPurchasedID: item.id,
+            PurchaseAssociatedID: purchaseID,
+            ProductPurchaseQuantity: item.quantity,
+          };
+          emailBody += `${item.name}\n`;
+          return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
+        })
+      );
+  
+      // Remove items from the cart
+      const indicesToRemove = cart
+        .map((item, index) => (item.org === sponsorOrgID ? index : -1))
+        .filter((index) => index !== -1)
+        .sort((a, b) => b - a); // Remove from highest index to lowest
+  
+      indicesToRemove.forEach((index) => {
+        removeFromCart(index);
+      });
+  
+      // Send confirmation email if enabled
+      if (orderPlacedEmails === 1) {
+        const emailData = {
+          username: driverEmail,
+          emailSubject: "Thanks for your purchase!",
+          emailBody,
+        };
+        await callAPI(`${EMAIL_API}/send-email`, "POST", emailData);
+      }
+  
+      alert("Purchase success!");
+    } catch (error) {
+      console.error("Error occurred processing purchase:", error);
+      alert("Error processing purchase. Please try again.");
+    }
+  };
 
   return (
     <div className="container manage-users-container py-3 m-5">
