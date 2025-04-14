@@ -14,8 +14,6 @@ console.log("VITE_COGNITO_DOMAIN:", import.meta.env.VITE_COGNITO_DOMAIN);
 console.log("VITE_IDENTITY_POOL_ID:", import.meta.env.VITE_IDENTITY_POOL_ID);
 console.log("VITE_USER_POOL_ID:", import.meta.env.VITE_USER_POOL_ID);
 
-// test
-
 const cognitoAuthConfig = {
   authority: import.meta.env.VITE_COGNITO_AUTHORITY,
   client_id: import.meta.env.VITE_CLIENT_ID,
