@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import "./chartBox.css";
 import { Bar, BarChart, Cell, Legend, Tooltip, XAxis, YAxis } from "recharts";
 import { CartesianGrid, ResponsiveContainer } from "recharts";
@@ -17,7 +16,7 @@ interface Props {
 
 export const ChartBox = ({ SponsorID }: Props) => {
   const sponsorDriverUrl =
-    "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+    "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
   const [driverInfo, setDriverInfo] = useState<DriverInfo[]>([]);
 
@@ -59,24 +58,6 @@ export const ChartBox = ({ SponsorID }: Props) => {
 
   return (
     <>
-      <div className="driverList">
-        <h2>Drivers:</h2>
-        {driverInfo && driverInfo.length > 0 ? (
-          <ul>
-            {driverInfo.map((driver, index) => (
-              <li key={index}>
-                <strong>Email:</strong> {driver.DriversEmail} |{" "}
-                <strong>Sponsor ID:</strong> {driver.DriversSponsorID} |{" "}
-                <strong>Points:</strong> {driver.DriversPoints} |{" "}
-                <strong>Daily Points:</strong> {driver.DailyPoints}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No driver information available.</p>
-        )}
-      </div>
-
       <div className="chartBox">
         <div className="boxInfo">
           <div className="title">
@@ -84,8 +65,6 @@ export const ChartBox = ({ SponsorID }: Props) => {
             <span>Current Point Leaders</span>
           </div>
 
-          <h1>10</h1>
-          <Link to="/DriverManagement">"View users"</Link>
           <div className="chartInfo">
             <div className="chart"></div>
             <ResponsiveContainer width="100%" height={250}>
