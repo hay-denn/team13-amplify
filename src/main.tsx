@@ -5,15 +5,6 @@ import App from './App.tsx';
 import { AuthProvider } from "react-oidc-context";
 import { Amplify } from 'aws-amplify';
 
-console.log("Environment Variables:");
-console.log("VITE_COGNITO_AUTHORITY:", import.meta.env.VITE_COGNITO_AUTHORITY);
-console.log("VITE_CLIENT_ID:", import.meta.env.VITE_CLIENT_ID);
-console.log("VITE_CLIENT_SECRET:", import.meta.env.VITE_CLIENT_SECRET);
-console.log("VITE_REDIRECT_URI:", import.meta.env.VITE_REDIRECT_URI);
-console.log("VITE_COGNITO_DOMAIN:", import.meta.env.VITE_COGNITO_DOMAIN);
-console.log("VITE_IDENTITY_POOL_ID:", import.meta.env.VITE_IDENTITY_POOL_ID);
-console.log("VITE_USER_POOL_ID:", import.meta.env.VITE_USER_POOL_ID);
-
 const cognitoAuthConfig = {
   authority: import.meta.env.VITE_COGNITO_AUTHORITY,
   client_id: import.meta.env.VITE_CLIENT_ID,
