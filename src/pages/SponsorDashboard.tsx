@@ -1,5 +1,5 @@
 import { RecentSponsorPurchases } from "../components/SponsorDashBoardBoxes/RecentSponsorPurchases";
-import { ChartBox } from "../components/Charts/chartBox";
+import { ChartBox } from "../components/SponsorDashBoardBoxes/chartBox";
 import "./SponsorDashboard.css";
 import { useAuth } from "react-oidc-context";
 import { useEffect, useState } from "react";
@@ -30,7 +30,7 @@ export const SponsorDashboard = () => {
   const [organizationData, setOrganizationData] =
     useState<OrganizationData | null>(null);
 
-  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(false);
+  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(true);
   const url_getSponsorID =
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
@@ -87,7 +87,7 @@ export const SponsorDashboard = () => {
 
         <div className="col-md-6">
           <div className="box box2">
-            <ChartBox />
+            <ChartBox SponsorID={currentSponsorId} />
           </div>
         </div>
         <div className="col-md-2">
