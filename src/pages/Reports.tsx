@@ -562,6 +562,73 @@ const Reports: React.FC = () => {
     }
     return null;
   };
+  const renderChart = () => {
+    if (!Array.isArray(reportData)) return null;
+    if (selectedReport === "Driver Applications") {
+      return (
+        <BarChart data={reportData}>
+           <XAxis dataKey="PointChangeDriver" />
+           <YAxis />
+           <Tooltip />
+           <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+      );
+    } else if (selectedReport === "Driver Point Changes") {
+        return (
+        <BarChart data={reportData}>
+            <XAxis dataKey="PointChangeDriver" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+        );
+    } else if (selectedReport === "Purchases") {
+        return (
+        <BarChart data={reportData}>
+            <XAxis dataKey="PointChangeDriver" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+        );
+    } else if (selectedReport === "Invoices") {
+        return (
+        <BarChart data={reportData}>
+            <XAxis dataKey="PointChangeDriver" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+        );
+    } else if (selectedReport === "Password Change Logs") {
+        return (
+        <BarChart data={reportData}>
+            <XAxis dataKey="PointChangeDriver" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+        );
+    } else if (selectedReport === "Login Attempts Logs") {
+        return (
+        <BarChart data={reportData}>
+            <XAxis dataKey="PointChangeDriver" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+        );
+    } else {
+        return (
+        <BarChart data={reportData}>
+            <XAxis dataKey="PointChangeDriver" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+        );
+    }
+  };
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
@@ -601,12 +668,7 @@ const Reports: React.FC = () => {
             </TableContainer>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={reportData}>
-                <XAxis dataKey="PointChangeDriver" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="PointChangeNumber" />
-              </BarChart>
+              {renderChart()}
             </ResponsiveContainer>
           )}
         </div>
