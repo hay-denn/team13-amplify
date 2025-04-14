@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_BASE_URL = "https://0woutxiymc.execute-api.us-east-1.amazonaws.com/dev1";
+const API_PRODUCT_URL = import.meta.env.VITE_API_PRODUCT;
 
 const ProductDashboard: React.FC = () => {
 // States for API status and product count
@@ -34,7 +34,7 @@ const [deleteResult, setDeleteResult] = useState<string | null>(null);
 // Fetch API status from /status
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_PRODUCT_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -48,7 +48,7 @@ try {
 // Fetch product count from /product_count
 const fetchProductCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/product_count`);
+	const res = await fetch(`${API_PRODUCT_URL}/product_count`);
 	if (!res.ok) {
 	throw new Error(`Product count fetch failed: ${res.status}`);
 	}
@@ -62,7 +62,7 @@ try {
 // Create a new product using POST /product
 const handleCreateProduct = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/product`, {
+	const response = await fetch(`${API_PRODUCT_URL}/product`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -89,7 +89,7 @@ try {
 // Get a specific product using GET /product?ProductID=...
 const handleGetProduct = async () => {
 try {
-	const url = `${API_BASE_URL}/product?ProductID=${encodeURIComponent(getProductID)}`;
+	const url = `${API_PRODUCT_URL}/product?ProductID=${encodeURIComponent(getProductID)}`;
 	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}, ${await response.text()}`);
@@ -113,7 +113,7 @@ try {
 	if (updatePrice.trim() !== "") body.ProductPrice = updatePrice;
 	if (updateInventory.trim() !== "") body.ProductInventory = updateInventory;
 
-	const response = await fetch(`${API_BASE_URL}/product`, {
+	const response = await fetch(`${API_PRODUCT_URL}/product`, {
 	method: "PUT",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify(body),
@@ -135,7 +135,7 @@ try {
 // Delete a product using DELETE /product?ProductID=...
 const handleDeleteProduct = async () => {
 try {
-	const url = `${API_BASE_URL}/product?ProductID=${encodeURIComponent(deleteProductID)}`;
+	const url = `${API_PRODUCT_URL}/product?ProductID=${encodeURIComponent(deleteProductID)}`;
 	const response = await fetch(url, { method: "DELETE" });
 	if (!response.ok) {
 	throw new Error(`Delete failed: ${response.status}, ${await response.text()}`);
@@ -168,7 +168,7 @@ return (
 		</button>
 		</div>
 		<div>
-		<a href={`${API_BASE_URL}/products`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+		<a href={`${API_PRODUCT_URL}/products`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
 			See All Products
 		</a>
 		</div>

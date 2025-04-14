@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 // Adjust to your actual backend base URL
-const API_BASE_URL = "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1";
+const API_POINTCHANGES_URL = import.meta.env.VITE_API_POINTCHANGES;
 
 const validPointChangeActions = ["Add", "Subtract", "Set"];
 
@@ -34,7 +34,7 @@ const [deleteResult, setDeleteResult] = useState<string | null>(null);
  */
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_POINTCHANGES_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -51,7 +51,7 @@ try {
  */
 const fetchPointChangeCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/pointchanges_count`);
+	const res = await fetch(`${API_POINTCHANGES_URL}/pointchanges_count`);
 	if (!res.ok) {
 	throw new Error(`Count fetch failed: ${res.status}`);
 	}
@@ -76,7 +76,7 @@ try {
  */
 const handleCreatePointChange = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/pointchange`, {
+	const response = await fetch(`${API_POINTCHANGES_URL}/pointchange`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -112,7 +112,7 @@ try {
  */
 const handleGetPointChange = async () => {
 try {
-	const url = `${API_BASE_URL}/pointchange?PointChangeID=${encodeURIComponent(getID)}`;
+	const url = `${API_POINTCHANGES_URL}/pointchange?PointChangeID=${encodeURIComponent(getID)}`;
 	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}, ${await response.text()}`);
@@ -133,7 +133,7 @@ try {
  */
 const handleDeletePointChange = async () => {
 try {
-	const url = `${API_BASE_URL}/pointchange?PointChangeID=${encodeURIComponent(deleteID)}`;
+	const url = `${API_POINTCHANGES_URL}/pointchange?PointChangeID=${encodeURIComponent(deleteID)}`;
 
 	// Make the DELETE request with no request body
 	const response = await fetch(url, {
@@ -188,7 +188,7 @@ return (
 		<div className="mt-2">
 		{/* Link to see all point changes (direct link, if your API returns HTML/JSON) */}
 		<Link
-			to={`${API_BASE_URL}/pointchanges`}
+			to={`${API_POINTCHANGES_URL}/pointchanges`}
 			target="_blank"
 			rel="noopener noreferrer"
 			className="text-blue-600 underline"

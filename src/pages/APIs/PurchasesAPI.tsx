@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
-const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_PURCHASES_URL = import.meta.env.VITE_API_PURCHASES;
+const API_ORGANIZATION_URL= import.meta.env.VITE_API_ORGANIZATION;
 
 const PurchasesAPI: React.FC = () => {
 // -- States for /status & /purchase_count
@@ -39,7 +39,7 @@ const [organizations, setOrganizations] = useState<any>(null);
 // Fetch Organizations
 const fetchOrganizations = async () => {
 	try {
-		const res = await fetch(`${ORGANIZATIONS_API_URL}/organizations`);
+		const res = await fetch(`${API_ORGANIZATION_URL}/organizations`);
 		if (!res.ok) {
 			throw new Error(`Organizations fetch failed: ${res.status}`);
 		}
@@ -60,7 +60,7 @@ const fetchOrganizations = async () => {
  */
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_PURCHASES_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -77,7 +77,7 @@ try {
  */
 const fetchPurchaseCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/purchase_count`);
+	const res = await fetch(`${API_PURCHASES_URL}/purchase_count`);
 	if (!res.ok) {
 	throw new Error(`Purchase count fetch failed: ${res.status}`);
 	}
@@ -100,7 +100,7 @@ try {
  */
 const handleCreatePurchase = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/purchase`, {
+	const response = await fetch(`${API_PURCHASES_URL}/purchase`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -135,7 +135,7 @@ try {
  */
 const handleGetPurchase = async () => {
 try {
-	const url = `${API_BASE_URL}/purchase?PurchaseID=${encodeURIComponent(getID)}`;
+	const url = `${API_PURCHASES_URL}/purchase?PurchaseID=${encodeURIComponent(getID)}`;
 	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}, ${await response.text()}`);
@@ -177,7 +177,7 @@ try {
 	requestBody.PurchaseSponsorID = updateSponsorID;
 	}
 
-	const response = await fetch(`${API_BASE_URL}/purchase`, {
+	const response = await fetch(`${API_PURCHASES_URL}/purchase`, {
 	method: "PUT",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify(requestBody),
@@ -205,7 +205,7 @@ try {
  */
 const handleDeletePurchase = async () => {
 try {
-	const url = `${API_BASE_URL}/purchase?PurchaseID=${encodeURIComponent(deleteID)}`;
+	const url = `${API_PURCHASES_URL}/purchase?PurchaseID=${encodeURIComponent(deleteID)}`;
 
 	// Make the DELETE request with no request body
 	const response = await fetch(url, {
@@ -261,7 +261,7 @@ return (
 		</div>
 		<div>
 		{/* Link to see all purchases (if your API supports it) */}
-		<Link to={`${API_BASE_URL}/purchases`}>See All Purchases</Link>
+		<Link to={`${API_PURCHASES_URL}/purchases`}>See All Purchases</Link>
 		</div>
 	</section>
 

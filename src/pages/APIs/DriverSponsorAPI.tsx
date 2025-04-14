@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
-const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_DRIVERSSPONSORS_URL = import.meta.env.VITE_API_DRIVERSSPONSORS;
+const API_ORGANIZATION_URL= import.meta.env.VITE_API_ORGANIZATION;
 
 const DriverSponsorAPI: React.FC = () => {
 // States for /status & /driverssponsors_count
@@ -31,7 +31,7 @@ const [organizations, setOrganizations] = useState<any>(null);
 // Fetch Organizations
 const fetchOrganizations = async () => {
 	try {
-		const res = await fetch(`${ORGANIZATIONS_API_URL}/organizations`);
+		const res = await fetch(`${API_ORGANIZATION_URL}/organizations`);
 		if (!res.ok) {
 			throw new Error(`Organizations fetch failed: ${res.status}`);
 		}
@@ -51,7 +51,7 @@ const fetchOrganizations = async () => {
  */
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_DRIVERSSPONSORS_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -68,7 +68,7 @@ try {
  */
 const fetchRelationshipCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/driverssponsors_count`);
+	const res = await fetch(`${API_DRIVERSSPONSORS_URL}/driverssponsors_count`);
 	if (!res.ok) {
 	throw new Error(`Relationship count fetch failed: ${res.status}`);
 	}
@@ -86,7 +86,7 @@ try {
  */
 const handleCreateRelationship = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/driverssponsor`, {
+	const response = await fetch(`${API_DRIVERSSPONSORS_URL}/driverssponsor`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -115,7 +115,7 @@ try {
  */
 const handleGetRelationship = async () => {
 try {
-	const url = `${API_BASE_URL}/driverssponsor?DriversEmail=${encodeURIComponent(getEmail)}&DriversSponsorID=${encodeURIComponent(getSponsorID)}`;
+	const url = `${API_DRIVERSSPONSORS_URL}/driverssponsor?DriversEmail=${encodeURIComponent(getEmail)}&DriversSponsorID=${encodeURIComponent(getSponsorID)}`;
 	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}, ${await response.text()}`);
@@ -135,7 +135,7 @@ try {
  */
 const handleDeleteRelationship = async () => {
 try {
-	const url = `${API_BASE_URL}/driverssponsor?DriversEmail=${encodeURIComponent(deleteEmail)}&DriversSponsorID=${encodeURIComponent(deleteSponsorID)}`;
+	const url = `${API_DRIVERSSPONSORS_URL}/driverssponsor?DriversEmail=${encodeURIComponent(deleteEmail)}&DriversSponsorID=${encodeURIComponent(deleteSponsorID)}`;
 	const response = await fetch(url, { method: "DELETE" });
 	if (!response.ok) {
 	throw new Error(`Delete failed: ${response.status}, ${await response.text()}`);
@@ -185,7 +185,7 @@ return (
 		</div>
 		<div>
 		{/* Link to see all relationships */}
-		<Link to={`${API_BASE_URL}/driverssponsors`}>See All Relationships</Link>
+		<Link to={`${API_DRIVERSSPONSORS_URL}/driverssponsors`}>See All Relationships</Link>
 		</div>
 	</section>
 

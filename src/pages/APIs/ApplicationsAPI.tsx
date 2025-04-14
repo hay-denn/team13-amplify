@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
-const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_DRIVER_APPLICATION_URL = import.meta.env.VITE_API_DRIVER_APPLICATION;
+const API_ORGANIZATION_URL= import.meta.env.VITE_API_ORGANIZATION;
 
 const ApplicationsAPI: React.FC = () => {
 
@@ -40,7 +40,7 @@ const [organizations, setOrganizations] = useState<any>(null);
 // Fetch Organizations
 const fetchOrganizations = async () => {
 	try {
-		const res = await fetch(`${ORGANIZATIONS_API_URL}/organizations`);
+		const res = await fetch(`${API_ORGANIZATION_URL}/organizations`);
 		if (!res.ok) {
 			throw new Error(`Organizations fetch failed: ${res.status}`);
 		}
@@ -61,7 +61,7 @@ const fetchOrganizations = async () => {
  */
 const fetchStatus = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/status`);
+    const res = await fetch(`${API_DRIVER_APPLICATION_URL}/status`);
     if (!res.ok) {
     throw new Error(`Status fetch failed: ${res.status}`);
     }
@@ -79,7 +79,7 @@ const fetchStatus = async () => {
    */
   const fetchApplicationCount = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/driversponsorapplications_count`);
+    const res = await fetch(`${API_DRIVER_APPLICATION_URL}/driversponsorapplications_count`);
     if (!res.ok) {
     throw new Error(`Application count fetch failed: ${res.status}, ${await res.text()}`);
     }
@@ -92,7 +92,7 @@ const fetchStatus = async () => {
   
 const handleCreateApplication = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/driversponsorapplication`, {
+    const response = await fetch(`${API_DRIVER_APPLICATION_URL}/driversponsorapplication`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -121,7 +121,7 @@ const handleCreateApplication = async () => {
 
 const handleGetApplication = async () => {
   try {
-    const url = `${API_BASE_URL}/driversponsorapplication?ApplicationID=${encodeURIComponent(getID)}`;
+    const url = `${API_DRIVER_APPLICATION_URL}/driversponsorapplication?ApplicationID=${encodeURIComponent(getID)}`;
     const response = await fetch(url, { method: "GET" });
 
     if (!response.ok) {
@@ -148,7 +148,7 @@ const handleUpdateApplication = async () => {
     if (updateApplicationUser.trim() !== "") requestBody.ApplicationSponsorUser = updateApplicationUser;
     if (updateStatus.trim() !== "") requestBody.ApplicationStatus = updateStatus;
 
-    const response = await fetch(`${API_BASE_URL}/driversponsorapplication`, {
+    const response = await fetch(`${API_DRIVER_APPLICATION_URL}/driversponsorapplication`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
@@ -172,7 +172,7 @@ const handleUpdateApplication = async () => {
 
 const handleDeleteApplication = async () => {
   try {
-    const url = `${API_BASE_URL}/driversponsorapplication?ApplicationID=${encodeURIComponent(deleteID)}`;
+    const url = `${API_DRIVER_APPLICATION_URL}/driversponsorapplication?ApplicationID=${encodeURIComponent(deleteID)}`;
     const response = await fetch(url, {
       method: "DELETE",
     });
@@ -221,7 +221,7 @@ return (
             </button>
             </div>
             <div>
-                  <Link to="https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1/driversponsorapplications">See All Applications</Link>
+                  <Link to={`${API_DRIVER_APPLICATION_URL}/driversponsorapplications`}>See All Applications</Link>
                 </div>
           </section>
 

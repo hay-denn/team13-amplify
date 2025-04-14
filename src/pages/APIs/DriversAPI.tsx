@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+const API_DRIVER_URL = import.meta.env.VITE_API_DRIVER;
 
 const DriversAPI: React.FC = () => {
 // -- States for /status & /driver_count
@@ -35,7 +35,7 @@ const [deleteResult, setDeleteResult] = useState<string | null>(null);
  */
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_DRIVER_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -53,7 +53,7 @@ try {
  */
 const fetchDriverCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/driver_count`);
+	const res = await fetch(`${API_DRIVER_URL}/driver_count`);
 	if (!res.ok) {
 	throw new Error(`Driver count fetch failed: ${res.status}`);
 	}
@@ -76,7 +76,7 @@ try {
 
 const handleCreateDriver = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/driver`, {
+	const response = await fetch(`${API_DRIVER_URL}/driver`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -106,7 +106,7 @@ try {
  */
 const handleGetDriver = async () => {
 try {
-	const url = `${API_BASE_URL}/driver?DriverEmail=${encodeURIComponent(getEmail)}`;
+	const url = `${API_DRIVER_URL}/driver?DriverEmail=${encodeURIComponent(getEmail)}`;
 	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}`);
@@ -137,7 +137,7 @@ try {
 	if (updateFName.trim() !== "") requestBody.DriverFName = updateFName;
 	if (updateLName.trim() !== "") requestBody.DriverLName = updateLName;
 
-	const response = await fetch(`${API_BASE_URL}/driver`, {
+	const response = await fetch(`${API_DRIVER_URL}/driver`, {
 	method: "PUT",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify(requestBody),
@@ -168,7 +168,7 @@ try {
 const handleDeleteDriver = async () => {
 try {
 	// Construct the URL with the UserEmail as a query parameter
-	const url = `${API_BASE_URL}/driver?DriverEmail=${encodeURIComponent(deleteEmail)}`;
+	const url = `${API_DRIVER_URL}/driver?DriverEmail=${encodeURIComponent(deleteEmail)}`;
 
 	// Make the DELETE request with no request body
 	const response = await fetch(url, {
@@ -223,7 +223,7 @@ return (
 		</button>
 		</div>
 		<div>
-		<Link to="https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1/drivers">See All Drivers</Link>
+		<Link to={`${API_DRIVER_URL}/drivers`}>See All Drivers</Link>
 		</div>
 	</section>
 

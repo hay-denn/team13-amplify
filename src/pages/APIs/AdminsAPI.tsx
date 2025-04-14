@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+const API_ADMIN_URL = import.meta.env.VITE_API_ADMIN;
 
 const AdminsAPI: React.FC = () => {
   // -- States for /status & /admin_count
@@ -35,7 +35,7 @@ const AdminsAPI: React.FC = () => {
    */
   const fetchStatus = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/status`);
+      const res = await fetch(`${API_ADMIN_URL}/status`);
       if (!res.ok) {
         throw new Error(`Status fetch failed: ${res.status}`);
       }
@@ -53,7 +53,7 @@ const AdminsAPI: React.FC = () => {
    */
   const fetchAdminCount = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/admin_count`);
+      const res = await fetch(`${API_ADMIN_URL}/admin_count`);
       if (!res.ok) {
         throw new Error(`Admin count fetch failed: ${res.status}`);
       }
@@ -76,7 +76,7 @@ const AdminsAPI: React.FC = () => {
   const handleCreateAdmin = async () => {
     try {
   
-      const response = await fetch(`${API_BASE_URL}/admin`, {
+      const response = await fetch(`${API_ADMIN_URL}/admin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -105,7 +105,7 @@ const AdminsAPI: React.FC = () => {
    */
   const handleGetAdmin = async () => {
     try {
-      const url = `${API_BASE_URL}/admin?AdminEmail=${encodeURIComponent(getEmail)}`;
+      const url = `${API_ADMIN_URL}/admin?AdminEmail=${encodeURIComponent(getEmail)}`;
       const response = await fetch(url, { method: "GET" });
       if (!response.ok) {
         throw new Error(`Get failed: ${response.status}`);
@@ -130,7 +130,7 @@ const AdminsAPI: React.FC = () => {
    */
   const handleUpdateAdmin = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin`, {
+      const response = await fetch(`${API_ADMIN_URL}/admin`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -161,7 +161,7 @@ const AdminsAPI: React.FC = () => {
   const handleDeleteAdmin = async () => {
     try {
       // Construct the URL with the UserEmail as a query parameter
-      const url = `${API_BASE_URL}/admin?AdminEmail=${encodeURIComponent(deleteEmail)}`;
+      const url = `${API_ADMIN_URL}/admin?AdminEmail=${encodeURIComponent(deleteEmail)}`;
   
       // Make the DELETE request with no request body
       const response = await fetch(url, {
@@ -216,7 +216,7 @@ const AdminsAPI: React.FC = () => {
             </button>
           </div>
           <div>
-            <Link to="https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1/admins">See All Admins</Link>
+            <Link to={`${API_ADMIN_URL}/admins`}>See All Admins</Link>
           </div>
         </section>
 

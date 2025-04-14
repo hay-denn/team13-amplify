@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_BASE_URL = "https://ptgem248l6.execute-api.us-east-1.amazonaws.com/dev1";
+const API_PRODUCTS_PURCHASED_URL = import.meta.env.VITE_API_PRODUCTS_PURCHASED;
 
 const ProductsPurchasedAPI: React.FC = () => {
 // States for /status & /productspurchased_count
@@ -35,7 +35,7 @@ const [deleteResult, setDeleteResult] = useState<string | null>(null);
  */
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_PRODUCTS_PURCHASED_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -51,7 +51,7 @@ try {
  */
 const fetchPurchaseCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/productspurchased_count`);
+	const res = await fetch(`${API_PRODUCTS_PURCHASED_URL}/productspurchased_count`);
 	if (!res.ok) {
 	throw new Error(`Count fetch failed: ${res.status}`);
 	}
@@ -67,7 +67,7 @@ try {
  */
 const handleCreateProductPurchase = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/productpurchased`, {
+	const response = await fetch(`${API_PRODUCTS_PURCHASED_URL}/productpurchased`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -94,7 +94,7 @@ try {
  */
 const handleGetProductPurchase = async () => {
 try {
-	const url = `${API_BASE_URL}/productpurchased?ProductPurchasedID=${encodeURIComponent(
+	const url = `${API_PRODUCTS_PURCHASED_URL}/productpurchased?ProductPurchasedID=${encodeURIComponent(
 	getProductPurchasedID
 	)}&PurchaseAssociatedID=${encodeURIComponent(getPurchaseAssociatedID)}`;
 	const response = await fetch(url, { method: "GET" });
@@ -120,7 +120,7 @@ try {
 	PurchaseAssociatedID: updatePurchaseAssociatedID,
 	ProductPurchaseQuantity: updateQuantity,
 	};
-	const response = await fetch(`${API_BASE_URL}/productpurchased`, {
+	const response = await fetch(`${API_PRODUCTS_PURCHASED_URL}/productpurchased`, {
 	method: "PUT",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify(requestBody),
@@ -142,7 +142,7 @@ try {
  */
 const handleDeleteProductPurchase = async () => {
 try {
-	const url = `${API_BASE_URL}/productpurchased?ProductPurchasedID=${encodeURIComponent(
+	const url = `${API_PRODUCTS_PURCHASED_URL}/productpurchased?ProductPurchasedID=${encodeURIComponent(
 	deleteProductPurchasedID
 	)}&PurchaseAssociatedID=${encodeURIComponent(deletePurchaseAssociatedID)}`;
 	const response = await fetch(url, { method: "DELETE" });
@@ -191,7 +191,7 @@ return (
 		<div>
 		{/* Link to see all product purchases */}
 		<a
-			href={`${API_BASE_URL}/productspurchased`}
+			href={`${API_PRODUCTS_PURCHASED_URL}/productspurchased`}
 			target="_blank"
 			rel="noopener noreferrer"
 		>

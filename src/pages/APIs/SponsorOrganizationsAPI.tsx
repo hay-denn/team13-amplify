@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_BASE_URL = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_ORGANIZATION_URL = import.meta.env.VITE_API_ORGANIZATION;
 
 const SponsorOrganizationsAPI: React.FC = () => {
   // -- States for /status & /organization_count
@@ -60,7 +60,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
   // ===========================================
   const fetchStatus = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/status`);
+      const res = await fetch(`${API_ORGANIZATION_URL}/status`);
       if (!res.ok) {
         throw new Error(`Status fetch failed: ${res.status}`);
       }
@@ -73,7 +73,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
 
   const fetchOrganizationCount = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/organization_count`);
+      const res = await fetch(`${API_ORGANIZATION_URL}/organization_count`);
       if (!res.ok) {
         throw new Error(`Organization count fetch failed: ${res.status}`);
       }
@@ -89,7 +89,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
   // ===========================================
   const handleCreateOrganization = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/organization`, {
+      const response = await fetch(`${API_ORGANIZATION_URL}/organization`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -137,7 +137,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
   // ===========================================
   const handleGetOrganization = async () => {
     try {
-      const url = `${API_BASE_URL}/organization?OrganizationID=${encodeURIComponent(getID)}`;
+      const url = `${API_ORGANIZATION_URL}/organization?OrganizationID=${encodeURIComponent(getID)}`;
       const response = await fetch(url, { method: "GET" });
       if (!response.ok) {
         throw new Error(`Get failed: ${response.status}, ${await response.text()}`);
@@ -184,7 +184,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
           updateHideWebsiteUrl.toLowerCase() === "true" ? true : false;
       }
 
-      const response = await fetch(`${API_BASE_URL}/organization`, {
+      const response = await fetch(`${API_ORGANIZATION_URL}/organization`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
@@ -220,7 +220,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
   // ===========================================
   const handleDeleteOrganization = async () => {
     try {
-      const url = `${API_BASE_URL}/organization?OrganizationID=${encodeURIComponent(deleteID)}`;
+      const url = `${API_ORGANIZATION_URL}/organization?OrganizationID=${encodeURIComponent(deleteID)}`;
       const response = await fetch(url, { method: "DELETE" });
 
       if (!response.ok) {
@@ -272,7 +272,7 @@ const SponsorOrganizationsAPI: React.FC = () => {
           </div>
           <div>
             <a
-              href={`${API_BASE_URL}/organizations`}
+              href={`${API_ORGANIZATION_URL}/organizations`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 underline"

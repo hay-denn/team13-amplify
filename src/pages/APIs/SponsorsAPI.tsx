@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-const ORGANIZATIONS_API_URL="https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+const API_SPONSOR_URL = import.meta.env.VITE_API_SPONSOR;
+const API_ORGANIZATION_URL= import.meta.env.VITE_API_ORGANIZATION;
 
 const SponsorsAPI: React.FC = () => {
 // -- States for /status & /sponsor_count
@@ -38,7 +38,7 @@ const [organizations, setOrganizations] = useState<any>(null);
 // Fetch Organizations
 const fetchOrganizations = async () => {
 	try {
-		const res = await fetch(`${ORGANIZATIONS_API_URL}/organizations`);
+		const res = await fetch(`${API_ORGANIZATION_URL}/organizations`);
 		if (!res.ok) {
 			throw new Error(`Organizations fetch failed: ${res.status}`);
 		}
@@ -59,7 +59,7 @@ const fetchOrganizations = async () => {
  */
 const fetchStatus = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/status`);
+	const res = await fetch(`${API_SPONSOR_URL}/status`);
 	if (!res.ok) {
 	throw new Error(`Status fetch failed: ${res.status}`);
 	}
@@ -77,7 +77,7 @@ try {
  */
 const fetchSponsorCount = async () => {
 try {
-	const res = await fetch(`${API_BASE_URL}/sponsor_count`);
+	const res = await fetch(`${API_SPONSOR_URL}/sponsor_count`);
 	if (!res.ok) {
 	throw new Error(`Sponsor count fetch failed: ${res.status}`);
 	}
@@ -99,7 +99,7 @@ try {
    */
 const handleCreateSponsor = async () => {
 try {
-	const response = await fetch(`${API_BASE_URL}/sponsor`, {
+	const response = await fetch(`${API_SPONSOR_URL}/sponsor`, {
 	method: "POST",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify({
@@ -131,7 +131,7 @@ try {
  */
 const handleGetSponsor = async () => {
 try {
-	const url = `${API_BASE_URL}/sponsor?UserEmail=${encodeURIComponent(getEmail)}`;
+	const url = `${API_SPONSOR_URL}/sponsor?UserEmail=${encodeURIComponent(getEmail)}`;
 	const response = await fetch(url, { method: "GET" });
 	if (!response.ok) {
 	throw new Error(`Get failed: ${response.status}`);
@@ -167,7 +167,7 @@ try {
 	if (updateLName) requestBody.UserLName = updateLName;
 	if (updateOrganization) requestBody.UserOrganization = updateOrganization;
 
-	const response = await fetch(`${API_BASE_URL}/sponsor`, {
+	const response = await fetch(`${API_SPONSOR_URL}/sponsor`, {
 	method: "PUT",
 	headers: { "Content-Type": "application/json" },
 	body: JSON.stringify(requestBody),
@@ -202,7 +202,7 @@ const handleDeleteSponsor = async () => {
 			throw new Error("Email is required to delete a sponsor.");
 		}
 
-		const response = await fetch(`${API_BASE_URL}/sponsor?UserEmail=${encodeURIComponent(deleteEmail)}`, {
+		const response = await fetch(`${API_SPONSOR_URL}/sponsor?UserEmail=${encodeURIComponent(deleteEmail)}`, {
 			method: "DELETE",
 			headers: { "Content-Type": "application/json" },
 		});
@@ -257,7 +257,7 @@ return (
 		</button>
 		</div>
 		<div>
-		<Link to="https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1/sponsors">See All Sponsors</Link>
+		<Link to={`${API_SPONSOR_URL}/sponsors`}>See All Sponsors</Link>
 		</div>
 	</section>
 

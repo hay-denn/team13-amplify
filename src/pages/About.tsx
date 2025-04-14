@@ -22,9 +22,9 @@ export default function About() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const API_URL = import.meta.env.VITE_API_ABOUT;
+        const API_ABOUT_URL = import.meta.env.VITE_API_ABOUT;
 
-        const fetchTeamMembers = fetch(`${API_URL}/teammembers`)
+        const fetchTeamMembers = fetch(`${API_ABOUT_URL}/teammembers`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Team members fetch error! Status: ${response.status}`);
@@ -32,7 +32,7 @@ export default function About() {
                 return response.json() as Promise<TeamMember[]>;
             });
 
-        const fetchAboutTeam = fetch(`${API_URL}/aboutteam`)
+        const fetchAboutTeam = fetch(`${API_ABOUT_URL}/aboutteam`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`About team fetch error! Status: ${response.status}`);
