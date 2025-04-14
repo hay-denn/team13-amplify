@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useCart } from "../pages/CartContext";
 import "./Catalog.css";
+import { useAuth } from "react-oidc-context";
 
 interface OrganizationData {
   OrganizationID: number;
@@ -25,6 +26,7 @@ interface CatalogItem {
   artistName: string;
   collectionName: string;
   releaseDate: string;
+  trackExplicitness: string;
   primaryGenreName: string;
   artworkUrl100: string;
   longDescription?: string;
@@ -37,8 +39,7 @@ interface Props {
 
 export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const [currOrgId, setCurrOrgId] = useState(currentCatalog);
-  const [organizationData, setOrganizationData] =
-    useState<OrganizationData | null>(null);
+  const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [type, setType] = useState("music");
@@ -51,14 +52,14 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
   const [artistFilter, setArtistFilter] = useState("");
 
-  // Store all fetched results in memory
+  // Store all fetched results in memory.
   const [allResults, setAllResults] = useState<CatalogItem[]>([]);
-
   const { addToCart } = useCart();
+  const auth = useAuth();
 
-  const url_getOrganization =
-    "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+  const url_getOrganization = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
+  // Fetch organization data based on the current org ID.
   const fetchOrganization = async () => {
     try {
       const response = await axios.get(
@@ -70,12 +71,10 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     }
   };
 
-  // Loads organization data when currOrgId changes
   useEffect(() => {
     fetchOrganization();
   }, [currOrgId]);
 
-  // Once we have org data, set relevant states
   useEffect(() => {
     if (!organizationData) return;
     setPageSize(organizationData.AmountOfProducts || 10);
@@ -85,14 +84,12 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
   }, [organizationData]);
 
-  // If the organization has a searchTerm, fetch
   useEffect(() => {
     if (searchTerm.trim()) {
       handleFetchAll();
     }
   }, [searchTerm, type, maxPrice, pageSize]);
 
-  // Reset pagination when sort or filter changes
   useEffect(() => {
     setPage(0);
   }, [sortOrder, artistFilter]);
@@ -108,7 +105,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
           searchTerm
         )}&media=${type}&limit=${limit}&offset=${offset}&explicit=No`;
-
         const response = await axios.get(url);
         const batch = response.data.results as CatalogItem[];
 
@@ -117,13 +113,13 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         } else {
           fetchedItems = [...fetchedItems, ...batch];
           offset += limit;
+          // Limit total fetch to prevent a huge number of requests.
           if (offset >= 200) {
             keepFetching = false;
           }
         }
       }
 
-      // Deduplicate by trackId
       const seen = new Set<number>();
       const uniqueItems = fetchedItems.filter((item) => {
         if (seen.has(item.trackId)) return false;
@@ -131,18 +127,22 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         return true;
       });
 
-      setAllResults(uniqueItems);
+      const cleanItems = uniqueItems.filter(
+        (item) => item.trackExplicitness.toLowerCase() !== "explicit"
+      );
+
+      setAllResults(cleanItems);
     } catch (error) {
       console.error("Error fetching catalog:", error);
     }
   };
 
-  // If currentCatalog changes, update currOrgId
+  // Update org ID if the currentCatalog prop changes.
   useEffect(() => {
     setCurrOrgId(currentCatalog);
   }, [currentCatalog]);
 
-  // Now compute the filtered, sorted, and paginated catalog using useMemo
+  // Compute the filtered, sorted, and paginated catalog.
   const catalog = useMemo(() => {
     let filtered = allResults.filter((item) => {
       const price = Number(item.trackPrice);
@@ -166,10 +166,12 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return filtered.slice(startIdx, endIdx);
   }, [allResults, sortOrder, artistFilter, page, pageSize, maxPrice]);
 
-  // Pagination controls
   const handleNextPage = () => {
     const totalItems = allResults.filter(
-      (item) => Number(item.trackPrice) > 0 && Number(item.trackPrice) <= maxPrice
+      (item) =>
+        Number(item.trackPrice) > 0 &&
+        Number(item.trackPrice) <= maxPrice &&
+        item.trackExplicitness.toLowerCase() !== "explicit"
     ).length;
     const maxPage = Math.floor(totalItems / pageSize);
     if (page < maxPage) {
@@ -187,34 +189,31 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return <div>Please Select An Organization</div>;
   }
 
+  // Add an item to the cart.
   const handleTestAddItems = (item: CatalogItem) => {
-    // Check if impersonating a driver
+    const userEmail = auth.user?.profile.email || "";
     const impersonationData = localStorage.getItem("impersonatingDriver");
     const impersonatedDriver = impersonationData ? JSON.parse(impersonationData) : null;
-  
-    // Determine the driver context
-    const driverEmail = impersonatedDriver
-      ? impersonatedDriver.email // Impersonated driver
-      : "currentSignedInDriverEmail@example.com"; // Replace with actual signed-in driver's email from auth context
-  
+
+    const driverEmail = impersonatedDriver ? impersonatedDriver.email : userEmail;
     const sponsorOrgID = impersonatedDriver
-      ? impersonatedDriver.sponsorOrgID // Impersonated driver's sponsorOrgID
-      : organizationData?.OrganizationID; // Use the organization ID for the signed-in driver
-  
+      ? impersonatedDriver.sponsorOrgID
+      : organizationData?.OrganizationID;
+
     if (!driverEmail || !sponsorOrgID) {
       alert("Unable to add item to cart. Missing driver or organization information.");
       return;
     }
-  
+
     const cartItem = {
       name: item.artistName,
       cost: item.trackPrice * priceToPointRatio,
       quantity: 1,
       org: sponsorOrgID,
       id: item.trackId,
-      driverEmail, // Include the driver's email (impersonated or actual)
+      driverEmail,
     };
-  
+
     addToCart(cartItem);
     alert("Item Added To Cart!");
   };
@@ -222,23 +221,19 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   return (
     <div className="catalog-container">
       <hr />
-
       <div className="container-fluid my-0">
         {/* Filters */}
         <div className="d-flex align-items-center mb-3">
           <label className="me-2">Sort by Price:</label>
           <select
             value={sortOrder}
-            onChange={(e) =>
-              setSortOrder(e.target.value as "asc" | "desc" | "")
-            }
+            onChange={(e) => setSortOrder(e.target.value as "asc" | "desc" | "")}
             className="me-4"
           >
             <option value="">None</option>
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </select>
-
           <label className="me-2">Search by Artist:</label>
           <input
             type="text"
@@ -251,8 +246,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           <div className="col text-center">
             <span>
               Max Price: <strong>${maxPrice}</strong> | Point to Dollar Ratio:{" "}
-              <strong>{priceToPointRatio}</strong> | Organization Category
-              (Term):{" "}
+              <strong>{priceToPointRatio}</strong> | Organization Category (Term):{" "}
               {!organizationData.SearchTerm ? (
                 <b>Your Org Has Selected The Default Catalog</b>
               ) : (
@@ -261,7 +255,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
             </span>
           </div>
         </div>
-
         {/* Catalog grid */}
         <div className="row">
           {catalog.map((item) => {
@@ -274,12 +267,10 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
                     alt={item.trackName}
                     className="card-img-top"
                   />
-
                   <div className="card-body limited-card-height">
                     <h6 className="card-title mb-2">{item.trackName}</h6>
                     <p className="card-text text-muted mb-2">
-                      ${price.toFixed(2)} •{" "}
-                      {(price * priceToPointRatio).toFixed(2)} points
+                      ${price.toFixed(2)} • {(price * priceToPointRatio).toFixed(2)} points
                     </p>
                     <p className="mb-1">
                       <strong>Artist:</strong> {item.artistName}
@@ -288,8 +279,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
                       <strong>Collection:</strong> {item.collectionName}
                     </p>
                     <p className="mb-1">
-                      <strong>Release Date:</strong>{" "}
-                      {new Date(item.releaseDate).toLocaleDateString()}
+                      <strong>Release Date:</strong> {new Date(item.releaseDate).toLocaleDateString()}
                     </p>
                     <p className="mb-2">
                       <strong>Genre:</strong> {item.primaryGenreName}
@@ -312,14 +302,13 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           })}
         </div>
       </div>
-
       {/* Pagination */}
       <button onClick={handlePrevPage} disabled={page === 0} className="me-2">
         Previous
       </button>
       <button onClick={handleNextPage}>Next</button>
       <p>Page: {page + 1}</p>
-      <button onClick={() => handleFetchAll()}>Fetch All Items</button>
+      <button onClick={handleFetchAll}>Fetch All Items</button>
     </div>
   );
 };

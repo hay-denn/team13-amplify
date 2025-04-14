@@ -12,6 +12,7 @@ interface CatalogItem {
   collectionName: string;
   releaseDate: string;
   primaryGenreName: string;
+  trackExplicitness: string;
   artworkUrl100: string;
   longDescription?: string;
   shortDescription?: string;
@@ -89,7 +90,7 @@ export const SponsorCatalogs: React.FC = () => {
 
       // Filter the results based on the max price
       const filteredResults: CatalogItem[] = response.data.products.filter(
-        (item: CatalogItem) => item.trackPrice <= maxPrice
+        (item: CatalogItem) => item.trackPrice <= maxPrice && item.trackExplicitness !== "explicit"
       );
 
       setCatalog(filteredResults);
@@ -118,9 +119,8 @@ export const SponsorCatalogs: React.FC = () => {
 
       const response = await axios.get(url);
 
-      // Filter the results based on the max price
       const filteredResults: CatalogItem[] = response.data.results.filter(
-        (item: CatalogItem) => item.trackPrice <= maxPrice
+        (item: CatalogItem) => item.trackPrice <= maxPrice && item.trackExplicitness !== "explicit"
       );
 
       setCatalog(filteredResults);
