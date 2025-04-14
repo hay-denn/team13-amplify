@@ -566,10 +566,10 @@ const Reports: React.FC = () => {
     if (selectedReport === "Driver Applications") {
       return (
         <BarChart data={reportData}>
-           <XAxis dataKey="Status" />
+           <XAxis dataKey="ApplicationStatus" />
            <YAxis />
            <Tooltip />
-           <Bar dataKey="Sponsor" />
+           <Bar dataKey="ApplicationOrganization" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
