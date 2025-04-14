@@ -4,7 +4,7 @@ import "./SponsorDashboard.css";
 import { useAuth } from "react-oidc-context";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { Faststats } from "../components/SponsorDashBoardBoxes/faststats";
 interface OrganizationData {
   OrganizationID: number;
   OrganizationName: string;
@@ -23,7 +23,7 @@ interface OrganizationData {
 export const SponsorDashboard = () => {
   const auth = useAuth();
   const [currsponsor_email] = useState(auth.user?.profile.email || "");
-  const [currsponsor_name] = useState(auth.user?.profile.family_name || "");
+  const [currsponsor_name] = useState(auth.user?.profile.given_name || "");
 
   const [currentSponsorId, setCurrentSponsorId] = useState<any>("");
 
@@ -74,9 +74,9 @@ export const SponsorDashboard = () => {
   }
 
   return (
-    <div className="container my-4 ">
-      <h1 className="text-center mb-5 mt-5">
-        Welcome Back {currsponsor_name}!
+    <div className="container-fluid my-0">
+      <h1 className="text-center mb-4 mt-3">
+        <div className="welcome-message">Welcome Back {currsponsor_name}!</div>
       </h1>
 
       <div className="row g-3">
@@ -91,9 +91,12 @@ export const SponsorDashboard = () => {
             <ChartBox SponsorID={currentSponsorId} />
           </div>
         </div>
-        <div className="col-md-2">
-          <div className="box box1">Monthly Point Leaders</div>
+        <div className="col-md-2 p-0">
+          <div className="box box1 m-0 p-2">
+            <Faststats SponsorID={currentSponsorId} />
+          </div>
         </div>
+
         <div className="col-md-4">
           <div className="box box3">Leading Users</div>
         </div>
