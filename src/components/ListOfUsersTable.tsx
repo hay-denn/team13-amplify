@@ -182,7 +182,7 @@ export const ListOfUsersTable = ({
   // It sets both the API value and the editable value.
   const fetchRecurringPoints = async () => {
     try {
-      const url = `https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/dailypoints?OrganizationID=${encodeURIComponent(sponsorOrgID || "")}`;
+      const url = `https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/dailypoints?OrganizationID=${encodeURIComponent(sponsorOrgID || "")}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -245,7 +245,7 @@ export const ListOfUsersTable = ({
   const handleSetRecurringPoints = async () => {
     try {
       const response = await fetch(
-        "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/dailypoints",
+        "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/dailypoints",
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
