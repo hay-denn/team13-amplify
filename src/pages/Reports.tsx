@@ -563,7 +563,6 @@ const Reports: React.FC = () => {
     return null;
   };
   const renderChart = () => {
-    if (!Array.isArray(reportData)) return null;
     if (selectedReport === "Driver Applications") {
       return (
         <BarChart data={reportData}>
