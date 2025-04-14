@@ -348,45 +348,15 @@ const Reports: React.FC = () => {
     setReportData(data);
   };
   const downloadPDF = async () => {
-    // Create a temporary container for chart and table
-    const wrapper = document.createElement("div");
-    wrapper.style.width = "100%";
-    wrapper.style.display = "flex";
-    wrapper.style.flexDirection = "column";
-    
-    const tableElement = document.getElementById("table-content");
-    const chartElement = document.getElementById("chart-content");
-    
-    if (!tableElement || !chartElement) return;
-    
-    // Clone the chart and table elements
-    const clonedTable = tableElement.cloneNode(true);
-    const clonedChart = chartElement.cloneNode(true);
-    
-    // Append both elements to the wrapper
-    wrapper.appendChild(clonedChart);
-    wrapper.appendChild(clonedTable);
-    
-    // Append wrapper to the document body temporarily
-    document.body.appendChild(wrapper);
-    
+    const element = document.getElementById("report-content");
+    if (!element) return;
     try {
-        const canvas = await html2canvas(wrapper, {
-        scale: 2, // High resolution
-        useCORS: true, // Handle cross-origin images
-        });
-    
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF();
-    
-        pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
-        pdf.save("report.pdf");
-    } catch (error) {
-        console.error("Error generating PDF:", error);
-    }
-    
-    // Remove the temporary wrapper from the document
-    document.body.removeChild(wrapper);
+      const canvas = await html2canvas(element);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
+      pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
+      pdf.save("report.pdf");
+    } catch (error) {}
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
