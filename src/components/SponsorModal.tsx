@@ -15,7 +15,7 @@ const SPONSOR_URL =
   "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
 const DRIVER_SPONSOR_URL =
-  "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+  "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
 async function getDriverSponsors(driverEmail: string) {
   try {

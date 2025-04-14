@@ -199,7 +199,7 @@ export const CartPage: React.FC = () => {
     if (userEmail) {
       const getDriverRelationships = async () => {
         try {
-          const driverRelationshipURL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+          const driverRelationshipURL = "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
           const response = await fetch(
             `${driverRelationshipURL}/driverssponsors?DriversEmail=${encodeURIComponent(userEmail)}`
           );

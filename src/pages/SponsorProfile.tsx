@@ -6,7 +6,7 @@ import "./SponsorProfile.css";
 const API_BASE_URL =
   "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-const DRIVER_SPONSOR_URL="https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+const DRIVER_SPONSOR_URL="https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
 interface Sponsor {
   OrganizationID: number;

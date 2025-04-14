@@ -5,7 +5,7 @@ import "./Catalog.css";
 const ORGANIZATIONS_API_URL =
   "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
 const DRIVERS_SPONSORS_API_URL =
-  "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+  "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
 interface DriverCatalogsProps {
   inputUserEmail: string;

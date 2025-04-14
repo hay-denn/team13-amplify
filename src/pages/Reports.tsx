@@ -29,7 +29,7 @@ import html2canvas from "html2canvas";
 
 const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
 const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-const SPONSOR_DRIVERS_URL = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_DRIVERS_URL = "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
 async function getPointChanges(
   startDate?: string | number,

@@ -17,7 +17,7 @@ export const DriverManagement = () => {
   const url_getSponsorID =
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
   const url_addSponsorRelationship =
-    "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+    "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
   const [driverList, setDriverList] = useState([]);
   const [currentSponsorId, setCurrentSponsorId] = useState("");
   const [showAddUserModal, setShowAddUserModal] = useState(false);

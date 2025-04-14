@@ -63,7 +63,7 @@ export const DriverDashBoard = () => {
   const [_, setOrganizationsLoaded] = useState(false);
 
   const driverRelationshipURL =
-    "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+    "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
   // Fetch the organization list
   useEffect(() => {

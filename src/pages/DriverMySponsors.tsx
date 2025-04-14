@@ -35,7 +35,7 @@ export const DriverMySponsors: React.FC = () => {
   const [orgsLoaded, setOrgsLoaded] = useState(false);
 
   const orgApiUrl = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
-  const sponsorApiUrl = "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1";
+  const sponsorApiUrl = "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
   //-------------------------------------
   // Fetch Organizations
