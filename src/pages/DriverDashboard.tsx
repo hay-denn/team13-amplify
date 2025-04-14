@@ -169,10 +169,10 @@ export const DriverDashBoard = () => {
               </div>
               <div className="col-md-8">
                 <div className="box box2">
-                  <b>
+                  <h2>
                     Current Point Balance:{" "}
                     {selectedOrganization?.DriversPoints || "N/A"}
-                  </b>
+                  </h2>
                   <br />
                   <div className="d-flex align-items-center">
                     <label htmlFor="organizationDropdown" className="mr-2">
