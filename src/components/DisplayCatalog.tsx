@@ -46,22 +46,27 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const [priceToPointRatio, setPriceToPointRatio] = useState(1);
   const [maxPrice, setMaxPrice] = useState(100);
 
-  const [pageSize, setPageSize] = useState(10);
+  // maxProducts is set from organizationData.AmountOfProducts.
+  const [maxProducts, setMaxProducts] = useState(100);
+  
+  // pageSize is used for pagination of the final (limited) results.
+  const pageSize = 12;
   const [page, setPage] = useState(0);
 
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
   const [artistFilter, setArtistFilter] = useState("");
 
-  // Store all fetched results in memory.
+  // Store all fetched results.
   const [allResults, setAllResults] = useState<CatalogItem[]>([]);
   const { addToCart } = useCart();
   const auth = useAuth();
 
   const url_getOrganization = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-  // Fetch organization data based on the current org ID.
+  // Fetch organization data.
   const fetchOrganization = async () => {
     try {
+      console.log(`${url_getOrganization}/organization?OrganizationID=${currOrgId}`);
       const response = await axios.get(
         `${url_getOrganization}/organization?OrganizationID=${currOrgId}`
       );
@@ -75,28 +80,33 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     fetchOrganization();
   }, [currOrgId]);
 
+  // Once organization data is loaded, update related state.
   useEffect(() => {
     if (!organizationData) return;
-    setPageSize(organizationData.AmountOfProducts || 10);
+    setMaxProducts(organizationData.AmountOfProducts || 10);
     setSearchTerm(organizationData.SearchTerm || "");
     setType(organizationData.ProductType || "music");
     setPriceToPointRatio(Number(organizationData.PointDollarRatio) || 1);
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
   }, [organizationData]);
 
+  // Fetch catalog items whenever search term, type, max price, or maxProducts changes.
   useEffect(() => {
     if (searchTerm.trim()) {
       handleFetchAll();
     }
-  }, [searchTerm, type, maxPrice, pageSize]);
+  }, [searchTerm, type, maxPrice, maxProducts]);
 
+  // Reset pagination when sort or filter changes.
   useEffect(() => {
     setPage(0);
   }, [sortOrder, artistFilter]);
 
+  // Fetch items from iTunes. If there are not enough results in one call, the loop will fetch additional batches
+  // but the final result will be limited to maxProducts items.
   const handleFetchAll = async () => {
     try {
-      const limit = organizationData?.AmountOfProducts || 10;
+      const limit = maxProducts; // Use maxProducts as the per‑call limit.
       let offset = 0;
       let fetchedItems: CatalogItem[] = [];
       let keepFetching = true;
@@ -105,39 +115,49 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
           searchTerm
         )}&media=${type}&limit=${limit}&offset=${offset}&explicit=No`;
+  
         const response = await axios.get(url);
         const batch = response.data.results as CatalogItem[];
-
+  
         if (batch.length === 0) {
           keepFetching = false;
         } else {
           fetchedItems = [...fetchedItems, ...batch];
           offset += limit;
-          // Limit total fetch to prevent a huge number of requests.
+          // Optionally, prevent too many requests.
           if (offset >= 200) {
+            keepFetching = false;
+          }
+          // If we already have enough items, we can stop.
+          if (fetchedItems.length >= maxProducts) {
             keepFetching = false;
           }
         }
       }
-
+  
+      // Deduplicate items by trackId.
       const seen = new Set<number>();
       const uniqueItems = fetchedItems.filter((item) => {
         if (seen.has(item.trackId)) return false;
         seen.add(item.trackId);
         return true;
       });
-
+  
+      // Filter out explicit content (case-insensitive).
       const cleanItems = uniqueItems.filter(
         (item) => item.trackExplicitness.toLowerCase() !== "explicit"
       );
-
-      setAllResults(cleanItems);
+  
+      // Limit final items to maxProducts.
+      const finalItems = cleanItems.slice(0, maxProducts);
+  
+      setAllResults(finalItems);
     } catch (error) {
       console.error("Error fetching catalog:", error);
     }
   };
 
-  // Update org ID if the currentCatalog prop changes.
+  // Update current organization ID if the currentCatalog prop changes.
   useEffect(() => {
     setCurrOrgId(currentCatalog);
   }, [currentCatalog]);
@@ -166,6 +186,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return filtered.slice(startIdx, endIdx);
   }, [allResults, sortOrder, artistFilter, page, pageSize, maxPrice]);
 
+  // Pagination controls.
   const handleNextPage = () => {
     const totalItems = allResults.filter(
       (item) =>
