@@ -34,6 +34,10 @@ function App() {
   const userEmail = auth.user?.profile.email || "";
   const userGroup = cognitoGroups[0];
 
+  // const userEmail = "noahamn@gmail.com";
+  // const userGroup = "Sponsor";
+  // auth.isAuthenticated = true;
+
   return (
     <CartProvider>
       <Router>

@@ -10,6 +10,7 @@ import SponsorModal from "../components/SponsorModal";
 export const DriverManagement = () => {
   const auth = useAuth();
   const [currsponsor_email] = useState(auth.user?.profile.email || "");
+  
   const url_drivers =
     "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
   const url_getApplications =

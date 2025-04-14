@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import "./ApplicationTable.css";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
+
 
 const url_updateApplication =
   "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
+
+const driversponsor_url =
+  "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
+
 
 interface Application {
   ApplicationID: any;
@@ -25,12 +30,10 @@ interface Props {
 
 export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
   const auth = useAuth();
-
-  const [driver_email] = useState(auth.user?.profile.email || "");
-
-  //Variable that stores a copy of the current table
+  
+  const [sponsor_email] = useState(auth.user?.profile.email || "");
   const [applist, setApps] = useState<Application[]>(applicationTable);
-
+  const [acceptedDriverList, setAcceptedDriverList] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [newStatus, setNewStatus] = useState("");
@@ -46,14 +49,31 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
     setShowModal(false);
     setSelectedApp(null);
     setNewStatus("");
+    setReason("");
   };
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setNewStatus(event.target.value);
   };
 
+  const getAcceptedDrivers = async () => {
+    const response = await fetch(
+      `${driversponsor_url}/driverssponsors?DriversSponsorID=${sponsorsID}`
+    );
+    if (!response.ok) {
+      console.error("Failed to fetch accepted drivers");
+      return;
+    }
+    const data = await response.json();
+    const acceptedDrivers = data.map((driver: any) =>
+      driver.DriversEmail.toLowerCase()
+    );
+    setAcceptedDriverList(acceptedDrivers);
+  };
+
   const handleSaveStatus = async () => {
     if (!selectedApp) return;
+
     try {
       const response = await fetch(
         `${url_updateApplication}/driversponsorapplication`,
@@ -61,14 +81,15 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ApplicationSponsorUser: driver_email,
+            ApplicationSponsorUser: sponsor_email,
             ApplicationID: selectedApp.ApplicationID,
             ApplicationStatus: newStatus,
-            ApplicationDecisionReason: reason
+            ApplicationDecisionReason: reason,
           }),
         }
       );
       if (!response.ok) {
+        console.log(response);
         throw new Error(`Request failed with status ${response.status}`);
       }
 
@@ -76,13 +97,14 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
     } catch (error) {
       console.error("Failed to update status:", error);
     }
+
     setApps((prevApps) =>
       prevApps.map((app) =>
         app.ApplicationID === selectedApp.ApplicationID
           ? {
               ...app,
               ApplicationStatus: newStatus,
-              ApplicationSponsorUser: driver_email,
+              ApplicationSponsorUser: sponsor_email,
             }
           : app
       )
@@ -90,6 +112,7 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
   };
 
   useEffect(() => {
+    getAcceptedDrivers();
     setApps(applicationTable);
   }, [applicationTable]);
 
@@ -104,7 +127,6 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           <tr>
             <th scope="col">Application ID</th>
             <th scope="col">Driver</th>
-            <th scope="col">Organization</th>
             <th scope="col">Sponsor User</th>
             <th scope="col">Status</th>
             <th scope="col">Date Submitted</th>
@@ -113,35 +135,56 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           </tr>
         </thead>
         <tbody>
-          {filteredApps.map((app, index) => (
-            <tr key={`app-${index}`}>
-              <td>{app.ApplicationID}</td>
-              <td>{app.ApplicationDriver}</td>
-              <td>{app.ApplicationOrganization}</td>
-              <td>{app.ApplicationSponsorUser}</td>
-              <td>{app.ApplicationStatus}</td>
-              <td>{app.ApplicationDateSubmitted}</td>
-              <td>
-                <div>
+          {filteredApps.map((app, index) => {
+            const driverEmailLower = app.ApplicationDriver.toLowerCase();
+            const isAlreadySponsored = acceptedDriverList.includes(driverEmailLower);
+  
+            return (
+              <tr key={`app-${index}`}>
+                <td>{app.ApplicationID}</td>
+                <td>{app.ApplicationDriver}</td>
+                <td>{app.ApplicationSponsorUser}</td>
+                <td>{app.ApplicationStatus}</td>
+                <td>{app.ApplicationDateSubmitted}</td>
+                <td>
                   {app.ApplicationReason ? (
-                  <span>{app.ApplicationReason}</span>
+                    <span>{app.ApplicationReason}</span>
                   ) : (
-                  <em>No reason provided</em>
+                    <em>No reason provided</em>
                   )}
-                </div>
-              </td>
-              <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleShowModal(app)}
-                >
-                  Actions
-                </button>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td>
+                  <OverlayTrigger
+                    placement="top"
+                    delay={{ show: 0, hide: 100 }}
+                    overlay={
+                      <Tooltip id={`tooltip-${index}`}>
+                        {isAlreadySponsored
+                          ? "Driver currently sponsored"
+                          : "Manage application"}
+                      </Tooltip>
+                    }
+                  >
+                    <span className="d-inline-block" style={{ cursor: "not-allowed" }}>
+                      <button
+                        className={`btn ${
+                          isAlreadySponsored ? "btn-secondary" : "btn-primary"
+                        }`}
+                        onClick={() => handleShowModal(app)}
+                        disabled={isAlreadySponsored}
+                        style={isAlreadySponsored ? { pointerEvents: "none" } : {}}
+                      >
+                        Actions
+                      </button>
+                    </span>
+                  </OverlayTrigger>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+  
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Update Application Status</Modal.Title>
@@ -150,43 +193,43 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
           {selectedApp && (
             <>
               <p>
-              <strong>Application ID: </strong>
-              {selectedApp.ApplicationID}
+                <strong>Application ID: </strong>
+                {selectedApp.ApplicationID}
               </p>
               <p>
-              <strong>Driver: </strong>
-              {selectedApp.ApplicationDriver}
+                <strong>Driver: </strong>
+                {selectedApp.ApplicationDriver}
               </p>
               <p>
-              <strong>Current Status: </strong>
-              {selectedApp.ApplicationStatus}
+                <strong>Current Status: </strong>
+                {selectedApp.ApplicationStatus}
               </p>
-
+  
               <label htmlFor="statusSelect" className="form-label">
-              New Status:
+                New Status:
               </label>
               <select
-              id="statusSelect"
-              className="form-select"
-              value={newStatus}
-              onChange={handleStatusChange}
+                id="statusSelect"
+                className="form-select"
+                value={newStatus}
+                onChange={handleStatusChange}
               >
-              <option value="Submitted">Change Status</option>
-              <option value="Approved">Approved</option>
-              <option value="Rejected">Rejected</option>
+                <option value="Submitted">Change Status</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
               </select>
-
+  
               <label htmlFor="reasonInput" className="form-label mt-3">
-              Reason for Status Change:
+                Reason for Status Change:
               </label>
               <textarea
-              className="form-control"
-              id="reasonInput"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Enter reason for status change"
-              rows={4}
-              style={{ resize: "vertical" }}
+                className="form-control"
+                id="reasonInput"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Enter reason for status change"
+                rows={4}
+                style={{ resize: "vertical" }}
               />
             </>
           )}
@@ -201,5 +244,6 @@ export const ApplicationTable = ({ applicationTable, sponsorsID }: Props) => {
         </Modal.Footer>
       </Modal>
     </div>
-  );
-};
+  );  
+}
+export default ApplicationTable;  
