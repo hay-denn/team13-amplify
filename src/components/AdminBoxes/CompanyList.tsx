@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import "./CompanyList.css";
 import { Bar, BarChart, Cell, Legend, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, ResponsiveContainer } from "recharts";
 
 interface OrganizationPurchases {
   OrgId: number;
@@ -9,34 +10,26 @@ interface OrganizationPurchases {
   NumberOfPurchases?: number;
 }
 
-import { CartesianGrid, ResponsiveContainer } from "recharts";
 export const ListOfOrganizationsBox = () => {
   const org_url = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+  const purchase_url = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
 
-  const purchase_url =
-    "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
-
-  const [organizationPurchaseInfo, setOrganizationPurchaseInfo] = useState<
-    OrganizationPurchases[]
-  >([]);
-
+  const [organizationPurchaseInfo, setOrganizationPurchaseInfo] = useState<OrganizationPurchases[]>([]);
   const [purchaseIDs, setPurchaseIDs] = useState<number[]>([]);
 
   const transformData = (data: any): OrganizationPurchases => ({
     OrgId: data.OrganizationID,
     OrgName: data.OrganizationName,
-    NumberOfPurchases: 0, //starts at 0
+    NumberOfPurchases: 0, // starts at 0
   });
 
   const fetchOrganizations = async () => {
     try {
       const response = await axios.get(`${org_url}/organizations`);
-
       const newDataArray = Array.isArray(response.data)
         ? response.data.map(transformData)
         : [transformData(response.data)];
-
-      // Append the new data to the existing state
+      // Set organization data only once.
       setOrganizationPurchaseInfo(newDataArray);
     } catch (error) {
       console.error("Error fetching organization data:", error);
@@ -46,43 +39,51 @@ export const ListOfOrganizationsBox = () => {
   const fetchPurchases = async () => {
     try {
       const response = await axios.get(`${purchase_url}/purchases`);
-
-      const ids: number[] = response.data.map(
-        (purchase: any) => purchase.PurchaseSponsorID
-      );
+      const ids: number[] = response.data.map((purchase: any) => purchase.PurchaseSponsorID);
       setPurchaseIDs(ids);
     } catch (error) {
       console.error("Error fetching organization data:", error);
     }
   };
 
+  // Update organization purchase counts only if there is a change.
   const updateOrganizationPurchaseCounts = () => {
     const updatedOrgs = organizationPurchaseInfo.map((org) => {
       const count = purchaseIDs.filter((id) => id === org.OrgId).length;
       return { ...org, NumberOfPurchases: count };
     });
-    setOrganizationPurchaseInfo(updatedOrgs);
+
+    // Check if updatedOrgs differs from the current organizationPurchaseInfo.
+    const isDifferent = updatedOrgs.some((org, index) => {
+      return organizationPurchaseInfo[index]?.NumberOfPurchases !== org.NumberOfPurchases;
+    });
+
+    if (isDifferent) {
+      setOrganizationPurchaseInfo(updatedOrgs);
+    }
   };
 
-  //This function gets the top 7 organizations
-  const getTopOrganizations = (
-    orgs: OrganizationPurchases[]
-  ): OrganizationPurchases[] => {
-    return [...orgs]
-      .sort((a, b) => (b.NumberOfPurchases ?? 0) - (a.NumberOfPurchases ?? 0))
-      .slice(0, 7);
-  };
-
+  // Fetch organizations and purchases on mount.
   useEffect(() => {
     fetchOrganizations();
     fetchPurchases();
   }, []);
 
+  // When both organizationPurchaseInfo and purchaseIDs are available, update the counts.
   useEffect(() => {
     if (organizationPurchaseInfo.length && purchaseIDs.length) {
       updateOrganizationPurchaseCounts();
     }
-  }, [organizationPurchaseInfo, purchaseIDs]);
+    // We include purchaseIDs as a dependency.
+    // The updateOrganizationPurchaseCounts now only triggers a state change if counts differ.
+  }, [purchaseIDs, organizationPurchaseInfo]);
+
+  // Get the top 7 organizations by NumberOfPurchases.
+  const getTopOrganizations = (orgs: OrganizationPurchases[]): OrganizationPurchases[] => {
+    return [...orgs]
+      .sort((a, b) => (b.NumberOfPurchases ?? 0) - (a.NumberOfPurchases ?? 0))
+      .slice(0, 7);
+  };
 
   const colors = [
     "#8884d8",
@@ -117,7 +118,6 @@ export const ListOfOrganizationsBox = () => {
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-
                 <XAxis dataKey="OrgName" />
                 <YAxis
                   label={{
@@ -131,14 +131,9 @@ export const ListOfOrganizationsBox = () => {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="NumberOfPurchases">
-                  {getTopOrganizations(organizationPurchaseInfo).map(
-                    (_entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={colors[index % colors.length]}
-                      />
-                    )
-                  )}
+                  {getTopOrganizations(organizationPurchaseInfo).map((_entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -146,6 +141,7 @@ export const ListOfOrganizationsBox = () => {
           </div>
         </div>
       </div>
+      {/* Uncomment below if you want to display additional info */}
       {/* <div>
         {organizationPurchaseInfo.map((org) => (
           <div key={org.OrgId}>
@@ -158,11 +154,9 @@ export const ListOfOrganizationsBox = () => {
       <div>
         <h1>Purchase IDs</h1>
         <ul>
-          <ul>
-            {purchaseIDs.map((id) => (
-              <li key={id}>{id}</li>
-            ))}
-          </ul>
+          {purchaseIDs.map((id) => (
+            <li key={id}>{id}</li>
+          ))}
         </ul>
       </div> */}
     </>

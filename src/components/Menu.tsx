@@ -75,13 +75,13 @@ export const MenuAdmin = [
     title: "Manage Users",
     url: "/manageusers",
     cName: "nav-links",
-    icon: "fa-solid fa-store",
+    icon: "fa-solid fa-users",
   },
   {
     title: "Manage Sponsors",
     url: "/managesponsors",
     cName: "nav-links",
-    icon: "fa-solid fa-store",
+    icon: "fa-solid fa-building",
   },
   {
     title: "Reports",
