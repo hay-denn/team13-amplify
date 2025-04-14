@@ -11,7 +11,7 @@ interface Purchase {
 }
 
 interface RecentSponsorPurchasesProps {
-  SponsorID: string;
+  SponsorID: number;
 }
 
 export const RecentSponsorPurchases = ({
@@ -41,8 +41,7 @@ export const RecentSponsorPurchases = ({
         const data: Purchase[] = await response.json();
 
         const filteredPurchases = data.filter(
-          (purchase) =>
-            purchase.PurchaseSponsorID.toString() === SponsorID.toString()
+          (purchase) => purchase.PurchaseSponsorID === SponsorID
         );
         setPurchases(filteredPurchases);
 

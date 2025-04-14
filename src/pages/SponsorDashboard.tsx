@@ -25,12 +25,13 @@ export const SponsorDashboard = () => {
   const [currsponsor_email] = useState(auth.user?.profile.email || "");
   const [currsponsor_name] = useState(auth.user?.profile.family_name || "");
 
-  const [currentSponsorId, setCurrentSponsorId] = useState("");
+  const [currentSponsorId, setCurrentSponsorId] = useState<any>("");
 
   const [organizationData, setOrganizationData] =
     useState<OrganizationData | null>(null);
 
-  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(true);
+  //makes sure to change this back
+  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(false);
   const url_getSponsorID =
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
