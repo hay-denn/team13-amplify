@@ -188,7 +188,7 @@ export const ListOfUsersTable = ({
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
-      const fetched = Number(data.DailyPoints);
+      const fetched = Number(data.DailyPointChange);
       setRecurringPoints(fetched);
       setRecurringPointsEdit(fetched);
     } catch (error) {
