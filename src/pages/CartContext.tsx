@@ -297,7 +297,7 @@ export const CartPage: React.FC = () => {
     const purchaseData = {
       PurchaseDriver: driverEmail,
       PurchaseDate: getCurrentMySQLDate(),
-      PurchaseStatus: "Delivered",
+      PurchaseStatus: "Ordered",
       PurchaseSponsorID: sponsorOrgID,
     };
   
