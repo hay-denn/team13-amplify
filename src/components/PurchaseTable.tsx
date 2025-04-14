@@ -339,7 +339,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                     )}
                   </td>
                   <td>
-                    {purchase.PurchasePrice.toFixed(2)}
+                    {purchase.PurchasePrice}
                   </td>
                   <td>
                     {purchase.PurchaseDate.split('T')[0] === today && purchase.PurchaseStatus !== "Canceled" && (
