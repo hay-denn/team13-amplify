@@ -69,7 +69,7 @@ export const AccountSettings: React.FC = () => {
         if (response.ok) {
           // If the request was successful
           const responseData = await response.json();
-          console.log('Success: ' + JSON.stringify(responseData))
+          console.log("First name: " + responseData[fNameAttr] + "Last name: " + responseData[lNameAttr]);
           if (responseData[fNameAttr] !== undefined) {
             setFirstName(responseData[fNameAttr]);
           } else {
@@ -93,7 +93,7 @@ export const AccountSettings: React.FC = () => {
       }
     }
     if (userGroup === 'Driver') {
-      fetchUserNames(DRIVER_API + "/drivers?DriverEmail=" + encodeURIComponent(email), "DriverFName", "DriverLName");
+      fetchUserNames(DRIVER_API + "/driver?DriverEmail=" + encodeURIComponent(email), "DriverFName", "DriverLName");
     } else if (userGroup === 'Sponsor') {
       fetchUserNames(SPONSOR_API + "/sponsor?UserEmail=" + encodeURIComponent(email), "UserFName", "UserLName");
     } else if (userGroup === 'Admin') {
