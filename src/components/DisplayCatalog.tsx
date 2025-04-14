@@ -107,7 +107,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
       while (keepFetching) {
         const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
           searchTerm
-        )}&media=${type}&limit=${limit}&offset=${offset}`;
+        )}&media=${type}&limit=${limit}&offset=${offset}&explicit=No`;
 
         const response = await axios.get(url);
         const batch = response.data.results as CatalogItem[];
