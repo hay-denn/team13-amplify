@@ -102,9 +102,9 @@ export const AccountSettings: React.FC = () => {
 }
 
   const handleUpdateAttributes = async () => {
-    const DRIVER_URL = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
-    const SPONSOR_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-    const ADMIN_URL = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+    const DRIVER_URL = import.meta.env.VITE_API_DRIVER;
+    const SPONSOR_URL = import.meta.env.VITE_API_SPONSOR;
+    const ADMIN_URL = import.meta.env.VITE_API_ADMIN;
     if (auth.isAuthenticated) {
       const cognitoGroups: string[] =
       (auth.user?.profile?.["cognito:groups"] as string[]) || [];
@@ -184,6 +184,8 @@ export const AccountSettings: React.FC = () => {
     setErrorMessage("");
     setSuccessMessage("");
     setMissingRequirements([]);
+
+    const REPORTS_URL = import.meta.env.VITE_API_REPORTS;
   
     // Collect any missing requirements
     const issues: string[] = [];
@@ -245,7 +247,7 @@ export const AccountSettings: React.FC = () => {
       });
 
       try {
-        const logResponse = await fetch("https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1/passwordChanges", {
+        const logResponse = await fetch(REPORTS_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

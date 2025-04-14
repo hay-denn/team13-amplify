@@ -76,11 +76,13 @@ function getCurrentMySQLDate(): string {
 }
 
 //API LINKS
-const PUR_API = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
-const PROD_PUR_API = "https://ptgem248l6.execute-api.us-east-1.amazonaws.com/dev1";
-const POINT_CHANGE_API = "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1";
-const SPONSOR_API = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1"
-const EMAIL_API = "https://7auyafrla5.execute-api.us-east-1.amazonaws.com/dev1";
+const PUR_API = import.meta.env.VITE_API_PURCHASES;
+const PROD_PUR_API = import.meta.env.VITE_API_PRODUCTS_PURCHASED;
+const POINT_CHANGE_API = import.meta.env.VITE_API_POINTCHANGES;
+const SPONSOR_API = import.meta.env.VITE_API_SPONSOR;
+const EMAIL_API = import.meta.env.VITE_API_EMAIL;
+const DRIVER_API = import.meta.env.VITE_API_DRIVER;
+const ORG_API = import.meta.env.VITE_API_ORGANIZATION;
 
 
 //API call function for purchases
@@ -158,7 +160,7 @@ export const CartPage: React.FC = () => {
       const fetchNotificationPref = async () => {
         try {
           const response = await fetch(
-            "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1/driver?DriverEmail=" + encodeURIComponent(userEmail)
+            DRIVER_API + encodeURIComponent(userEmail)
           );
           const data = await response.json();
           if (data && data.DriverOrderPlacedNotification !== undefined) {
@@ -178,7 +180,7 @@ export const CartPage: React.FC = () => {
     const fetchOrganizations = async () => {
       try {
         const response = await fetch(
-          "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations"
+          `${ORG_API}/organizations`
         );
         const data = await response.json();
         if (!Array.isArray(data)) {
