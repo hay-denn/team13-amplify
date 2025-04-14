@@ -75,6 +75,30 @@ export const ListOfUsersTable = ({
     ...adminTable.map((a) => a.AdminEmail),
   ];
 
+  const handleRemoveDriver = async (driverEmail: string) => {
+    try {
+      const response = await fetch(
+        `https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            DriversEmail: driverEmail,
+            DriversSponsorID: sponsorOrgID,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Error removing driver: ${response.status}`);
+      }
+      alert("Driver removed successfully.");
+      window.location.reload(); // optionally replace this with a state update instead
+    } catch (error) {
+      console.error("Failed to remove driver:", error);
+      alert("Failed to remove driver.");
+    }
+  };  
+
   // =========================================
   // SPONSOR ORGANIZATION ID FETCH
   // =========================================
@@ -361,6 +385,24 @@ export const ListOfUsersTable = ({
                   Actions
                 </button>
               </td>
+              <td>
+                {isSponsor ? (
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleRemoveDriver(driver.DriverEmail)}
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleShowActionsModal(driver)}
+                  >
+                    Actions
+                  </button>
+                )}
+              </td>
+
             </tr>
           ))}
 
