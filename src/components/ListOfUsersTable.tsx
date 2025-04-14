@@ -37,6 +37,9 @@ interface Props {
 const SPONSOR_BASE_URL =
   "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
+const driversponsor_url =
+  "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
+
 export const ListOfUsersTable = ({
   driverTable,
   sponsorTable = [],
@@ -78,21 +81,21 @@ export const ListOfUsersTable = ({
   const handleRemoveDriver = async (driverEmail: string) => {
     try {
       const response = await fetch(
-        `https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor`,
+        `${driversponsor_url}/driverssponsor?DriversEmail=${encodeURIComponent(
+          driverEmail
+        )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            DriversEmail: driverEmail,
-            DriversSponsorID: sponsorOrgID,
-          }),
         }
       );
+  
       if (!response.ok) {
         throw new Error(`Error removing driver: ${response.status}`);
       }
+  
       alert("Driver removed successfully.");
-      window.location.reload(); // optionally replace this with a state update instead
+      window.location.reload();
     } catch (error) {
       console.error("Failed to remove driver:", error);
       alert("Failed to remove driver.");
@@ -347,6 +350,7 @@ export const ListOfUsersTable = ({
             {!isSponsor && <th scope="col">Organization</th>}
             {!isSponsor && <th scope="col">Edit</th>}
             <th scope="col">Actions</th>
+            {isSponsor && <th scope="col">Remove</th>}
           </tr>
         </thead>
         <tbody>
