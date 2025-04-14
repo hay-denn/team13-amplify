@@ -31,7 +31,7 @@ export const SponsorDashboard = () => {
     useState<OrganizationData | null>(null);
 
   //makes sure to change this back
-  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(true);
+  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(false);
   const url_getSponsorID =
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
@@ -93,7 +93,7 @@ export const SponsorDashboard = () => {
         </div>
         <div className="col-md-2 p-0">
           <div className="box box1 m-0 p-2">
-            <Faststats SponsorID={13} />
+            <Faststats SponsorID={currentSponsorId} />
           </div>
         </div>
 
