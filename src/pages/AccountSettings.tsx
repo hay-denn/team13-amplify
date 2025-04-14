@@ -7,6 +7,10 @@ import EmailNotificationSliders from "../components/EmailNotificationSliders";
 
 const REGION = "us-east-1";
 const COGNITO_API_URL = `https://cognito-idp.${REGION}.amazonaws.com/`;
+const DRIVER_API = "https://o201qmtncd.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_API = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+const ADMIN_API = "https://adahpqn530.execute-api.us-east-1.amazonaws.com/dev1";
+
 
 export const AccountSettings: React.FC = () => {
   const auth = useAuth();
@@ -17,7 +21,7 @@ export const AccountSettings: React.FC = () => {
   const userGroup = cognitoGroups[0]; 
 
   // States for user attributes
-  const [email, setEmail] = useState(auth.user?.profile.email || "");
+  const [email] = useState(auth.user?.profile.email || "");
   const [firstName, setFirstName] = useState(auth.user?.profile.given_name || "");
   const [lastName, setLastName] = useState(auth.user?.profile.family_name || "");
 
@@ -56,6 +60,49 @@ export const AccountSettings: React.FC = () => {
     setHasLowerCase(/[a-z]/.test(newPassword));
     setIsLongEnough(newPassword.length >= 8);
   }, [newPassword]);
+
+  //Pull first/last name from api instead of from auth context (fixes issue with name not updating until after you sign out/ sign in)
+  useEffect(() => {
+    async function fetchUserNames(url: string, fNameAttr: string, lNameAttr: string): Promise<any> {
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          // If the request was successful
+          const responseData = await response.json();
+          console.log("First name: " + responseData[fNameAttr] + "Last name: " + responseData[lNameAttr]);
+          if (responseData[fNameAttr] !== undefined) {
+            setFirstName(responseData[fNameAttr]);
+          } else {
+            setFirstName(auth.user?.profile.given_name || "");
+          }
+          
+          if (responseData[lNameAttr] !== undefined) {
+            setLastName(responseData[lNameAttr]) 
+          } else {
+            setLastName(auth.user?.profile.family_name || "");
+          }
+        } else {
+          // Handle error if response status is not OK
+          console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`); // Display error alert with status and message
+          throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
+    
+        }
+      } catch (error) {
+        // Catch any network or other errors
+        throw new Error(`API call failed for url ${url} - Network Error: ${error}`);
+      }
+    }
+    if (userGroup === 'Driver') {
+      fetchUserNames(DRIVER_API + "/driver?DriverEmail=" + encodeURIComponent(email), "DriverFName", "DriverLName");
+    } else if (userGroup === 'Sponsor') {
+      fetchUserNames(SPONSOR_API + "/sponsor?UserEmail=" + encodeURIComponent(email), "UserFName", "UserLName");
+    } else if (userGroup === 'Admin') {
+      fetchUserNames(ADMIN_API + "/admin?AdminEmail=" + encodeURIComponent(email), "AdminFName", "AdminLName");
+    } else {
+      setFirstName(auth.user?.profile.given_name || "");
+      setLastName(auth.user?.profile.family_name || "");
+    }
+  }, []);
 
   // Show the form
   const handleOpenForm = () => {
@@ -282,12 +329,7 @@ export const AccountSettings: React.FC = () => {
   return (
     <div className="p-4 max-w-lg mx-auto space-y-6">
       <h2 className="text-2xl font-bold mb-4">Account Settings</h2>
-
-      <EditableInput
-        attributeName="Email: "
-        attributeValue={email}
-        onChange={(value) => setEmail(value)}
-      />
+      <h3>Email: {email}</h3>
       <EditableInput
         attributeName="First Name: "
         attributeValue={firstName}
