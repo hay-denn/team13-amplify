@@ -9,6 +9,7 @@ interface CartItem {
   quantity: number; //quantity of item (probably just use 1)
   org: number; //the organization ID for the catalog that the user is adding the item from
   id: number; //the trackID of the item
+  driverEmail?: string; //the email of the driver (if applicable)
 }
 
 // Define context type
@@ -53,11 +54,32 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 // Hook to use cart context
 export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
-  return context;
+  const [cart, setCart] = useState<CartItem[]>([]); // Explicitly type the cart state
+
+  useEffect(() => {
+    // Load cart from localStorage or initialize it
+    const storedCart = localStorage.getItem("cart");
+    setCart(storedCart ? JSON.parse(storedCart) : []);
+  }, []);
+
+  const addToCart = (item: CartItem) => {
+    const updatedCart = [...cart, item];
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const removeFromCart = (index: number) => {
+    const updatedCart = cart.filter((_, i) => i !== index);
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem("cart");
+  };
+
+  return { cart, addToCart, removeFromCart, clearCart }; // Include removeFromCart here
 };
 
 //Getting SQL friendly date

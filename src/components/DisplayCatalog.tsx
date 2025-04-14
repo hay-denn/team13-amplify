@@ -187,18 +187,35 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     return <div>Please Select An Organization</div>;
   }
 
-  // Function to add an item to the cart
   const handleTestAddItems = (item: CatalogItem) => {
-    const cartItem = [
-      {
-        name: item.artistName,
-        cost: (item.trackPrice * priceToPointRatio),
-        quantity: 1,
-        org: organizationData.OrganizationID,
-        id: item.trackId,
-      },
-    ];
-    cartItem.forEach(addToCart);
+    // Check if impersonating a driver
+    const impersonationData = localStorage.getItem("impersonatingDriver");
+    const impersonatedDriver = impersonationData ? JSON.parse(impersonationData) : null;
+  
+    // Determine the driver context
+    const driverEmail = impersonatedDriver
+      ? impersonatedDriver.email // Impersonated driver
+      : "currentSignedInDriverEmail@example.com"; // Replace with actual signed-in driver's email from auth context
+  
+    const sponsorOrgID = impersonatedDriver
+      ? impersonatedDriver.sponsorOrgID // Impersonated driver's sponsorOrgID
+      : organizationData?.OrganizationID; // Use the organization ID for the signed-in driver
+  
+    if (!driverEmail || !sponsorOrgID) {
+      alert("Unable to add item to cart. Missing driver or organization information.");
+      return;
+    }
+  
+    const cartItem = {
+      name: item.artistName,
+      cost: item.trackPrice * priceToPointRatio,
+      quantity: 1,
+      org: sponsorOrgID,
+      id: item.trackId,
+      driverEmail, // Include the driver's email (impersonated or actual)
+    };
+  
+    addToCart(cartItem);
     alert("Item Added To Cart!");
   };
 
