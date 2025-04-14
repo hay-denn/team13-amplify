@@ -19,6 +19,7 @@ export const signOutRedirect = () => {
   const clientId = import.meta.env.VITE_CLIENT_ID;
   const logoutUri = import.meta.env.VITE_REDIRECT_URI;
   const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN;
+  localStorage.clear();
   
   window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
 };
