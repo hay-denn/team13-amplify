@@ -163,7 +163,7 @@ export const ListOfUsersTable = ({
   const fetchCurrentPoints = async (driverEmail: string) => {
     try {
       const response = await fetch(
-        `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor?DriversEmail=${encodeURIComponent(
+        `https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/driverssponsor?DriversEmail=${encodeURIComponent(
           driverEmail
         )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`
       );
@@ -180,19 +180,17 @@ export const ListOfUsersTable = ({
 
   // Updated fetch function for recurring points:
   // It sets both the API value and the editable value.
-  const fetchRecurringPoints = async (driverEmail: string) => {
+  const fetchRecurringPoints = async () => {
     try {
-      const url = `https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/dailypoints?DriversEmail=${encodeURIComponent(
-        driverEmail
-      )}&DriversSponsorID=${encodeURIComponent(sponsorOrgID || "")}`;
+      const url = `https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/dailypoints?OrganizationID=${encodeURIComponent(sponsorOrgID || "")}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
       const fetched = Number(data.DailyPoints);
-      setRecurringPoints(fetched); // API value for display
-      setRecurringPointsEdit(fetched); // Value editable by plus/minus buttons
+      setRecurringPoints(fetched);
+      setRecurringPointsEdit(fetched);
     } catch (error) {
       console.error("Error fetching recurring points:", error);
       setRecurringPoints(0);
@@ -205,7 +203,7 @@ export const ListOfUsersTable = ({
       const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
       if (driverEmail) {
         fetchCurrentPoints(driverEmail);
-        fetchRecurringPoints(driverEmail);
+        fetchRecurringPoints();
       }
     }
   }, [selectedUser, sponsorOrgID]);
@@ -245,25 +243,22 @@ export const ListOfUsersTable = ({
   };
 
   const handleSetRecurringPoints = async () => {
-    const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
-    const sponsorID = Number(sponsorOrgID);
     try {
       const response = await fetch(
-        "https://vnduk955ek.execute-api.us-east-1.amazonaws.com/dev1/dailypoints",
+        "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/dailypoints",
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            DriversEmail: driverEmail,
-            DriversSponsorID: sponsorID,
-            DailyPoints: recurringPointsEdit, // use editable value for update
+            OrganizationID: sponsorOrgID,
+            DailyPointChange: recurringPointsEdit,
           }),
         }
       );
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      await fetchRecurringPoints(driverEmail); // refresh after updating
+      await fetchRecurringPoints(); // refresh after updating
       alert("Daily recurring points set successfully");
     } catch (error) {
       console.error("Error setting daily points:", error);
@@ -514,7 +509,7 @@ export const ListOfUsersTable = ({
                   onClick={handleSetRecurringPoints}
                   title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
                 >
-                  Recurring Points
+                  Set Recurring
                 </button>
               </div>
             </>
