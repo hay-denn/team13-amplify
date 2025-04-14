@@ -299,10 +299,12 @@ export const CartPage: React.FC = () => {
       PurchaseDate: getCurrentMySQLDate(),
       PurchaseStatus: "Ordered",
       PurchaseSponsorID: sponsorOrgID,
+      PurchasePrice: totalCost,
     };
   
     try {
       // Post purchase
+      console.log("Posting purchase data:", purchaseData);
       const purchaseResult = await callAPI(`${PUR_API}/purchase`, "POST", purchaseData);
       const purchaseID = purchaseResult?.PurchaseID;
   
