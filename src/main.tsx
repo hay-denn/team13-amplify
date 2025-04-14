@@ -5,23 +5,21 @@ import App from './App.tsx';
 import { AuthProvider } from "react-oidc-context";
 import { Amplify } from 'aws-amplify';
 
-const deployment = "sprint-10real";
-
 const cognitoAuthConfig = {
-  authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_uN566DiPO",
-  client_id: "3dqm8u7ca6uul82i7c1i4elolh",
-  client_secret: "2kgslpdmdnia6mffkqrc47furuiv6e3hhe15fidvn4tmodcavu5",
-  redirect_uri: `https://${deployment}.d1zgxgaa1s4k42.amplifyapp.com/`,
+  authority: import.meta.env.VITE_COGNITO_AUTHORITY,
+  client_id: import.meta.env.VITE_COGNITO_CLIENT_ID,
+  client_secret: import.meta.env.VITE_COGNITO_CLIENT_SECRET,
+  redirect_uri: import.meta.env.VITE_COGNITO_REDIRECT_URI,
   response_type: "code",
   scope: "email openid phone profile aws.cognito.signin.user.admin",
   storage: window.localStorage
 };
 
 export const signOutRedirect = () => {
-  const clientId = "3dqm8u7ca6uul82i7c1i4elolh";
-  const logoutUri = `https://${deployment}.d1zgxgaa1s4k42.amplifyapp.com/`;
-  const cognitoDomain = "https://us-east-1un566dipo.auth.us-east-1.amazoncognito.com";
-  
+  const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+  const logoutUri = import.meta.env.VITE_COGNITO_REDIRECT_URI;
+  const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN;
+
   window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
 };
 
@@ -36,9 +34,9 @@ createRoot(document.getElementById('root')!).render(
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: "us-east-1_uN566DiPO",
-      userPoolClientId: "3dqm8u7ca6uul82i7c1i4elolh",
-      identityPoolId: "us-east-1:0dafd320-f7c2-4dab-8d6b-b04edc0fba9e",
+      userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
+      userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
+      identityPoolId: import.meta.env.VITE_COGNITO_IDENTITY_POOL_ID,
       loginWith: {
         email: true, 
       },
@@ -58,4 +56,4 @@ Amplify.configure({
       },
     },
   },
-})
+});
