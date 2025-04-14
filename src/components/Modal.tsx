@@ -613,24 +613,40 @@ interface ViewOrgProps {
 
 export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email }) => {
   const [orgs, setOrgs] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-  const [driverOrgs, setDriverOrgs] = useState<{ DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]>([]);
+  const [driverOrgs, setDriverOrgs] = useState<
+    { DriversEmail: string; DriversSponsorID: number; DriversPoints: number }[]
+  >([]);
   const [selectedOrg, setSelectedOrg] = useState<number | "">("");
 
   const auth = useAuth();
 
   useEffect(() => {
+    // Get the full list of organizations
     getOrgs().then(setOrgs);
-    getDriverSponsors(email).then(setDriverOrgs);
+    // Retrieve driver organizations and filter:
+    // 1. Keep only organizations where DriversEmail matches the provided email.
+    // 2. Remove duplicates (based on DriversSponsorID).
+    getDriverSponsors(email)
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const filtered = data.filter((item) => item.DriversEmail === email);
+          const unique = Array.from(
+            new Map(filtered.map((org) => [org.DriversSponsorID, org])).values()
+          );
+          setDriverOrgs(unique);
+        }
+      })
+      .catch((error) => console.error("Error processing driver organizations:", error));
   }, [email]);
 
   const handleSaveChanges = async () => {
     if (!auth.user?.access_token) {
-      alert("Cannot make change. Not authorized!"); 
+      alert("Cannot make change. Not authorized!");
     } else {
       const data = {
-        "DriversEmail": email,
-        "DriversSponsorID": selectedOrg.toString()
-      }
+        DriversEmail: email,
+        DriversSponsorID: selectedOrg.toString(),
+      };
       callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor`, "POST", data);
       onClose();
     }
@@ -638,43 +654,56 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
 
   const handleRemoveOrganization = async (organizationID: number) => {
     if (!auth.user?.access_token) {
-      alert("Cannot make change. Not authorized!"); 
+      alert("Cannot make change. Not authorized!");
     } else {
-      const data = {
-      };
-      callAPI(`${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID.toString()}`, "DELETE", data);
+      const data = {};
+      callAPI(
+        `${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID.toString()}`,
+        "DELETE",
+        data
+      );
       onClose();
     }
   };
 
   if (!isOpen) return null;
 
-  // Get the list of driver organization IDs
+  // Create a Set of organization IDs the driver belongs to
   const driverOrgIDs = new Set(driverOrgs.map((org) => org.DriversSponsorID));
-  
-  // Filter organizations to get the ones not in driverOrgs
+
+  // Calculate available organizations by filtering out those the driver already belongs to
   const availableOrgs = orgs.filter((org) => !driverOrgIDs.has(org.OrganizationID));
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button onClick={onClose} className="modal-close-btn">✖</button>
+        <button onClick={onClose} className="modal-close-btn">
+          ✖
+        </button>
         <h2>Driver Sponsor Organizations</h2>
         <ul className="modal-list">
           {driverOrgs.map((driverOrg) => {
             const org = orgs.find((o) => o.OrganizationID === driverOrg.DriversSponsorID);
-            console.log(org);
             return org ? (
               <li key={org.OrganizationID}>
-                {org.OrganizationName} 
-                <button onClick={() => handleRemoveOrganization(org.OrganizationID)} className="modal-remove-button">Remove</button>
+                {org.OrganizationName}{" "}
+                <button
+                  onClick={() => handleRemoveOrganization(org.OrganizationID)}
+                  className="modal-remove-button"
+                >
+                  Remove
+                </button>
               </li>
             ) : null;
           })}
         </ul>
-        
+
         {/* Dropdown to select an organization not currently associated with the driver */}
-        <select className="modal-select" value={selectedOrg} onChange={(e) => setSelectedOrg(Number(e.target.value) || "")}>
+        <select
+          className="modal-select"
+          value={selectedOrg}
+          onChange={(e) => setSelectedOrg(Number(e.target.value) || "")}
+        >
           <option value="">Select an organization</option>
           {availableOrgs.map((org) => (
             <option key={org.OrganizationID} value={org.OrganizationID}>
@@ -682,8 +711,10 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
             </option>
           ))}
         </select>
-        
-        <button onClick={handleSaveChanges} className="modal-button">Add</button>
+
+        <button onClick={handleSaveChanges} className="modal-button">
+          Add
+        </button>
       </div>
     </div>
   );
