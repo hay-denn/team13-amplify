@@ -70,18 +70,6 @@ create table pointchanges(
     PointChangeDate date NOT NULL,
     foreign key (PointChangeDriver) references drivers(DriverEmail) on update cascade on delete cascade,
     foreign key (PointChangeSponsor) references sponsorusers(UserEmail) on update cascade on delete cascade);
-    
--- Table used to store temporary point changes for daily additions
-create table temppointchanges(
-	TempPointChangeID int Primary Key auto_increment,
-    TempPointChangeDriver varchar(50) NOT NULL,
-    TempPointChangeSponsor varchar(50) NOT NULL,
-    TempPointChangeNumber decimal(8,2) NOT NULL,
-    TempPointChangeAction varchar(200) NOT NULL,
-    TempPointChangeDate date NOT NULL,
-    TempPointChnagesReason varchar(1000),
-    foreign key (TempPointChangeDriver) references drivers(DriverEmail) on update cascade on delete cascade,
-    foreign key (TempPointChangeSponsor) references sponsorusers(UserEmail) on update cascade on delete cascade);
 
 -- Trigger that automatically adds points to users point total
 delimiter $$
@@ -116,16 +104,28 @@ ON SCHEDULE EVERY 1 DAY
 STARTS '2025-04-10 19:10:00'
 DO
 BEGIN
+    -- Table used to store temporary point changes for daily additions
+	create table temppointchanges(
+		TempPointChangeID int Primary Key auto_increment,
+		TempPointChangeDriver varchar(50) NOT NULL,
+		TempPointChangeSponsor varchar(50) NOT NULL,
+		TempPointChangeNumber decimal(8,2) NOT NULL,
+		TempPointChangeAction varchar(200) NOT NULL,
+		TempPointChangeDate date NOT NULL,
+		TempPointChnagesReason varchar(1000),
+		foreign key (TempPointChangeDriver) references drivers(DriverEmail) on update cascade on delete cascade,
+		foreign key (TempPointChangeSponsor) references sponsorusers(UserEmail) on update cascade on delete cascade);
+    
     insert into DRS.temppointchanges (TempPointChangeDriver, TempPointChangeSponsor, TempPointChangeNumber, TempPointChangeAction, TempPointChangeDate, TempPointChnagesReason)
 	SELECT DriversEmail, UserEmail, DailyPointChange, "Add", CURRENT_TIMESTAMP, "Daily Point Change"
 	FROM driverssponsors left join sponsororganizations on DriversSponsorID = OrganizationID
-	left join sponsorusers on OrganizationID = UserOrganization;
+	left join sponsorusers on OrganizationID = UserOrganization
+	group by DriversEmail, OrganizationID;
 
 	insert into DRS.pointchanges (PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction, PointChangeDate, PointChangeReason)
 	SELECT TempPointChangeDriver, TempPointChangeSponsor, TempPointChangeNumber, TempPointChangeAction, TempPointChangeDate, TempPointChnagesReason from DRS.temppointchanges;
 
-	delete from DRS.temppointchanges
-	where TempPointChangeID >= 0;
+	drop table temppointchanges;
 END$
 
 delimiter ;
