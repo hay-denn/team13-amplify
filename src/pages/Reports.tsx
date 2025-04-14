@@ -604,7 +604,7 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Password Change Logs") {
         return (
         <BarChart data={reportData}>
-            <XAxis />
+            <XAxis dataKey="changeType" />
             <YAxis />
             <Tooltip />
             <Bar dataKey="changeType" />
