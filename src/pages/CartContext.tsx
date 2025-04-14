@@ -181,7 +181,7 @@ export const CartPage: React.FC = () => {
       const fetchNotificationPref = async () => {
         try {
           const response = await fetch(
-            DRIVER_API + encodeURIComponent(userEmail)
+            DRIVER_API + "/driver?DriverEmail=" + encodeURIComponent(userEmail)
           );
           const data = await response.json();
           if (data && data.DriverOrderPlacedNotification !== undefined) {
@@ -314,12 +314,8 @@ export const CartPage: React.FC = () => {
   
       // Get sponsor email for point change
       let sponsorEmail = "";
-      if (impersonation) {
-        sponsorEmail = impersonation.email;
-      } else {
-        const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${sponsorOrgID}`);
-        sponsorEmail = sponsorResult[0]?.UserEmail;
-      }
+      const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${sponsorOrgID}`);
+      sponsorEmail = sponsorResult[0]?.UserEmail;
   
       if (!sponsorEmail) {
         throw new Error("Failed to retrieve sponsor email.");

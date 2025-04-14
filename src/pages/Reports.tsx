@@ -566,10 +566,12 @@ const Reports: React.FC = () => {
     if (selectedReport === "Driver Applications") {
       return (
         <BarChart data={reportData}>
-           <XAxis dataKey="Status" />
+           <XAxis dataKey="ApplicationStatus"
+           label = {{
+            value: "ApplicationOrganization"}} />
            <YAxis />
            <Tooltip />
-           <Bar dataKey="Sponsor" />
+           <Bar dataKey="ApplicationOrganization" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
@@ -602,10 +604,10 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Password Change Logs") {
         return (
         <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
+            <XAxis />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
+            <Bar dataKey="changeType" />
         </BarChart>
         );
     } else if (selectedReport === "Login Attempts Logs") {
