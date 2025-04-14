@@ -114,6 +114,39 @@ export const DriverDashBoard = () => {
     getDriverRelationships();
   }, [userEmail]);
 
+  const [pointChanges, setPointChanges] = useState<
+    {
+      PointChangeID: number;
+      PointChangeDriver: string;
+      PointChangeSponsor: string;
+      PointChangeNumber: number;
+      PointChangeAction: string;
+      PointChangeDate: string;
+      PointChangeReason: string;
+    }[]
+  >([]);
+  const POINT_CHANGE_API =
+    "https://kco45spzej.execute-api.us-east-1.amazonaws.com/dev1";
+
+  useEffect(() => {
+    const getPointChanges = async () => {
+      try {
+        const response = await fetch(`${POINT_CHANGE_API}/pointchanges`);
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        setPointChanges(data);
+      } catch (error) {
+        console.error("Error getting the driver's relationships:", error);
+      }
+    };
+
+    getPointChanges();
+  }, []);
+
   const handleOrganizationChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -136,40 +169,80 @@ export const DriverDashBoard = () => {
               </div>
               <div className="col-md-8">
                 <div className="box box2">
-                  <b>
+                  <h2>
                     Current Point Balance:{" "}
                     {selectedOrganization?.DriversPoints || "N/A"}
-                  </b>
+                  </h2>
                   <br />
-                  <label htmlFor="organizationDropdown">
-                    Select Organization:{" "}
-                  </label>
-                  <select
-                    id="organizationDropdown"
-                    className="form-control"
-                    value={selectedOrganizationID || ""}
-                    onChange={handleOrganizationChange}
-                  >
-                    <option value="" disabled>
-                      Select an Organization
-                    </option>
-                    {filteredOrganizations.map((org) => {
-                      const orgInfo = organizations.find(
-                        (o) => o.OrganizationID === org.DriversSponsorID
-                      );
-                      return (
-                        <option
-                          key={org.DriversSponsorID}
-                          value={org.DriversSponsorID}
-                        >
-                          {orgInfo
-                            ? orgInfo.OrganizationName
-                            : "Unknown Organization"}
-                        </option>
-                      );
-                    })}
-                  </select>
-
+                  <div className="d-flex align-items-center">
+                    <label htmlFor="organizationDropdown" className="mr-2">
+                      Current Point Balance Organization:
+                    </label>
+                    <select
+                      id="organizationDropdown"
+                      className="form-control"
+                      value={selectedOrganizationID || ""}
+                      onChange={handleOrganizationChange}
+                    >
+                      <option value="" disabled>
+                        Select an Organization
+                      </option>
+                      {filteredOrganizations.map((org) => {
+                        const orgInfo = organizations.find(
+                          (o) => o.OrganizationID === org.DriversSponsorID
+                        );
+                        return (
+                          <option
+                            key={org.DriversSponsorID}
+                            value={org.DriversSponsorID}
+                          >
+                            {orgInfo
+                              ? orgInfo.OrganizationName
+                              : "Unknown Organization"}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                  {/* Recent Point Change Table */}
+                  <div className="mt-4">
+                    <h4>Recent Point Changes</h4>
+                    <table className="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Point Change Date</th>
+                          <th>Point Change Sponsor</th>
+                          <th>Point Change Amount</th>
+                          <th>Point Change Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pointChanges
+                          .filter(
+                            (change) =>
+                              change.PointChangeDriver === userEmail
+                          )
+                          .sort(
+                            (a, b) =>
+                              new Date(b.PointChangeDate).getTime() -
+                              new Date(a.PointChangeDate).getTime()
+                          )
+                          .slice(0, 5)
+                          .map((change) => (
+                            <tr key={change.PointChangeID}>
+                              <td>
+                                {new Date(
+                                  change.PointChangeDate
+                                ).toLocaleDateString()}
+                              </td>
+                              <td>{change.PointChangeSponsor}</td>
+                              <td>{change.PointChangeNumber}</td>
+                              <td>{change.PointChangeAction}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
                   {/* LINKS to My Applications and My Sponsors */}
                   <div className="mt-4">
                     <Link
