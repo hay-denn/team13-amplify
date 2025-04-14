@@ -566,10 +566,10 @@ const Reports: React.FC = () => {
     if (selectedReport === "Driver Applications") {
       return (
         <BarChart data={reportData}>
-           <XAxis dataKey="Status"/>
+           <XAxis dataKey="Status" />
            <YAxis />
            <Tooltip />
-           <Bar dataKey="Sponsor"/>
+           <Bar dataKey="Sponsor" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
@@ -666,9 +666,7 @@ const Reports: React.FC = () => {
               </Table>
             </TableContainer>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              {renderChart()}
-            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={300}>{renderChart()}</ResponsiveContainer>
           )}
         </div>
       </Card>
