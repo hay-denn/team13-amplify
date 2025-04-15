@@ -26,7 +26,6 @@ export const TopBox = () => {
   const userEmail = impersonation
     ? impersonation.email
     : authContext?.user?.profile?.email || "";
-  //Gets the purhcases info and filters it by your eamil
 
   const [purchases, setPurchases] = useState<Purchase[]>([]);
 

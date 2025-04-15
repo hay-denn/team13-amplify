@@ -1,4 +1,3 @@
-// CatalogPreview.tsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -6,14 +5,14 @@ import "./CatalogPreview.css";
 
 interface CatalogPreviewProps {
   searchTerm: string;
-  mediaType?: string; // optional, defaults to "music"
-  limit?: number;     // optional, defaults to 4
+  mediaType?: string;
+  limit?: number;     
 }
 
 export const CatalogPreview = ({
   searchTerm,
   mediaType = "music",
-  limit = 4,
+  limit = 6,
 }: CatalogPreviewProps) => {
   const [catalogItems, setCatalogItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +21,6 @@ export const CatalogPreview = ({
   useEffect(() => {
     const fetchCatalogPreview = async () => {
       try {
-        // If search term is empty, skip fetching.
         if (!searchTerm.trim()) {
           setCatalogItems([]);
           return;
@@ -52,18 +50,20 @@ export const CatalogPreview = ({
       >
         View Full Catalog
       </button>
-      {loading ? (
-        <p>Loading preview...</p>
-      ) : (
-        <div className="catalog-items">
-          {catalogItems.map((item) => (
-            <div key={item.trackId} className="catalog-item">
-              <img src={item.artworkUrl100} alt={item.trackName} />
-              <p>{item.trackName}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="preview-content">
+        {loading ? (
+          <p>Loading preview...</p>
+        ) : (
+          <div className="catalog-items">
+            {catalogItems.map((item) => (
+              <div key={item.trackId} className="catalog-item">
+                <img src={item.artworkUrl100} alt={item.trackName} />
+                <p>{item.trackName}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
