@@ -204,33 +204,28 @@ export const DriverDashBoard = () => {
           // If the driver is part of at least one sponsor org
           <div className="container">
             {/* Top row: left box (TopBox) + selected org info */}
-            <div className="row align-items-stretch">
-              
-              {/* LEFT COLUMN */}
+            <div className="row">
+              {/* LEFT COLUMN: TopBox (Recent Purchases) */}
               <div className="col-md-4 d-flex">
-                {/* 
-                  flex-fill + flex-column means the .box fills the column height 
-                  overflow: hidden ensures the box doesn't expand 
-                */}
-                <div 
-                  className="box topBoxContainer flex-fill d-flex flex-column" 
-                  style={{ overflow: "hidden", minHeight: 0 }}
+                <div
+                  className="box topBoxContainer flex-fill d-flex flex-column"
+                  style={{ height: "500px", overflow: "hidden" }}
                 >
-                  {/* 
-                    flex: 1 and overflowY: auto let TopBox scroll if its content is taller 
-                    than the parent's height 
-                  */}
                   <div style={{ flex: 1, overflowY: "auto" }}>
                     <TopBox />
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Current Point Balance */}
+              {/* RIGHT COLUMN: Current Point Balance, Table, and Buttons */}
               <div className="col-md-8 d-flex">
-                <div className="box box2 flex-fill d-flex flex-column">
+                <div
+                  className="box box2 flex-fill d-flex flex-column"
+                  style={{ height: "500px" }}
+                >
                   <h2>
-                    Current Point Balance: {selectedOrganization?.DriversPoints || "N/A"}
+                    Current Point Balance:{" "}
+                    {selectedOrganization?.DriversPoints || "N/A"}
                   </h2>
                   <br />
                   <div className="d-flex align-items-center">
@@ -255,16 +250,14 @@ export const DriverDashBoard = () => {
                             key={org.DriversSponsorID}
                             value={org.DriversSponsorID}
                           >
-                            {orgInfo
-                              ? orgInfo.OrganizationName
-                              : "Unknown Organization"}
+                            {orgInfo ? orgInfo.OrganizationName : "Unknown Organization"}
                           </option>
                         );
                       })}
                     </select>
                   </div>
-                  {/* Recent Point Change Table */}
-                  <div className="mt-4">
+                  {/* Recent Point Changes Table */}
+                  <div className="mt-4" style={{ flex: 1, overflowY: "auto" }}>
                     <h4>Recent Point Changes</h4>
                     <table className="table table-striped">
                       <thead>
@@ -277,10 +270,7 @@ export const DriverDashBoard = () => {
                       </thead>
                       <tbody>
                         {pointChanges
-                          .filter(
-                            (change) =>
-                              change.PointChangeDriver === userEmail
-                          )
+                          .filter((change) => change.PointChangeDriver === userEmail)
                           .sort(
                             (a, b) =>
                               new Date(b.PointChangeDate).getTime() -
@@ -290,9 +280,7 @@ export const DriverDashBoard = () => {
                           .map((change) => (
                             <tr key={change.PointChangeID}>
                               <td>
-                                {new Date(
-                                  change.PointChangeDate
-                                ).toLocaleDateString()}
+                                {new Date(change.PointChangeDate).toLocaleDateString()}
                               </td>
                               <td>{change.PointChangeSponsor}</td>
                               <td>{change.PointChangeNumber}</td>
@@ -302,12 +290,9 @@ export const DriverDashBoard = () => {
                       </tbody>
                     </table>
                   </div>
-                  {/* LINKS to My Applications and My Sponsors */}
+                  {/* Navigation Buttons */}
                   <div className="mt-4">
-                    <Link
-                      to="/myapplications"
-                      className="btn btn-primary mr-2"
-                    >
+                    <Link to="/myapplications" className="btn btn-primary mr-2">
                       My Applications
                     </Link>
                     <Link to="/mysponsors" className="btn btn-primary">
