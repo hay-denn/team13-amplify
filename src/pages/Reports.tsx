@@ -23,6 +23,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  LabelList
 } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -593,12 +594,15 @@ const Reports: React.FC = () => {
 
       return (
         <BarChart data={updatedData}>
-           <XAxis dataKey="ApplicationOrganization" />
+           <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -5 }} />
            <YAxis />
            <Tooltip />
            <Bar dataKey="Approved" fill="#4caf50" />
+            <LabelList dataKey="Approved" position="top" />
            <Bar dataKey="Rejected" fill="#f44336" />
+            <LabelList dataKey="Rejected" position="top" />
            <Bar dataKey="Submitted" fill="#9e9e9e" />
+            <LabelList dataKey="Submitted" position="top" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
