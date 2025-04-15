@@ -518,7 +518,7 @@ export const SponsorApplyModal = ({
     const selectedOrgID = organizationIDInput !== -1 ? organizationIDInput : selectedOrg;
 
     const applicationData = {
-      ApplicationDriver: driverEmail,
+      ApplicationDriver: currentDriverEmail,
       ApplicationOrganization: selectedOrgID,
       ApplicationStatus: "Submitted",
       ApplicationReason: reason,
