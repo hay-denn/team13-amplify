@@ -244,7 +244,7 @@ export const CartPage: React.FC = () => {
 
   const subtotal = totalCost;
   const point_conversion = organizations.find((org) => org.OrganizationID === selectedOrganizationID)?.PointDollarRatio || 0;
-  const total_points = subtotal;
+  const total_points = subtotal*point_conversion;
   const isCartEmpty = filteredCart.length === 0;
 
   const [orderPlacedEmails, setOrderPlacedEmails] = useState<number>(0);
@@ -486,7 +486,7 @@ export const CartPage: React.FC = () => {
 
           <div className="cart-page__summary-row cart-page__summary-total">
             <span>Point total</span>
-            <span>{total_points.toFixed(2)} points</span>
+            <span>{(total_points).toFixed(2)} points</span>
           </div>  
           <button
             className="cart-page__button cart-page__button--primary"
