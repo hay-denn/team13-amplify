@@ -672,9 +672,9 @@ const Reports: React.FC = () => {
             <XAxis dataKey="user" label={{ value: "User", position: "insideBottom", offset: -10}} />
             <YAxis />
             <Tooltip />
-            <Legend wrapperStyle={{ marginTop: 20 }} />
+            <Legend wrapperStyle={{ marginTop: 80 }} />
             <Bar dataKey="forgotPassword" fill="#2196f3" />
-            <Bar dataKey="manualChange" fill="#ffeb3b" />
+            <Bar dataKey="manualChange" fill="#ffa500" />
             <Bar dataKey="adminReset" fill="#9c27b0" />
           </BarChart>
         );
