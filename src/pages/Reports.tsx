@@ -351,37 +351,25 @@ const Reports: React.FC = () => {
   const downloadPDF = async () => {
     const pdf = new jsPDF();
 
-    const chartElement = document.getElementById("report-content");
-    const tableElement = document.querySelector("table");
+    // Capture the chart view
+    setViewMode("chart");
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
+    const chartCanvas = await html2canvas(document.getElementById("report-content"));
+    const chartImage = chartCanvas.toDataURL("image/png");
+    pdf.addImage(chartImage, "PNG", 10, 10, 180, 120); // Add chart to PDF
 
-    // Temporarily make both elements visible
-    if (chartElement) chartElement.style.display = "block";
-    if (tableElement) tableElement.style.display = "block";
+    // Capture the table view
+    setViewMode("table");
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
+    const tableCanvas = await html2canvas(document.getElementById("report-content"));
+    const tableImage = tableCanvas.toDataURL("image/png");
+    pdf.addImage(tableImage, "PNG", 10, 10 + 400, 180, 120); // Add table to PDF
 
-    try {
-      if (chartElement) {
-        const chartCanvas = await html2canvas(chartElement, { scale: 2 });
-        const chartImgData = chartCanvas.toDataURL("image/png");
-        const chartHeight = (chartCanvas.height * 180) / chartCanvas.width;
-        pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
-        pdf.addPage();
-      }  
-      
-      if (tableElement) {
-        const tableCanvas = await html2canvas(tableElement, { scale: 2 });
-        const tableImgData = tableCanvas.toDataURL("image/png");
-        const tableHeight = (tableCanvas.height * 180) / tableCanvas.width;
-        pdf.addImage(tableImgData, "PNG", 10, 10, 180, tableHeight);
-      }
+    // Save the PDF
+    pdf.save("Report.pdf");
 
-      pdf.save("report.pdf");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    } finally {
-      // Restore original visibility state
-      if (tableElement) tableElement.style.display = "";
-      if (chartElement) chartElement.style.display = "";
-    }
+    // Reset back to original view mode, if necessary
+    setViewMode(viewMode);
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
