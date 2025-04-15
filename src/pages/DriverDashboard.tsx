@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
+import { AvgPointAvgPurchase } from "../components/DriverBoxes/AvgPointAvgPurchase";
 import {
   BarChart,
   Bar,
@@ -21,7 +22,7 @@ const CustomXAxisTick = (props: any) => {
   const d = new Date(payload.value);
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const year = d.getFullYear();
-  
+
   return (
     <g transform={`translate(${x},${y})`}>
       <text
@@ -29,7 +30,7 @@ const CustomXAxisTick = (props: any) => {
         y={0}
         dy={16}
         textAnchor="end"
-        fill="#000000" 
+        fill="#000000"
         transform="rotate(-45)"
       >
         {`${month}/${year}`}
@@ -183,16 +184,17 @@ export const DriverDashBoard = () => {
   }, []);
 
   const driverPointChanges = pointChanges
-  .filter((change) => change.PointChangeDriver === userEmail)
-  .sort(
-    (a, b) =>
-      new Date(a.PointChangeDate).getTime() -
-      new Date(b.PointChangeDate).getTime()
-  );
+    .filter((change) => change.PointChangeDriver === userEmail)
+    .sort(
+      (a, b) =>
+        new Date(a.PointChangeDate).getTime() -
+        new Date(b.PointChangeDate).getTime()
+    );
 
-  const adjustedDriverPointChanges = driverPointChanges.map(item => ({
+  const adjustedDriverPointChanges = driverPointChanges.map((item) => ({
     ...item,
-    PointChangeNumber: item.PointChangeNumber < -20 ? -20 : item.PointChangeNumber,
+    PointChangeNumber:
+      item.PointChangeNumber < -20 ? -20 : item.PointChangeNumber,
   }));
 
   const handleOrganizationChange = (
@@ -207,14 +209,12 @@ export const DriverDashBoard = () => {
 
   return (
     <>
-      <h1 className="text-center mb-5 mt-5">Welcome Back, {userFName}!</h1>
+      <h1 className="welcome-message">Welcome Back, {userFName}!</h1>
       {organizationsDoneLoading ? (
         filteredOrganizations.length > 0 ? (
           // If the driver is part of at least one sponsor org
           <div className="container">
-            {/* Top row: left box (TopBox) + selected org info */}
             <div className="row">
-              {/* LEFT COLUMN: TopBox (Recent Purchases) */}
               <div className="col-md-4 d-flex">
                 <div
                   className="box topBoxContainer flex-fill d-flex flex-column"
@@ -226,7 +226,6 @@ export const DriverDashBoard = () => {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: Current Point Balance, Table, and Buttons */}
               <div className="col-md-8 d-flex">
                 <div
                   className="box box2 flex-fill d-flex flex-column"
@@ -259,7 +258,9 @@ export const DriverDashBoard = () => {
                             key={org.DriversSponsorID}
                             value={org.DriversSponsorID}
                           >
-                            {orgInfo ? orgInfo.OrganizationName : "Unknown Organization"}
+                            {orgInfo
+                              ? orgInfo.OrganizationName
+                              : "Unknown Organization"}
                           </option>
                         );
                       })}
@@ -279,7 +280,9 @@ export const DriverDashBoard = () => {
                       </thead>
                       <tbody>
                         {pointChanges
-                          .filter((change) => change.PointChangeDriver === userEmail)
+                          .filter(
+                            (change) => change.PointChangeDriver === userEmail
+                          )
                           .sort(
                             (a, b) =>
                               new Date(b.PointChangeDate).getTime() -
@@ -289,7 +292,9 @@ export const DriverDashBoard = () => {
                           .map((change) => (
                             <tr key={change.PointChangeID}>
                               <td>
-                                {new Date(change.PointChangeDate).toLocaleDateString()}
+                                {new Date(
+                                  change.PointChangeDate
+                                ).toLocaleDateString()}
                               </td>
                               <td>{change.PointChangeSponsor}</td>
                               <td>{change.PointChangeNumber}</td>
@@ -299,7 +304,7 @@ export const DriverDashBoard = () => {
                       </tbody>
                     </table>
                   </div>
-                  {/* Navigation Buttons */}
+
                   <div className="mt-4">
                     <Link to="/myapplications" className="btn btn-primary mr-2">
                       My Applications
@@ -312,50 +317,71 @@ export const DriverDashBoard = () => {
               </div>
             </div>
 
-            {/* Placeholder rows/items */}
             <div className="row mt-3">
-              <div className="col-md-4" style={{ height: "500px", overflow: "hidden" }}>
+              <div
+                className="col-md-4"
+                style={{ height: "500px", overflow: "hidden" }}
+              >
                 <div className="box box3">
-                  <CatalogPreview searchTerm={selectedOrgData?.SearchTerm || ""}/>
+                  <CatalogPreview
+                    searchTerm={selectedOrgData?.SearchTerm || ""}
+                  />
                 </div>
               </div>
 
               <div className="col-md-8">
-              <div className="box box5" style={{ overflow: "visible" }}>
-                <h4>Point Progress Chart</h4>
-                <div style={{ width: "100%", height: "450px", overflow: "visible" }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={adjustedDriverPointChanges}  // Use the clamped data here
-                      margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
-                    >
-                      <XAxis
-                        dataKey="PointChangeDate"
-                        tick={<CustomXAxisTick />}
-                        interval="preserveStartEnd"
-                        minTickGap={20}
-                        tickMargin={15}
-                      />
-                      <YAxis domain={[-20, "auto"]} tick={{ fill: "#000000" }} />
-                      <Tooltip
-                        labelFormatter={(label) => {
-                          const d = new Date(label);
-                          const month = String(d.getMonth() + 1).padStart(2, "0");
-                          const day = String(d.getDate()).padStart(2, "0");
-                          const year = d.getFullYear();
-                          return `${month}/${day}/${year}`;
-                        }}
-                        contentStyle={{ color: "#000000" }}
-                        labelStyle={{ color: "#000000" }}
-                      />
-                      <Bar dataKey="PointChangeNumber" fill="#000000" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="box box5" style={{ overflow: "visible" }}>
+                  <h4>Point Progress Chart</h4>
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "450px",
+                      overflow: "visible",
+                    }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={adjustedDriverPointChanges} // Use the clamped data here
+                        margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
+                      >
+                        <XAxis
+                          dataKey="PointChangeDate"
+                          tick={<CustomXAxisTick />}
+                          interval="preserveStartEnd"
+                          minTickGap={20}
+                          tickMargin={15}
+                        />
+                        <YAxis
+                          domain={[-20, "auto"]}
+                          tick={{ fill: "#000000" }}
+                        />
+                        <Tooltip
+                          labelFormatter={(label) => {
+                            const d = new Date(label);
+                            const month = String(d.getMonth() + 1).padStart(
+                              2,
+                              "0"
+                            );
+                            const day = String(d.getDate()).padStart(2, "0");
+                            const year = d.getFullYear();
+                            return `${month}/${day}/${year}`;
+                          }}
+                          contentStyle={{ color: "#000000" }}
+                          labelStyle={{ color: "#000000" }}
+                        />
+                        <Bar dataKey="PointChangeNumber" fill="#000000" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div>
+                    <AvgPointAvgPurchase
+                      SponsorEmail={userEmail}
+                    ></AvgPointAvgPurchase>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         ) : (
           // If the driver has no sponsor relationships yet
           <div className="container-fluid">
