@@ -203,19 +203,29 @@ export const DriverDashBoard = () => {
         filteredOrganizations.length > 0 ? (
           // If the driver is part of at least one sponsor org
           <div className="container">
-            {/* Top row: left box + selected org info */}
+            {/* Top row: left box (TopBox) + selected org info */}
             <div className="row align-items-stretch">
-              {/* Left Column: Fixed-height TopBox */}
+              
+              {/* LEFT COLUMN */}
               <div className="col-md-4 d-flex">
-                <div
-                  className="box topBoxContainer flex-fill d-flex flex-column"
-                  style={{ height: "180px", overflow: "hidden" }}
+                {/* 
+                  flex-fill + flex-column means the .box fills the column height 
+                  overflow: hidden ensures the box doesn't expand 
+                */}
+                <div 
+                  className="box topBoxContainer flex-fill d-flex flex-column" 
+                  style={{ overflow: "hidden", minHeight: 0 }}
                 >
+                  {/* 
+                    flex: 1 and overflowY: auto let TopBox scroll if its content is taller 
+                    than the parent's height 
+                  */}
                   <div style={{ flex: 1, overflowY: "auto" }}>
                     <TopBox />
                   </div>
                 </div>
               </div>
+
               {/* Right Column: Current Point Balance */}
               <div className="col-md-8 d-flex">
                 <div className="box box2 flex-fill d-flex flex-column">
