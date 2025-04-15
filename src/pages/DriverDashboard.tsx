@@ -303,46 +303,42 @@ export const DriverDashBoard = () => {
                 <div className="box box3">Placeholder Item</div>
               </div>
               <div className="col-md-8">
-              <div className="box box5">
+              <div className="box box5" style={{ overflow: "visible" }}>
                 <h4>Point Progress Chart</h4>
-                <ResponsiveContainer width="100%" height={450}>
-                  <BarChart
-                    data={driverPointChanges}
-                    // Give extra space on the bottom to prevent cutting off labels
-                    margin={{ top: 20, right: 20, left: 20, bottom: 60 }}
-                  >
-                    <XAxis
-                      dataKey="PointChangeDate"
-                      tick={<CustomXAxisTick />}     // if using your custom tick component
-                      interval="preserveStartEnd"
-                      minTickGap={20}
-                      // If you haven't set a custom tick, consider:
-                      // tickMargin={10}
-                      // tickFormatter={(date) => {
-                      //   // Format date as MM/YYYY, e.g. 03/2025
-                      // }}
-                    />
-                    {/* Clamps the Y-axis to never go below –20 */}
-                    <YAxis domain={[-20, "auto"]} tick={{ fill: "#000000" }} />
-                    <Tooltip
-                      // Hover date as MM/DD/YYYY, or whichever format you prefer
-                      labelFormatter={(label) => {
-                        const d = new Date(label);
-                        const month = String(d.getMonth() + 1).padStart(2, "0");
-                        const day = String(d.getDate()).padStart(2, "0");
-                        const year = d.getFullYear();
-                        return `${month}/${day}/${year}`;
-                      }}
-                      contentStyle={{ color: "#000000" }}
-                      labelStyle={{ color: "#000000" }}
-                    />
-                    <Bar dataKey="PointChangeNumber" fill="#000000" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+                <div style={{ width: "100%", height: "450px", overflow: "visible" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={driverPointChanges}
+                      margin={{ top: 20, right: 20, left: 20, bottom: 80 }} // More bottom margin
+                    >
+                      <XAxis
+                        dataKey="PointChangeDate"
+                        tick={<CustomXAxisTick />}    // If you are using the custom tick
+                        interval="preserveStartEnd"
+                        minTickGap={20}
+                        tickMargin={15}              // Additional space between labels & axis
+                      />
+                      <YAxis domain={[-20, "auto"]}  // Clamp y-axis at -20
+                            tick={{ fill: "#000000" }} />
+                      <Tooltip
+                        labelFormatter={(label) => {
+                          const d = new Date(label);
+                          const month = String(d.getMonth() + 1).padStart(2, "0");
+                          const day = String(d.getDate()).padStart(2, "0");
+                          const year = d.getFullYear();
+                          return `${month}/${day}/${year}`;
+                        }}
+                        contentStyle={{ color: "#000000" }}
+                        labelStyle={{ color: "#000000" }}
+                      />
+                      <Bar dataKey="PointChangeNumber" fill="#000000" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
+        </div>
         ) : (
           // If the driver has no sponsor relationships yet
           <div className="container-fluid">
