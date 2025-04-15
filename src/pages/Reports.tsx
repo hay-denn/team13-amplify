@@ -351,37 +351,38 @@ const Reports: React.FC = () => {
   const downloadPDF = async () => {
     const pdf = new jsPDF();
 
+    const originalViewMode = viewMode;
+
+    // Capture the chart view
+    setViewMode("chart");
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
     const chartElement = document.getElementById("report-content");
-    const tableElement = document.querySelector("table");
-
-    // Temporarily make both elements visible
-    if (chartElement) chartElement.style.display = "block";
-    if (tableElement) tableElement.style.display = "block";
-
-    try {
-      if (chartElement) {
-        const chartCanvas = await html2canvas(chartElement, { scale: 2 });
-        const chartImgData = chartCanvas.toDataURL("image/png");
-        const chartHeight = (chartCanvas.height * 180) / chartCanvas.width;
-        pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
-        pdf.addPage();
-      }  
-      
-      if (tableElement) {
-        const tableCanvas = await html2canvas(tableElement, { scale: 2 });
-        const tableImgData = tableCanvas.toDataURL("image/png");
-        const tableHeight = (tableCanvas.height * 180) / tableCanvas.width;
-        pdf.addImage(tableImgData, "PNG", 10, 10, 180, tableHeight);
-      }
-
-      pdf.save("report.pdf");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    } finally {
-      // Restore original visibility state
-      if (tableElement) tableElement.style.display = "";
-      if (chartElement) chartElement.style.display = "";
+    if (chartElement) {
+        const chartCanvas = await html2canvas(chartElement);
+        const chartImage = chartCanvas.toDataURL("image/png");
+    pdf.addImage(chartImage, "PNG", 10, 10, 180, 120); // Add chart to PDF
+    } else {
+        console.error("Element with ID 'report-content' not found.");
     }
+
+    // Capture the table view
+    setViewMode("table");
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
+    const tableElement = document.getElementById("report-content");
+    if (tableElement) {
+        const tableCanvas = await html2canvas(tableElement);
+        const tableImage = tableCanvas.toDataURL("image/png");
+        pdf.addPage();
+        pdf.addImage(tableImage, "PNG", 10, 10, 180, 120);
+    } else {
+        console.error("Element with ID 'report-content' not found.");
+    }
+
+    // Save the PDF
+    pdf.save("Report.pdf");
+
+    // Reset back to original view mode, if necessary
+    setViewMode(originalViewMode);
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
