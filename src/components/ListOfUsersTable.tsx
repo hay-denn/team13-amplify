@@ -60,6 +60,7 @@ export const ListOfUsersTable = ({
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [currentPoints, setCurrentPoints] = useState<number | null>(null);
   const [pointsChange, setPointsChange] = useState<number>(0);
+  const [reason, setReason] = useState<string>("");
 
   // Corrected recurring points states:
   // recurringPoints holds the value fetched from the API (for display)
@@ -254,6 +255,7 @@ export const ListOfUsersTable = ({
             PointChangeSponsor: sponsorEmail.toString(),
             PointChangeNumber: pointsChange.toString(),
             PointChangeAction: action,
+            PointChangeReason: reason
           }),
         }
       );
@@ -538,6 +540,13 @@ return (
               >
                 +
               </button>
+              <input
+                type="text"
+                placeholder="Reason for point change"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                style={{ width: "100%" }}
+              />
               <button className="btn btn-primary" onClick={handleChangePoints}>
                 Change Points
               </button>
