@@ -679,7 +679,7 @@ const Reports: React.FC = () => {
     
           return (
             <BarChart data={updatedData}>
-               <XAxis dataKey="ApplicationOrganization" />
+               <XAxis dataKey="PurchaseOrganization" />
                <YAxis />
                <Tooltip />
                <Legend wrapperStyle={{ marginTop: 20 }} />
