@@ -4,6 +4,7 @@
     margin: 0;
     padding: 10px;
     flex: 1;
+    box-sizing: border-box;
   }
 
   .topBox h2 {

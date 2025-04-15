@@ -201,33 +201,28 @@ export const DriverDashBoard = () => {
       <h1 className="text-center mb-5 mt-5">Welcome Back, {userFName}!</h1>
       {organizationsDoneLoading ? (
         filteredOrganizations.length > 0 ? (
-          // If the driver is part of at least one sponsor org
-          <div className="container">
-            {/* Top row: left box + selected org info */}
-            <div className="row align-items-stretch">
-              <div className="col-md-4 d-flex">
-                {/* The .box div is a flex item and stretches to match sibling height */}
-                <div className="box box1 flex-fill d-flex flex-column">
-                  <TopBox />
-                </div>
-              </div>
-              <div className="col-md-8 d-flex">
-                <div className="box box2 flex-fill d-flex flex-column">
-                  <h2>
-                    Current Point Balance:{" "}
-                    {selectedOrganization?.DriversPoints || "N/A"}
-                  </h2>
-                  <br />
-                  <div className="d-flex align-items-center">
-                    <label htmlFor="organizationDropdown" className="mr-2">
-                      Select Organization:
-                    </label>
-                    <select
-                      id="organizationDropdown"
-                      className="form-control"
-                      value={selectedOrganizationID || ""}
-                      onChange={handleOrganizationChange}
-                    >
+          <div className="home">
+            {/* TopBox now uses the new topBoxContainer class to match box2's height */}
+            <div className="box topBoxContainer">
+              <TopBox />
+            </div>
+            {/* Current Point Balance Box */}
+            <div className="box box2">
+              <h2>
+                Current Point Balance:{" "}
+                {selectedOrganization?.DriversPoints || "N/A"}
+              </h2>
+              <br />
+              <div className="d-flex align-items-center">
+                <label htmlFor="organizationDropdown" className="mr-2">
+                  Select Organization:
+                </label>
+                <select
+                  id="organizationDropdown"
+                  className="form-control"
+                  value={selectedOrganizationID || ""}
+                  onChange={handleOrganizationChange}
+                >
                       <option value="" disabled>
                         Select an Organization
                       </option>
