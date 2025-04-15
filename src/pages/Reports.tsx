@@ -604,10 +604,18 @@ const Reports: React.FC = () => {
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
+        type ReportDataItem = {
+            PointChangeDriver: string;
+            PointChangeNumber: number;
+        };
+        
+        const minValue = Math.min(...reportData.map((item: ReportDataItem) => item.PointChangeNumber));
+        const maxValue = Math.max(...reportData.map((item: ReportDataItem) => item.PointChangeNumber));
+
         return (
         <BarChart data={reportData}>
             <XAxis dataKey="PointChangeDriver" />
-            <YAxis domain={['dataMin', 'dataMax']} />
+            <YAxis domain={[minValue, maxValue]} />
             <Tooltip />
             <Bar dataKey="PointChangeNumber" />
         </BarChart>
