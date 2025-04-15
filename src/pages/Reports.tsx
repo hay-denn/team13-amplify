@@ -594,7 +594,7 @@ const Reports: React.FC = () => {
 
       return (
         <BarChart data={updatedData}>
-           <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset=-10}} />
+           <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -10}} />
            <YAxis />
            <Tooltip />
            <Legend />
