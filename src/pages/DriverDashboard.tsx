@@ -15,6 +15,28 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const CustomXAxisTick = (props: any) => {
+  const { x, y, payload } = props;
+  const d = new Date(payload.value);
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="end"
+        fill="#000000" 
+        transform="rotate(-45)"
+      >
+        {`${month}/${year}`}
+      </text>
+    </g>
+  );
+};
+
 export const DriverDashBoard = () => {
   //Auth & Impersonation
   const authContext = useContext(AuthContext);
@@ -287,21 +309,21 @@ export const DriverDashBoard = () => {
                   <BarChart data={driverPointChanges}>
                     <XAxis
                       dataKey="PointChangeDate"
-                      tickFormatter={(date) => {
-                        const d = new Date(date);
-                        const month = (d.getMonth() + 1).toString().padStart(2, "0");
-                        const year = d.getFullYear();
-                        return `${month}/${year}`;
-                      }}
+                      tick={<CustomXAxisTick />}
+                      interval="preserveStartEnd"
+                      minTickGap={20}
                     />
-                    <YAxis domain={[-20, "auto"]} />
-                    <Tooltip 
+                    <YAxis tick={{ fill: "#000000" }} />
+                    <Tooltip
                       labelFormatter={(label) => {
                         const d = new Date(label);
-                        const month = (d.getMonth() + 1).toString().padStart(2, "0");
+                        const month = String(d.getMonth() + 1).padStart(2, "0");
+                        const day = String(d.getDate()).padStart(2, "0");
                         const year = d.getFullYear();
-                        return `${month}/${year}`;
+                        return `${month}/${day}/${year}`;
                       }}
+                      contentStyle={{ color: "#000000" }}
+                      labelStyle={{ color: "#000000" }}
                     />
                     <Bar dataKey="PointChangeNumber" fill="#000000" />
                   </BarChart>
@@ -330,12 +352,12 @@ export const DriverDashBoard = () => {
                 <div style={{ marginTop: "1rem" }}>
                   <Link
                     to="/myapplications"
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     style={{ marginRight: "1rem" }}
                   >
                     My Applications
                   </Link>
-                  <Link to="/mysponsors" className="btn btn-secondary">
+                  <Link to="/mysponsors" className="btn btn-primary">
                     My Sponsors
                   </Link>
                 </div>
