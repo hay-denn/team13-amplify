@@ -476,11 +476,11 @@ export const CartPage: React.FC = () => {
 
           <div className="cart-page__summary-row">
             <span>Subtotal</span>
-            <span>{subtotal.toFixed(2)} points</span>
+            <span>${subtotal.toFixed(2)}</span>
           </div>
 
           <div className="cart-page__summary-row">
-            <span>Point Ratio</span>
+            <span>Point to Dollar Ratio</span>
             <span>{point_conversion}</span>
           </div>
 
