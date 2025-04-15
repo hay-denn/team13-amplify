@@ -641,6 +641,7 @@ const Reports: React.FC = () => {
             forgotPassword?: number;
             manualChange?: number;
             adminReset?: number;
+            [key: string]: number | string | undefined;
         };
         
         const changeTypeMapping: Record<string, keyof ProcessedDataItem> = {
@@ -655,7 +656,7 @@ const Reports: React.FC = () => {
         );
         if (org) {
             const mappedKey = changeTypeMapping[curr.changeType];
-            org[mappedKey] = (org[mappedKey] || 0) as number + 1;
+            org[mappedKey] = (org[mappedKey] as number || 0) + 1;
         } else {
             const mappedKey = changeTypeMapping[curr.changeType];
             acc.push({
