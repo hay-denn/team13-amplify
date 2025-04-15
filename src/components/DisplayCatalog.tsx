@@ -227,7 +227,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     }
 
     const cartItem = {
-      name: item.artistName,
+      name: item.trackName,
       cost: item.trackPrice * priceToPointRatio,
       quantity: 1,
       org: sponsorOrgID,
@@ -330,7 +330,11 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
       <button onClick={handleNextPage}>Next</button>
       <p>Page: {page + 1}</p>
       <button onClick={handleFetchAll}>Fetch All Items</button>
-    </div>
+      {/* add dummy items to cart */}
+      <button onClick={() => handleTestAddItems(allResults[0])}>
+        Add Dummy Item To Cart
+      </button>
+    </div> 
   );
 };
 
