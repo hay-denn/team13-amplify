@@ -1,43 +1,59 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { AuthContext } from "react-oidc-context";
 import "./Manageusers.css";
 import "./CartContext.css";
 
 // Define item type
-interface CartItem {
-  name: string; // Name of the item (can be anything, this info is not stored in our DB)
-  cost: number; // cost (in points) of item
-  quantity: number; // quantity of item (probably just use 1)
-  org: number; // the organization ID for the catalog that the user is adding the item from
-  id: number; // the trackID of the item
-  driverEmail?: string; // the email of the driver (if applicable)
+export interface CartItem {
+  name: string;    // Name of the item
+  cost: number;    // Cost (in points)
+  quantity: number;
+  org: number;     // Organization ID
+  id: number;      // trackID of the item
+  driverEmail?: string;
 }
 
-// Define context type
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (index: number) => void;
+  clearCart: () => void;
 }
 
-// Create context
+// Create the context
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const storedCart = localStorage.getItem("cart");
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (item: CartItem) => {
     setCart((prevCart) => {
+      // Look for an existing item with same name & org
       const existingItemIndex = prevCart.findIndex(
         (cartItem) => cartItem.name === item.name && cartItem.org === item.org
       );
       if (existingItemIndex !== -1) {
-        return prevCart.map((cartItem, index) =>
-          index === existingItemIndex
+        // If found, increment quantity
+        return prevCart.map((cartItem, idx) =>
+          idx === existingItemIndex
             ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
             : cartItem
         );
       }
+      // If it doesn't exist, add it
       return [...prevCart, item];
     });
   };
@@ -46,41 +62,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCart((prevCart) => prevCart.filter((_, i) => i !== index));
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
 };
 
-// Hook to use cart context
-export const useCart = () => {
-  const [cart, setCart] = useState<CartItem[]>([]); // Explicitly type the cart state
-
-  useEffect(() => {
-    // Load cart from localStorage or initialize it
-    const storedCart = localStorage.getItem("cart");
-    setCart(storedCart ? JSON.parse(storedCart) : []);
-  }, []);
-
-  const addToCart = (item: CartItem) => {
-    const updatedCart = [...cart, item];
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const removeFromCart = (index: number) => {
-    const updatedCart = cart.filter((_, i) => i !== index);
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem("cart");
-  };
-
-  return { cart, addToCart, removeFromCart, clearCart }; // Include removeFromCart here
+export const useCart = (): CartContextType => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used inside a <CartProvider>.");
+  }
+  return context;
 };
 
 // Getting SQL friendly date
@@ -422,7 +420,7 @@ export const CartPage: React.FC = () => {
                   <div className="cart-page__item-left">
                     <h3 className="cart-page__item-title">{item.name}</h3>
                     <div className="cart-page__item-details">
-                      <span className="cart-page__item-cost">{item.cost} points</span>
+                      <span className="cart-page__item-cost">{(item.cost*point_conversion).toFixed(2)} points</span>
                       <span className="cart-page__item-quantity">Qty: {item.quantity}</span>
                     </div>
                   </div>
@@ -446,12 +444,6 @@ export const CartPage: React.FC = () => {
                 Remove All
               </button>
 
-              <button
-                className="cart-page__button cart-page__button--primary"
-                onClick={handleSubmitOrder}
-              >
-                Submit Order
-              </button>
               <button
                 className="cart-page__button cart-page__button--secondary"
                 onClick={() => (window.location.href = "/catalog")}
@@ -493,9 +485,15 @@ export const CartPage: React.FC = () => {
           </div>
 
           <div className="cart-page__summary-row cart-page__summary-total">
-            <span>Estimated total</span>
+            <span>Point total</span>
             <span>{total_points.toFixed(2)} points</span>
           </div>
+          <button
+            className="cart-page__button cart-page__button--primary"
+            onClick={handleSubmitOrder}
+          >
+            Submit Order
+          </button>
         </div>
       </div>
     </div>

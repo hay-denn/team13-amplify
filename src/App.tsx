@@ -34,14 +34,13 @@ function App() {
   const userEmail = auth.user?.profile.email || "";
   const userGroup = cognitoGroups[0];
 
-  // const userEmail = "noahamn@gmail.com";
-  // const userGroup = "Sponsor";
+  // const userEmail = "noahnisbet3@gmail.com";
+  // const userGroup = "Driver";
   // auth.isAuthenticated = true;
 
   return (
-    <Router>
-      <CartProvider>
-      
+    <CartProvider>
+      <Router>
         <Layout userType={userGroup} userEmail={userEmail}>
           <Routes>
             {auth.isAuthenticated ? (
@@ -129,8 +128,8 @@ function App() {
           <APIRoutes />
         </Layout>
         <Footer />
-      </CartProvider>
-    </Router>
+      </Router>
+    </CartProvider>
   );
 }
 

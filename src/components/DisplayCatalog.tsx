@@ -228,7 +228,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
 
     const cartItem = {
       name: item.trackName,
-      cost: item.trackPrice * priceToPointRatio,
+      cost: item.trackPrice,
       quantity: 1,
       org: sponsorOrgID,
       id: item.trackId,
