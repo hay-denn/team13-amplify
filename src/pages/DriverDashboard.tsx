@@ -38,6 +38,12 @@ const CustomXAxisTick = (props: any) => {
   );
 };
 
+interface OrganizationData {
+  OrganizationID: number;
+  OrganizationName: string;
+  SearchTerm: string;
+}
+
 export const DriverDashBoard = () => {
   //Auth & Impersonation
   const authContext = useContext(AuthContext);
@@ -88,9 +94,7 @@ export const DriverDashBoard = () => {
   );
 
   //Fetch all organizations (so we can display org name) and the driver's relationships
-  const [organizations, setOrganizations] = useState<
-    { OrganizationID: number; OrganizationName: string }[]
-  >([]);
+  const [organizations, setOrganizations] = useState<OrganizationData[]>([]);
   const [_, setOrganizationsLoaded] = useState(false);
 
   const driverRelationshipURL =
@@ -196,6 +200,10 @@ export const DriverDashBoard = () => {
   ) => {
     setSelectedOrganizationID(Number(event.target.value));
   };
+
+  const selectedOrgData = organizations.find(
+    (o) => o.OrganizationID === selectedOrganizationID
+  );
 
   return (
     <>
@@ -308,9 +316,10 @@ export const DriverDashBoard = () => {
             <div className="row mt-3">
               <div className="col-md-4">
                 <div className="box box3">
-                  <CatalogPreview />
+                  <CatalogPreview searchTerm={selectedOrgData?.SearchTerm || ""}/>
                 </div>
               </div>
+
               <div className="col-md-8">
               <div className="box box5" style={{ overflow: "visible" }}>
                 <h4>Point Progress Chart</h4>

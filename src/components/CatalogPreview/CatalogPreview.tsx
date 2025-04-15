@@ -4,19 +4,29 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./CatalogPreview.css";
 
-export const CatalogPreview = () => {
+interface CatalogPreviewProps {
+  searchTerm: string;
+  mediaType?: string; // optional, defaults to "music"
+  limit?: number;     // optional, defaults to 4
+}
+
+export const CatalogPreview = ({
+  searchTerm,
+  mediaType = "music",
+  limit = 4,
+}: CatalogPreviewProps) => {
   const [catalogItems, setCatalogItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // For the preview, we use a hardcoded search term, media type, and limit.
-  const searchTerm = "pop"; // adjust as needed
-  const mediaType = "music";
-  const limit = 4; // preview only 4 items
-
   useEffect(() => {
     const fetchCatalogPreview = async () => {
       try {
+        // If search term is empty, skip fetching.
+        if (!searchTerm.trim()) {
+          setCatalogItems([]);
+          return;
+        }
         const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
           searchTerm
         )}&media=${mediaType}&limit=${limit}&explicit=No`;
@@ -29,6 +39,7 @@ export const CatalogPreview = () => {
       }
     };
 
+    setLoading(true);
     fetchCatalogPreview();
   }, [searchTerm, mediaType, limit]);
 
