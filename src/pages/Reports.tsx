@@ -670,7 +670,7 @@ const Reports: React.FC = () => {
               org[curr.PurchaseStatus] = (org[curr.PurchaseStatus] || 0) + 1;
             } else {
               acc.push({
-                PurchaseOrganizaton: curr.PurchaseStatus,
+                PurchaseOrganization: curr.PurchaseStatus,
                 [curr.PurchaseStatus]: 1,
               });
             }        
