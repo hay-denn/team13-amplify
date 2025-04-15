@@ -185,6 +185,11 @@ export const DriverDashBoard = () => {
       new Date(b.PointChangeDate).getTime()
   );
 
+  const adjustedDriverPointChanges = driverPointChanges.map(item => ({
+    ...item,
+    PointChangeNumber: item.PointChangeNumber < -20 ? -20 : item.PointChangeNumber,
+  }));
+
   const handleOrganizationChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -308,18 +313,17 @@ export const DriverDashBoard = () => {
                 <div style={{ width: "100%", height: "450px", overflow: "visible" }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={driverPointChanges}
-                      margin={{ top: 20, right: 20, left: 20, bottom: 80 }} // More bottom margin
+                      data={adjustedDriverPointChanges}  // Use the clamped data here
+                      margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
                     >
                       <XAxis
                         dataKey="PointChangeDate"
-                        tick={<CustomXAxisTick />}    // If you are using the custom tick
+                        tick={<CustomXAxisTick />}
                         interval="preserveStartEnd"
                         minTickGap={20}
-                        tickMargin={15}              // Additional space between labels & axis
+                        tickMargin={15}
                       />
-                      <YAxis domain={[-20, "auto"]}  // Clamp y-axis at -20
-                            tick={{ fill: "#000000" }} />
+                      <YAxis domain={[-20, "auto"]} tick={{ fill: "#000000" }} />
                       <Tooltip
                         labelFormatter={(label) => {
                           const d = new Date(label);
