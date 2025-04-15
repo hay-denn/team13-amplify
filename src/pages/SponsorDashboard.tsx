@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Faststats } from "../components/SponsorDashBoardBoxes/faststats";
 import { PurchaseByMonth } from "../components/SponsorDashBoardBoxes/PurchaseByMonth";
+import { PointPurchaseComparison } from "../components/SponsorDashBoardBoxes/PointPurchaseComparison";
 
 interface OrganizationData {
   OrganizationID: number;
@@ -33,7 +34,7 @@ export const SponsorDashboard = () => {
     useState<OrganizationData | null>(null);
 
   //makes sure to change this back
-  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(false);
+  const [sponsorIdLoaded, setSponsorIdLoaded] = useState(true);
   const url_getSponsorID =
     "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
 
@@ -84,7 +85,7 @@ export const SponsorDashboard = () => {
       <div className="row g-2 mt-2">
         <div className="col-md-4">
           <div className="box box3 p-2">
-            <PurchaseByMonth SponsorID={13} />
+            <PurchaseByMonth SponsorID={currentSponsorId} />
           </div>
         </div>
 
@@ -107,15 +108,41 @@ export const SponsorDashboard = () => {
           </div>
         </div>
 
-        <div className="col-md-4">
-          <div className="box box4 p-2">
-            Company Notices From {organizationData?.OrganizationName}
+        <div className="col-md-3">
+          <div className="box box2 p-3">
+            <h3>About Your Sponsor: {organizationData?.OrganizationName}</h3>
+            <div>
+              <strong>Description:</strong>{" "}
+              {organizationData?.OrganizationDescription?.trim()
+                ? organizationData.OrganizationDescription
+                : "No description available."}
+            </div>
+            <div>
+              <strong>Your Org's Search Term:</strong>{" "}
+              {organizationData?.SearchTerm}
+            </div>
+            <div>
+              <strong>Number Of Products in the Catalog:</strong>{" "}
+              {organizationData?.AmountOfProducts}
+            </div>
+            <div>
+              <strong>Maximum Catalog Price:</strong>{" "}
+              {organizationData?.MaxPrice}
+            </div>
+            <div>
+              <strong>Point To Dollar Ratio:</strong>{" "}
+              {organizationData?.PointDollarRatio}
+            </div>
+            <button>View Catalog info</button>
           </div>
         </div>
-        <div className="col-md-4">
-          <div className="box box5 p-2">
-            Number Of Products in the Catalog:{" "}
-            {organizationData?.AmountOfProducts}
+        <div className="col-md-5">
+          <div className="box">
+            <div>
+              <PointPurchaseComparison
+                SponsorID={currentSponsorId}
+              ></PointPurchaseComparison>
+            </div>
           </div>
         </div>
       </div>

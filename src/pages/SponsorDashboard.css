@@ -56,3 +56,49 @@ body {
     color: #555;
     font-size: 1.1rem;
   }
+
+  .box {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+
+  .box.box2 h3 {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+  }
+  box.box2 > div {
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    color: #424242;
+  }
+  
+
+  .box.box2 button {
+    background-color:  #007bff;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .box.box2 button:hover {
+    background-color: #007bff;
+  }
+  
+
+  .sponsor-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .box.box2 p {
+    margin: 0;
+    line-height: 1.4;
+  }  
