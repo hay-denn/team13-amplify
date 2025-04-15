@@ -205,17 +205,22 @@ export const DriverDashBoard = () => {
           <div className="container">
             {/* Top row: left box + selected org info */}
             <div className="row align-items-stretch">
+              {/* Left Column: Fixed-height TopBox */}
               <div className="col-md-4 d-flex">
-                {/* The .box div is a flex item and stretches to match sibling height */}
-                <div className="box topBoxContainer flex-fill d-flex flex-column">
-                  <TopBox />
+                <div
+                  className="box topBoxContainer flex-fill d-flex flex-column"
+                  style={{ height: "180px", overflow: "hidden" }}
+                >
+                  <div style={{ flex: 1, overflowY: "auto" }}>
+                    <TopBox />
+                  </div>
                 </div>
               </div>
+              {/* Right Column: Current Point Balance */}
               <div className="col-md-8 d-flex">
                 <div className="box box2 flex-fill d-flex flex-column">
                   <h2>
-                    Current Point Balance:{" "}
-                    {selectedOrganization?.DriversPoints || "N/A"}
+                    Current Point Balance: {selectedOrganization?.DriversPoints || "N/A"}
                   </h2>
                   <br />
                   <div className="d-flex align-items-center">
