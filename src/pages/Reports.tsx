@@ -597,7 +597,7 @@ const Reports: React.FC = () => {
            <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -10}} />
            <YAxis />
            <Tooltip />
-           <Legend wrapperStyle={{ marginTop: 10 }} />
+           <Legend wrapperStyle={{ marginTop: 20 }} />
            <Bar dataKey="Approved" fill="#4caf50" />
            <Bar dataKey="Rejected" fill="#f44336" />
            <Bar dataKey="Submitted" fill="#9e9e9e" />
@@ -607,7 +607,7 @@ const Reports: React.FC = () => {
         return (
         <BarChart data={reportData}>
             <XAxis dataKey="PointChangeDriver" />
-            <YAxis />
+            <YAxis domain={['auto', 'auto']} />
             <Tooltip />
             <Bar dataKey="PointChangeNumber" />
         </BarChart>
@@ -672,10 +672,10 @@ const Reports: React.FC = () => {
             <XAxis dataKey="user" label={{ value: "User", position: "insideBottom", offset: -10}} />
             <YAxis />
             <Tooltip />
-            <Legend wrapperStyle={{ marginTop: 10 }} />
-            <Bar dataKey="forgotPassword" fill="#4caf50" />
-            <Bar dataKey="manualChange" fill="#f44336" />
-            <Bar dataKey="adminReset" fill="#9e9e9e" />
+            <Legend wrapperStyle={{ marginTop: 20 }} />
+            <Bar dataKey="forgotPassword" fill="#2196f3" />
+            <Bar dataKey="manualChange" fill="#ffeb3b" />
+            <Bar dataKey="adminReset" fill="#9c27b0" />
           </BarChart>
         );
     } else if (selectedReport === "Login Attempts Logs") {
@@ -716,7 +716,7 @@ const Reports: React.FC = () => {
             <XAxis dataKey="user" label={{ value: "User", position: "insideBottom", offset: -10}} />
             <YAxis />
             <Tooltip />
-            <Legend wrapperStyle={{ marginTop: 10 }} />
+            <Legend wrapperStyle={{ marginTop: 20 }} />
             <Bar dataKey="Success" fill="#4caf50" />
             <Bar dataKey="Failed" fill="#f44336" />
           </BarChart>
