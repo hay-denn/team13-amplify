@@ -594,7 +594,7 @@ const Reports: React.FC = () => {
 
       return (
         <BarChart data={updatedData}>
-           <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -10}} />
+           <XAxis dataKey="ApplicationOrganization" />
            <YAxis />
            <Tooltip />
            <Legend wrapperStyle={{ marginTop: 20 }} />
@@ -668,8 +668,8 @@ const Reports: React.FC = () => {
         }, []);
         
         return (
-          <BarChart data={updatedData} margin={{ top: 20, right: 20, bottom: 60, left: 20 }}>
-            <XAxis dataKey="user" label={{ value: "User", position: "insideBottom", offset: -10}} />
+          <BarChart data={updatedData}>
+            <XAxis dataKey="user" />
             <YAxis />
             <Tooltip />
             <Legend />
@@ -713,7 +713,7 @@ const Reports: React.FC = () => {
         
         return (
           <BarChart data={updatedData}>
-            <XAxis dataKey="user" label={{ value: "User", position: "insideBottom", offset: -10}} />
+            <XAxis dataKey="user" />
             <YAxis />
             <Tooltip />
             <Legend wrapperStyle={{ marginTop: 20 }} />
