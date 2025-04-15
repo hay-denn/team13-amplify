@@ -351,25 +351,38 @@ const Reports: React.FC = () => {
   const downloadPDF = async () => {
     const pdf = new jsPDF();
 
+    const originalViewMode = viewMode;
+
     // Capture the chart view
     setViewMode("chart");
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
-    const chartCanvas = await html2canvas(document.getElementById("report-content"));
-    const chartImage = chartCanvas.toDataURL("image/png");
+    const chartElement = document.getElementById("report-content");
+    if (chartElement) {
+        const chartCanvas = await html2canvas(chartElement);
+        const chartImage = chartCanvas.toDataURL("image/png");
     pdf.addImage(chartImage, "PNG", 10, 10, 180, 120); // Add chart to PDF
+    } else {
+        console.error("Element with ID 'report-content' not found.");
+    }
 
     // Capture the table view
     setViewMode("table");
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
-    const tableCanvas = await html2canvas(document.getElementById("report-content"));
-    const tableImage = tableCanvas.toDataURL("image/png");
-    pdf.addImage(tableImage, "PNG", 10, 10 + 400, 180, 120); // Add table to PDF
+    const tableElement = document.getElementById("report-content");
+    if (tableElement) {
+        const tableCanvas = await html2canvas(tableElement);
+        const tableImage = tableCanvas.toDataURL("image/png");
+        pdf.addPage();
+        pdf.addImage(tableImage, "PNG", 10, 10, 180, 120);
+    } else {
+        console.error("Element with ID 'report-content' not found.");
+    }
 
     // Save the PDF
     pdf.save("Report.pdf");
 
     // Reset back to original view mode, if necessary
-    setViewMode(viewMode);
+    setViewMode(originalViewMode);
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
