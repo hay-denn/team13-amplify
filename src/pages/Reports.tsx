@@ -567,21 +567,27 @@ const Reports: React.FC = () => {
       type ReportDataItem = {
         ApplicationOrganization: string;
         ApplicationStatus: "Accepted" | "Rejected" | "Pending";
-      };  
+      }; 
+
+      type ProcessedDataItem = {
+        ApplicationOrganization: string;
+        Accepted?: number;
+        Rejected?: number;
+        Pending?: number;
+      };      
       
-      const updatedData = reportData.reduce((acc, curr: ReportDataItem) => {
+      const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
         const org = acc.find(
             (item) => item.ApplicationOrganization === curr.ApplicationOrganization
         );
         if (org) {
-          org[curr.ApplicationStatus] =
-              (org[curr.ApplicationStatus] || 0) + 1;
-          } else {
+          org[curr.ApplicationStatus] = (org[curr.ApplicationStatus] || 0) + 1;
+        } else {
           acc.push({
-              ApplicationOrganization: curr.ApplicationOrganization,
-              [curr.ApplicationStatus]: 1,
+            ApplicationOrganization: curr.ApplicationOrganization,
+            [curr.ApplicationStatus]: 1,
           });
-        }
+        }        
         return acc;
       }, []);
 
