@@ -58,7 +58,6 @@ export const ListOfOrganizationsBox = () => {
       return { ...org, NumberOfPurchases: count };
     });
 
-    // Check if updatedOrgs differs from the current organizationPurchaseInfo.
     const isDifferent = updatedOrgs.some((org, index) => {
       return (
         organizationPurchaseInfo[index]?.NumberOfPurchases !==
@@ -71,19 +70,15 @@ export const ListOfOrganizationsBox = () => {
     }
   };
 
-  // Fetch organizations and purchases on mount.
   useEffect(() => {
     fetchOrganizations();
     fetchPurchases();
   }, []);
 
-  // When both organizationPurchaseInfo and purchaseIDs are available, update the counts.
   useEffect(() => {
     if (organizationPurchaseInfo.length && purchaseIDs.length) {
       updateOrganizationPurchaseCounts();
     }
-    // We include purchaseIDs as a dependency.
-    // The updateOrganizationPurchaseCounts now only triggers a state change if counts differ.
   }, [purchaseIDs, organizationPurchaseInfo]);
 
   // Get the top 7 organizations by NumberOfPurchases.
@@ -156,7 +151,7 @@ export const ListOfOrganizationsBox = () => {
           </div>
         </div>
       </div>
-      {/* Uncomment below if you want to display additional info */}
+
       {/* <div>
         {organizationPurchaseInfo.map((org) => (
           <div key={org.OrgId}>
