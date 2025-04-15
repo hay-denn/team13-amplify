@@ -6,6 +6,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export const DriverDashBoard = () => {
   //Auth & Impersonation
@@ -147,6 +155,14 @@ export const DriverDashBoard = () => {
     getPointChanges();
   }, []);
 
+  const driverPointChanges = pointChanges
+  .filter((change) => change.PointChangeDriver === userEmail)
+  .sort(
+    (a, b) =>
+      new Date(a.PointChangeDate).getTime() -
+      new Date(b.PointChangeDate).getTime()
+  );
+
   const handleOrganizationChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -176,7 +192,7 @@ export const DriverDashBoard = () => {
                   <br />
                   <div className="d-flex align-items-center">
                     <label htmlFor="organizationDropdown" className="mr-2">
-                      Current Point Balance Organization:
+                      Select Organization:
                     </label>
                     <select
                       id="organizationDropdown"
@@ -264,11 +280,27 @@ export const DriverDashBoard = () => {
               <div className="col-md-4">
                 <div className="box box3">Placeholder Item</div>
               </div>
-              <div className="col-md-4">
-                <div className="box box4">Placeholder Item</div>
-              </div>
-              <div className="col-md-4">
-                <div className="box box5">My Point Progress Chart:</div>
+              <div className="col-md-8">
+                <div className="box box5">
+                  <h4>Point Progress Chart</h4>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={driverPointChanges}>
+                      <XAxis
+                        dataKey="PointChangeDate"
+                        tickFormatter={(date) =>
+                          new Date(date).toLocaleDateString()
+                        }
+                      />
+                      <YAxis />
+                      <Tooltip 
+                        labelFormatter={(label) => 
+                          new Date(label).toLocaleDateString()
+                        }
+                      />
+                      <Bar dataKey="PointChangeNumber" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
