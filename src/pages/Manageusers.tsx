@@ -84,11 +84,13 @@ export const Manageusers = () => {
           <h5 className="manage-users-title card-title">Manage Users</h5>
           <p className="card-text">Create, edit, and manage users</p>
 
+          <div className="user-list">
           <ListOfUsersTable
             driverTable={driverList}
             sponsorTable={sponsorList}
             adminTable={adminList}
           />
+          </div>
 
           <button
             onClick={handleOpenUserModal}

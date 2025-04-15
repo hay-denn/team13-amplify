@@ -35,7 +35,7 @@ function App() {
   const userGroup = cognitoGroups[0];
 
   // const userEmail = "noahnisbet3@gmail.com";
-  // const userGroup = "Admin";
+  // const userGroup = "Driver";
   // auth.isAuthenticated = true;
 
   return (
@@ -105,16 +105,16 @@ function App() {
                 {userGroup === "Admin" && (
                   <>
                     <Route path="/" element={<AdminDashboard />} />
-                    <Route path="/manageusers/" element={<Manageusers />} />
+                    <Route path="/manageusers" element={<Manageusers />} />
                     <Route
-                      path="/managesponsors/"
+                      path="/managesponsors"
                       element={<ManageSponsors />}
                     />
-                    <Route path="/reports/" element={<Reports />} />
+                    <Route path="/reports" element={<Reports />} />
                   </>
                 )}
 
-                <Route path="/account/" element={<AccountSettings />} />
+                <Route path="/account" element={<AccountSettings />} />
               </>
             ) : (
               <Route path="/" element={<Home />} />

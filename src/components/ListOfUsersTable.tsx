@@ -334,11 +334,13 @@ export const ListOfUsersTable = ({
     setShowEditModal(false);
   };
 
-  // =========================================
-  // RENDER
-  // =========================================
-  return (
-    <div>
+// =========================================
+// RENDER
+// =========================================
+return (
+  <div>
+    {/* Container that centers and limits width */}
+    <div className="custom-table-container">
       <table className="table table-striped table-bordered table-hover align-middle">
         <thead className="table-secondary">
           <tr>
@@ -362,51 +364,54 @@ export const ListOfUsersTable = ({
               <td>{driver.DriverLName}</td>
               <td>{driver.DriverEmail}</td>
               {!isSponsor && (
-                <td>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handleViewOrg(driver.DriverEmail)}
-                  >
-                    View
-                  </button>
-                </td>
+                <>
+                  <td>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleViewOrg(driver.DriverEmail)}
+                    >
+                      View
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleEditUser(driver, "Driver")}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </>
               )}
-              {!isSponsor && (
+              {isSponsor ? (
+                <>
+                  <td>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleShowActionsModal(driver)}
+                    >
+                      Actions
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleRemoveDriver(driver.DriverEmail)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </>
+              ) : (
                 <td>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handleEditUser(driver, "Driver")}
-                  >
-                    Edit
-                  </button>
-                </td>
-              )}
-              <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleShowActionsModal(driver)}
-                >
-                  Actions
-                </button>
-              </td>
-              <td>
-                {isSponsor ? (
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleRemoveDriver(driver.DriverEmail)}
-                  >
-                    Remove
-                  </button>
-                ) : (
                   <button
                     className="btn btn-primary"
                     onClick={() => handleShowActionsModal(driver)}
                   >
                     Actions
                   </button>
-                )}
-              </td>
-
+                </td>
+              )}
             </tr>
           ))}
 
@@ -436,6 +441,7 @@ export const ListOfUsersTable = ({
                   Actions
                 </button>
               </td>
+              {isSponsor && <td></td>}
             </tr>
           ))}
 
@@ -467,152 +473,160 @@ export const ListOfUsersTable = ({
                   Actions
                 </button>
               </td>
+              {isSponsor && <td></td>}
             </tr>
           ))}
         </tbody>
       </table>
-
-      {/* View Organization Modal */}
-      <ViewOrgModal
-        isOpen={isViewOrgModalOpen}
-        onClose={() => setIsViewOrgModalOpen(false)}
-        email={viewOrgEmail}
-      />
-
-      {/* Actions Modal (Points, Impersonation, etc.) */}
-      <Modal
-        dialogClassName="modal-lg"
-        show={showActionsModal}
-        onHide={handleCloseActionsModal}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title style={{ width: "100%", textAlign: "center" }}>
-            Edit Driver
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedUser && (
-            <>
-              <p>
-                <strong>User Email: </strong>
-                {selectedUser.DriverEmail ||
-                  selectedUser.UserEmail ||
-                  "N / A"}
-              </p>
-              <p>
-                <strong>User Points: </strong>
-                {currentPoints !== null ? currentPoints : "Loading..."}
-              </p>
-              <p>
-                <strong>Recurring Points: </strong>
-                {recurringPoints !== null ? recurringPoints : "Loading..."}
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "10px",
-                  flexWrap: "wrap",
-                }}
-              >
-                {/* One-time point adjustment */}
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setPointsChange(pointsChange - 1)}
-                >
-                  -
-                </button>
-                <span>{pointsChange}</span>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setPointsChange(pointsChange + 1)}
-                >
-                  +
-                </button>
-                <button className="btn btn-primary" onClick={handleChangePoints}>
-                  Change Points
-                </button>
-
-                <br style={{ flexBasis: "100%", height: 0 }} />
-
-                {/* Recurring (Daily) points controls */}
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setRecurringPointsEdit(recurringPointsEdit - 1)}
-                >
-                  -
-                </button>
-                <span>{recurringPointsEdit}</span>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setRecurringPointsEdit(recurringPointsEdit + 1)}
-                >
-                  +
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleSetRecurringPoints}
-                  title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
-                >
-                  Set Recurring
-                </button>
-              </div>
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Button
-            variant="primary"
-            onClick={() => handleViewAsDriver("/driver-dashboard")}
-            style={{ width: "100%", margin: "5px 0" }}
-          >
-            Driver Dashboard
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleViewAsDriver("/cart")}
-            style={{ width: "100%", margin: "5px 0" }}
-          >
-            Driver Cart
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleViewAsDriver("/catalog")}
-            style={{ width: "100%", margin: "5px 0" }}
-          >
-            Driver Catalog
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => handleEditOrders("/edit-orders")}
-            style={{ width: "100%", margin: "5px 0" }}
-          >
-            Edit Orders
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={handleCloseActionsModal}
-            style={{ width: "100%", margin: "5px 0" }}
-          >
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* User Editing Modal */}
-      <UserModal
-        isOpen={showEditModal}
-        onClose={handleCloseEditModal}
-        initialData={editData}
-        emailList={allEmails}
-      />
     </div>
-  );
+
+    {/* View Organization Modal */}
+    <ViewOrgModal
+      isOpen={isViewOrgModalOpen}
+      onClose={() => setIsViewOrgModalOpen(false)}
+      email={viewOrgEmail}
+    />
+
+    {/* Actions Modal (Points, Impersonation, etc.) */}
+    <Modal
+      dialogClassName="modal-lg"
+      show={showActionsModal}
+      onHide={handleCloseActionsModal}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title style={{ width: "100%", textAlign: "center" }}>
+          Edit Driver
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {selectedUser && (
+          <>
+            <p>
+              <strong>User Email: </strong>
+              {selectedUser.DriverEmail ||
+                selectedUser.UserEmail ||
+                "N / A"}
+            </p>
+            <p>
+              <strong>User Points: </strong>
+              {currentPoints !== null ? currentPoints : "Loading..."}
+            </p>
+            <p>
+              <strong>Recurring Points: </strong>
+              {recurringPoints !== null ? recurringPoints : "Loading..."}
+            </p>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "10px",
+                flexWrap: "wrap",
+              }}
+            >
+              {/* One-time point adjustment */}
+              <button
+                className="btn btn-secondary"
+                onClick={() => setPointsChange(pointsChange - 1)}
+              >
+                -
+              </button>
+              <span>{pointsChange}</span>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setPointsChange(pointsChange + 1)}
+              >
+                +
+              </button>
+              <button className="btn btn-primary" onClick={handleChangePoints}>
+                Change Points
+              </button>
+
+              <br style={{ flexBasis: "100%", height: 0 }} />
+
+              {/* Recurring (Daily) points controls */}
+              <button
+                className="btn btn-secondary"
+                onClick={() =>
+                  setRecurringPointsEdit(recurringPointsEdit - 1)
+                }
+              >
+                -
+              </button>
+              <span>{recurringPointsEdit}</span>
+              <button
+                className="btn btn-secondary"
+                onClick={() =>
+                  setRecurringPointsEdit(recurringPointsEdit + 1)
+                }
+              >
+                +
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleSetRecurringPoints}
+                title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
+              >
+                Set Recurring
+              </button>
+            </div>
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Footer
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          variant="primary"
+          onClick={() => handleViewAsDriver("/driver-dashboard")}
+          style={{ width: "100%", margin: "5px 0" }}
+        >
+          Driver Dashboard
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => handleViewAsDriver("/cart")}
+          style={{ width: "100%", margin: "5px 0" }}
+        >
+          Driver Cart
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => handleViewAsDriver("/catalog")}
+          style={{ width: "100%", margin: "5px 0" }}
+        >
+          Driver Catalog
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => handleEditOrders("/edit-orders")}
+          style={{ width: "100%", margin: "5px 0" }}
+        >
+          Edit Orders
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={handleCloseActionsModal}
+          style={{ width: "100%", margin: "5px 0" }}
+        >
+          Cancel
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    {/* User Editing Modal */}
+    <UserModal
+      isOpen={showEditModal}
+      onClose={handleCloseEditModal}
+      initialData={editData}
+      emailList={allEmails}
+    />
+  </div>
+);
 };
+
+export default ListOfUsersTable;

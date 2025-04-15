@@ -1,0 +1,125 @@
+/* Overall background with a subtle gradient */
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+	margin: 0;
+	padding: 0;
+  }
+  
+  /* Container for the About page content */
+  .about-container {
+	max-width: 1000px;
+	margin: 4rem auto;
+	padding: 2rem;
+	background-color: rgba(255, 255, 255, 0.95);
+	border-radius: 10px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1rem;
+  }
+  
+  /* Header styling */
+  .about-header {
+	text-align: center;
+	margin-bottom: 2rem;
+  }
+  .about-header h1 {
+	font-size: 3rem;
+	margin: 0;
+	color: #102a43;
+  }
+  
+  /* About team info section */
+  .about-info {
+	margin-bottom: 3rem;
+  }
+  
+  /* Card for "About Team" info */
+  .about-team-card {
+	background-color: #fff;
+	padding: 2rem;
+	border-radius: 10px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	margin: 0 auto 2rem auto;
+	max-width: 800px;
+  }
+  .about-team-card h2 {
+	font-size: 2.5rem;
+	margin-bottom: 1rem;
+	color: #102a43;
+  }
+  .product-description {
+	font-size: 1.1rem;
+	line-height: 1.6;
+	margin: 1rem 0;
+	color: #334e68;
+  }
+  
+  /* Team details layout */
+  .about-team-details {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	font-size: 1rem;
+	color: #334e68;
+  }
+  .about-team-details p {
+	margin: 0;
+  }
+  
+  /* If no team info is available */
+  .no-info {
+	text-align: center;
+	font-style: italic;
+  }
+  
+  /* Team Members Section */
+  .team-members {
+	margin-bottom: 2rem;
+  }
+  .team-members h2 {
+	text-align: center;
+	font-size: 2.5rem;
+	margin-bottom: 1rem;
+	color: #102a43;
+  }
+  
+  /* Grid layout for team member cards */
+  .members-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 1.5rem;
+  }
+  
+  /* Individual team member card */
+  .member-card {
+	background-color: #fff;
+	padding: 1.5rem;
+	border-radius: 8px;
+	text-align: center;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s ease;
+  }
+  .member-card:hover {
+	transform: scale(1.05);
+  }
+  .member-name {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: #102a43;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+	.about-header h1 {
+	  font-size: 2.2rem;
+	}
+	.about-team-card h2 {
+	  font-size: 2rem;
+	}
+	.member-name {
+	  font-size: 1rem;
+	}
+  }
+  
