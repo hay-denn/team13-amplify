@@ -487,7 +487,7 @@ export const CartPage: React.FC = () => {
           <div className="cart-page__summary-row cart-page__summary-total">
             <span>Point total</span>
             <span>{total_points.toFixed(2)} points</span>
-          </div>
+          </div>  
           <button
             className="cart-page__button cart-page__button--primary"
             onClick={handleSubmitOrder}

@@ -242,6 +242,11 @@ export const ListOfUsersTable = ({
       alert("Please input a non-zero value to change points.");
       return;
     }
+    if (!reason || reason.trim() === "") {
+      alert("Please provide a reason for the point change.");
+      return;
+    }
+
     const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
     const sponsorEmail = auth.user?.profile?.email || "";
     const action = pointsChange > 0 ? "Add" : "Subtract";
