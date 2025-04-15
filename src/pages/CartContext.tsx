@@ -289,7 +289,7 @@ export const CartPage: React.FC = () => {
 
     // Check point balance
     const orgIndex = currentOrganizations.findIndex((org) => org.DriversSponsorID === sponsorOrgID);
-    if (orgIndex === -1 || currentOrganizations[orgIndex].DriversPoints < totalCost) {
+    if (orgIndex === -1 || currentOrganizations[orgIndex].DriversPoints < total_points) {
       alert("Insufficient points!");
       return;
     }
@@ -324,7 +324,7 @@ export const CartPage: React.FC = () => {
       const pointChangeData = {
         PointChangeDriver: driverEmail,
         PointChangeSponsor: sponsorEmail,
-        PointChangeNumber: -totalCost,
+        PointChangeNumber: -total_points,
         PointChangeAction: "Subtract",
       };
       await callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
