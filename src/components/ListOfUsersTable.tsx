@@ -242,7 +242,9 @@ export const ListOfUsersTable = ({
       alert("Please input a non-zero value to change points.");
       return;
     }
-    if (!reason || reason.trim() === "") {
+    console.log(reason);
+
+    if (reason.trim() === "") {
       alert("Please provide a reason for the point change.");
       return;
     }
