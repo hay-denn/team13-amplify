@@ -502,7 +502,7 @@ export const SponsorApplyModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
-    if (!driverEmail.trim()) {
+    if (!currentDriverEmail) {
       alert("Driver email is required.");
       return;
     }

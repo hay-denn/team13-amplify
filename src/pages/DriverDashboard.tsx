@@ -155,7 +155,7 @@ export const DriverDashBoard = () => {
 
   return (
     <>
-      <h1 className="text-center mb-5 mt-5">Welcome Back {userFName}!</h1>
+      <h1 className="text-center mb-5 mt-5">Welcome Back, {userFName}!</h1>
       {organizationsDoneLoading ? (
         filteredOrganizations.length > 0 ? (
           // If the driver is part of at least one sponsor org
