@@ -349,15 +349,37 @@ const Reports: React.FC = () => {
     setReportData(data);
   };
   const downloadPDF = async () => {
-    const element = document.getElementById("report-content");
-    if (!element) return;
     try {
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
-      pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
-      pdf.save("report.pdf");
-    } catch (error) {}
+        const pdf = new jsPDF();
+
+        // Capture Chart (if it exists)
+        const chartElement = document.getElementById("report-content"); // Ensure the correct ID
+        if (chartElement) {
+          const chartCanvas = await html2canvas(chartElement, { scale: 2 }); // High-resolution capture
+          const chartImgData = chartCanvas.toDataURL("image/png");
+          const chartHeight = (chartCanvas.height * 180) / chartCanvas.width; // Scale dynamically
+          pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
+        }
+    
+        // Add spacing or a new page if both elements are present
+        //if (chartElement) {
+        //  pdf.addPage(); // Add a new page for the chart
+        //}
+
+        // Capture Table (if it exists)
+        const tableElement = document.querySelector("table"); // Adjust selector if needed
+        if (tableElement) {
+          const tableCanvas = await html2canvas(tableElement, { scale: 2 }); // High-resolution capture
+          const tableImgData = tableCanvas.toDataURL("image/png");
+          const tableHeight = (tableCanvas.height * 180) / tableCanvas.width; // Scale dynamically
+          pdf.addImage(tableImgData, "PNG", 10, 10, 180, tableHeight);
+        }
+    
+        // Save the PDF
+        pdf.save("report.pdf");
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+      }
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
