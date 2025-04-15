@@ -12,9 +12,12 @@ interface OrganizationPurchases {
 
 export const ListOfOrganizationsBox = () => {
   const org_url = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
-  const purchase_url = "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
+  const purchase_url =
+    "https://mk7fc3pb53.execute-api.us-east-1.amazonaws.com/dev1";
 
-  const [organizationPurchaseInfo, setOrganizationPurchaseInfo] = useState<OrganizationPurchases[]>([]);
+  const [organizationPurchaseInfo, setOrganizationPurchaseInfo] = useState<
+    OrganizationPurchases[]
+  >([]);
   const [purchaseIDs, setPurchaseIDs] = useState<number[]>([]);
 
   const transformData = (data: any): OrganizationPurchases => ({
@@ -39,7 +42,9 @@ export const ListOfOrganizationsBox = () => {
   const fetchPurchases = async () => {
     try {
       const response = await axios.get(`${purchase_url}/purchases`);
-      const ids: number[] = response.data.map((purchase: any) => purchase.PurchaseSponsorID);
+      const ids: number[] = response.data.map(
+        (purchase: any) => purchase.PurchaseSponsorID
+      );
       setPurchaseIDs(ids);
     } catch (error) {
       console.error("Error fetching organization data:", error);
@@ -55,7 +60,10 @@ export const ListOfOrganizationsBox = () => {
 
     // Check if updatedOrgs differs from the current organizationPurchaseInfo.
     const isDifferent = updatedOrgs.some((org, index) => {
-      return organizationPurchaseInfo[index]?.NumberOfPurchases !== org.NumberOfPurchases;
+      return (
+        organizationPurchaseInfo[index]?.NumberOfPurchases !==
+        org.NumberOfPurchases
+      );
     });
 
     if (isDifferent) {
@@ -79,7 +87,9 @@ export const ListOfOrganizationsBox = () => {
   }, [purchaseIDs, organizationPurchaseInfo]);
 
   // Get the top 7 organizations by NumberOfPurchases.
-  const getTopOrganizations = (orgs: OrganizationPurchases[]): OrganizationPurchases[] => {
+  const getTopOrganizations = (
+    orgs: OrganizationPurchases[]
+  ): OrganizationPurchases[] => {
     return [...orgs]
       .sort((a, b) => (b.NumberOfPurchases ?? 0) - (a.NumberOfPurchases ?? 0))
       .slice(0, 7);
@@ -131,9 +141,14 @@ export const ListOfOrganizationsBox = () => {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="NumberOfPurchases">
-                  {getTopOrganizations(organizationPurchaseInfo).map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
+                  {getTopOrganizations(organizationPurchaseInfo).map(
+                    (_entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={colors[index % colors.length]}
+                      />
+                    )
+                  )}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
