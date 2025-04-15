@@ -364,6 +364,7 @@ const Reports: React.FC = () => {
         const chartImgData = chartCanvas.toDataURL("image/png");
         const chartHeight = (chartCanvas.height * 180) / chartCanvas.width;
         pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
+        pdf.addPage();
       }  
       
       if (tableElement) {
@@ -371,7 +372,6 @@ const Reports: React.FC = () => {
         const tableImgData = tableCanvas.toDataURL("image/png");
         const tableHeight = (tableCanvas.height * 180) / tableCanvas.width;
         pdf.addImage(tableImgData, "PNG", 10, 10, 180, tableHeight);
-        pdf.addPage();
       }
 
       pdf.save("report.pdf");
