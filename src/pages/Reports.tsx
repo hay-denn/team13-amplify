@@ -578,7 +578,7 @@ const Reports: React.FC = () => {
       
       const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
         const org = acc.find(
-            (item) => item.ApplicationOrganization === curr.ApplicationOrganization
+            (item: ProcessedDataItem) => item.ApplicationOrganization === curr.ApplicationOrganization
         );
         if (org) {
           org[curr.ApplicationStatus] = (org[curr.ApplicationStatus] || 0) + 1;
@@ -596,9 +596,9 @@ const Reports: React.FC = () => {
            <XAxis dataKey="ApplicationOrganization" />
            <YAxis />
            <Tooltip />
-           <Bar dataKey="Approved" />
-           <Bar dataKey="Rejected" />
-           <Bar dataKey="Submitted" />
+           <Bar dataKey="Approved" fill="#4caf50" />
+           <Bar dataKey="Rejected" fill="#f44336" />
+           <Bar dataKey="Submitted" fill="#9e9e9e" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
