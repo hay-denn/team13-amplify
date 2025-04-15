@@ -564,14 +564,30 @@ const Reports: React.FC = () => {
   };
   const renderChart = () => {
     if (selectedReport === "Driver Applications") {
+      const updatedData = reportData.reduce((acc, curr) => {
+        const org = acc.find(
+            (item) => item.ApplicationOrganization === curr.ApplicationOrganization
+        );
+        if (org) {
+          org[curr.ApplicationStatus] =
+              (org[curr.ApplicationStatus] || 0) + 1;
+          } else {
+          acc.push({
+              ApplicationOrganization: curr.ApplicationOrganization,
+              [curr.ApplicationStatus]: 1,
+          });
+        }
+        return acc;
+      }, []);
+
       return (
-        <BarChart data={reportData}>
-           <XAxis dataKey="ApplicationStatus"
-           label = {{
-            value: "ApplicationOrganization"}} />
+        <BarChart data={updatedData}>
+           <XAxis dataKey="ApplicationOrganization" />
            <YAxis />
            <Tooltip />
-           <Bar dataKey="ApplicationOrganization" />
+           <Bar dataKey="Approved" />
+           <Bar dataKey="Rejected" />
+           <Bar dataKey="Submitted" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
