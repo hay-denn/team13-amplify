@@ -626,7 +626,7 @@ const Reports: React.FC = () => {
            <XAxis dataKey="ApplicationOrganization" />
            <YAxis />
            <Tooltip />
-           <Legend wrapperStyle={{ marginTop: 20 }} />
+           <Legend />
            <Bar dataKey="Approved" fill="#4caf50" />
            <Bar dataKey="Rejected" fill="#f44336" />
            <Bar dataKey="Submitted" fill="#9e9e9e" />
@@ -651,12 +651,12 @@ const Reports: React.FC = () => {
         );
     } else if (selectedReport === "Purchases") {
         type ReportDataItem = {
-            PurchaseOrganization: string;
+            OrganizationName: string;
             PurchaseStatus: "Ordered" | "Canceled" | "Delivered";
           }; 
     
           type ProcessedDataItem = {
-            PurchaseOrganization: string;
+            OrganizationName: string;
             Ordered?: number;
             Canceled?: number;
             Delivered?: number;
@@ -664,13 +664,13 @@ const Reports: React.FC = () => {
           
           const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
             const org = acc.find(
-                (item: ProcessedDataItem) => item.PurchaseOrganization === curr.PurchaseOrganization
+                (item: ProcessedDataItem) => item.OrganizationName === curr.OrganizationName
             );
             if (org) {
               org[curr.PurchaseStatus] = (org[curr.PurchaseStatus] || 0) + 1;
             } else {
               acc.push({
-                PurchaseOrganization: curr.PurchaseOrganization,
+                OrganizationName: curr.OrganizationName,
                 [curr.PurchaseStatus]: 1,
               });
             }        
@@ -682,7 +682,7 @@ const Reports: React.FC = () => {
                <XAxis dataKey="PurchaseOrganization" />
                <YAxis />
                <Tooltip />
-               <Legend wrapperStyle={{ marginTop: 20 }} />
+               <Legend />
                <Bar dataKey="Ordered" fill="#9e9e9e" />
                <Bar dataKey="Canceled" fill="#f44336" />
                <Bar dataKey="Delivered" fill="#4caf50" />
