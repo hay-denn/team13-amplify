@@ -23,6 +23,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Legend
 } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -564,14 +565,42 @@ const Reports: React.FC = () => {
   };
   const renderChart = () => {
     if (selectedReport === "Driver Applications") {
+      type ReportDataItem = {
+        ApplicationOrganization: string;
+        ApplicationStatus: "Accepted" | "Rejected" | "Pending";
+      }; 
+
+      type ProcessedDataItem = {
+        ApplicationOrganization: string;
+        Accepted?: number;
+        Rejected?: number;
+        Pending?: number;
+      };      
+      
+      const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
+        const org = acc.find(
+            (item: ProcessedDataItem) => item.ApplicationOrganization === curr.ApplicationOrganization
+        );
+        if (org) {
+          org[curr.ApplicationStatus] = (org[curr.ApplicationStatus] || 0) + 1;
+        } else {
+          acc.push({
+            ApplicationOrganization: curr.ApplicationOrganization,
+            [curr.ApplicationStatus]: 1,
+          });
+        }        
+        return acc;
+      }, []);
+
       return (
-        <BarChart data={reportData}>
-           <XAxis dataKey="ApplicationStatus"
-           label = {{
-            value: "ApplicationOrganization"}} />
+        <BarChart data={updatedData}>
+           <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -10}} />
            <YAxis />
            <Tooltip />
-           <Bar dataKey="ApplicationOrganization" />
+           <Legend />
+           <Bar dataKey="Approved" fill="#4caf50" />
+           <Bar dataKey="Rejected" fill="#f44336" />
+           <Bar dataKey="Submitted" fill="#9e9e9e" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
@@ -668,7 +697,7 @@ const Reports: React.FC = () => {
               </Table>
             </TableContainer>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>{renderChart()}</ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={400}>{renderChart()}</ResponsiveContainer>
           )}
         </div>
       </Card>

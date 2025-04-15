@@ -62,7 +62,7 @@ export const ChartBox = ({ SponsorID }: Props) => {
         <div className="boxInfo">
           <div className="title">
             <img src="/images/DefaultOrg.jpg" alt="" />
-            <span>Current Point Leaders</span>
+            <span>Current Point Leaders For Your Org</span>
           </div>
 
           <div className="chartInfo">

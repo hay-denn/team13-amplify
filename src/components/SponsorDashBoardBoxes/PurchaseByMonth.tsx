@@ -19,7 +19,7 @@ const months = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 interface RecentSponsorPurchasesProps {
-  SponsorID: number;
+  SponsorID: any;
 }
 
 interface Purchase {
@@ -40,9 +40,12 @@ export const PurchaseByMonth = ({ SponsorID }: RecentSponsorPurchasesProps) => {
 
         const data: Purchase[] = await response.json();
 
-        const filteredPurchases = data.filter(
-          (purchase) => purchase.PurchaseSponsorID === SponsorID
-        );
+        const filteredPurchases =
+          SponsorID === "ADMIN"
+            ? data
+            : data.filter(
+                (purchase) => purchase.PurchaseSponsorID === SponsorID
+              );
         setPurchases(filteredPurchases);
 
         const sortedPurchases = filteredPurchases.sort(
@@ -84,7 +87,12 @@ export const PurchaseByMonth = ({ SponsorID }: RecentSponsorPurchasesProps) => {
 
   return (
     <div className="box-container">
-      <h5 className="title">Most Purchases by Month for your Organization</h5>
+      <h5 className="title">
+        {SponsorID === "ADMIN"
+          ? "Total Purchases by Month for All Organizations"
+          : "Total Purchases by Month for Your Organization"}
+      </h5>
+
       <div className="chartWrapper">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
