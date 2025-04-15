@@ -330,10 +330,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
       <button onClick={handleNextPage}>Next</button>
       <p>Page: {page + 1}</p>
       <button onClick={handleFetchAll}>Fetch All Items</button>
-      {/* add dummy items to cart */}
-      <button onClick={() => handleTestAddItems(allResults[0])}>
-        Add Dummy Item To Cart
-      </button>
     </div> 
   );
 };

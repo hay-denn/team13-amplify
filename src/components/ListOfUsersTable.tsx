@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Modal, Button } from "react-bootstrap";
+import "./ListOfUsersTable.css"
 
 // IMPORTANT: rename the default export from "./Modal" so it doesn't clash
 // with react-bootstrap's Modal.
@@ -491,9 +492,10 @@ return (
 
     {/* Actions Modal (Points, Impersonation, etc.) */}
     <Modal
-      dialogClassName="modal-lg"
       show={showActionsModal}
       onHide={handleCloseActionsModal}
+      size="lg"
+      dialogClassName="my-centered-dialog"
     >
       <Modal.Header closeButton>
         <Modal.Title style={{ width: "100%", textAlign: "center" }}>
@@ -517,16 +519,16 @@ return (
               <strong>Recurring Points: </strong>
               {recurringPoints !== null ? recurringPoints : "Loading..."}
             </p>
+
+            {/* One-time point adjustment */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
-                marginBottom: "10px",
-                flexWrap: "wrap",
+                flexWrap: "wrap"
               }}
             >
-              {/* One-time point adjustment */}
               <button
                 className="btn btn-secondary"
                 onClick={() => setPointsChange(pointsChange - 1)}
@@ -540,41 +542,58 @@ return (
               >
                 +
               </button>
-              <input
-                type="text"
-                placeholder="Reason for point change"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                style={{ width: "100%" }}
-              />
-              <button className="btn btn-primary" onClick={handleChangePoints}>
+              <button
+                className="btn btn-primary"
+                onClick={handleChangePoints}
+              >
                 Change Points
               </button>
+            </div>
 
-              <br style={{ flexBasis: "100%", height: 0 }} />
+            {/* Reason for point change */}
+            <div style={{ marginTop: "10px" }}>
+              <label htmlFor="reason" style={{ fontWeight: "bold" }}>
+                Reason for Point Change:
+              </label>
+              <textarea
+                id="reason"
+                className="form-control"
+                placeholder="Enter reason..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                rows={2}
+                style={{ marginTop: "5px" }}
+              />
+            </div>
 
-              {/* Recurring (Daily) points controls */}
+            <hr />
+
+            {/* Recurring (Daily) points controls */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                flexWrap: "wrap"
+              }}
+            >
               <button
                 className="btn btn-secondary"
-                onClick={() =>
-                  setRecurringPointsEdit(recurringPointsEdit - 1)
-                }
+                onClick={() => setRecurringPointsEdit(recurringPointsEdit - 1)}
               >
                 -
               </button>
               <span>{recurringPointsEdit}</span>
               <button
                 className="btn btn-secondary"
-                onClick={() =>
-                  setRecurringPointsEdit(recurringPointsEdit + 1)
-                }
+                onClick={() => setRecurringPointsEdit(recurringPointsEdit + 1)}
               >
                 +
               </button>
               <button
                 className="btn btn-primary"
                 onClick={handleSetRecurringPoints}
-                title="This will reward the user for good driving once per day with the set amount of points. To stop, set the recurring points to 0."
+                title="This will reward the user daily with the set amount of points. To stop, set this to 0."
               >
                 Set Recurring
               </button>
@@ -582,6 +601,7 @@ return (
           </>
         )}
       </Modal.Body>
+
       <Modal.Footer
         style={{
           display: "flex",

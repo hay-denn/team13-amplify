@@ -82,6 +82,61 @@
 	color: #666;
   }
   
+  /* Make bag items horizontal and compact */
+/* Container for each product row */
+.cart-page__item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #fafafa;       /* subtle background */
+	padding: 1rem;
+	margin-bottom: 1rem;             /* space between rows */
+	border: 1px solid #eaeaea;       /* soft border */
+	border-radius: 8px;              /* slightly rounded corners */
+  }
+  
+  /* Left side: title, details, etc. */
+  .cart-page__item-left {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;                    /* vertical spacing between lines */
+  }
+  
+  .cart-page__item-title {
+	font-size: 1rem;                 /* smaller than "Your Bag" heading */
+	font-weight: 600;               /* slightly bolder text */
+	margin: 0;
+	color: #333;
+  }
+  
+  .cart-page__item-details {
+	display: flex;
+	gap: 1rem;                       /* spacing between cost and quantity */
+	font-size: 0.9rem;
+	color: #666;
+  }
+  
+  /* Right side: button or actions */
+  .cart-page__item-right {
+	display: flex;
+	align-items: center;
+  }
+  
+  .cart-page__button--remove {
+	background-color: #e53935;
+	color: #fff;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	padding: 0.5rem 1rem;
+	border: none;
+	cursor: pointer;
+  }
+  
+  .cart-page__button--remove:hover {
+	background-color: #d32f2f;
+  }
+  
+  
   /* Buttons */
   .cart-page__button {
 	display: inline-block;
@@ -90,7 +145,7 @@
 	padding: 0.75rem 1.25rem;
 	font-size: 1rem;
 	border: none;
-	border-radius: 999px; /* pill shape similar to Patagonia’s style */
+	border-radius: 999px; /* pill shape */
 	cursor: pointer;
   }
   
@@ -111,6 +166,11 @@
   
   .cart-page__button--secondary:hover {
 	background-color: #f8f8f8;
+  }
+  
+  .cart-page__button--remove {
+	background-color: #f44336; /* example color if you want */
+	color: #fff;
   }
   
   /* Right side (order summary) */
@@ -176,6 +236,7 @@
 	margin-bottom: 0;
   }
   
+  /* Organization dropdown styling */
   .cart-page__org-dropdown-wrapper {
 	position: relative;
 	display: inline-block;
@@ -198,7 +259,7 @@
 	top: 100%;
 	left: 0;
 	z-index: 1000;
-	box-shadow: 0 0 8px rgba(0,0,0,0.15);
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 	min-width: 200px;
   }
   
@@ -220,5 +281,4 @@
 	font-weight: bold;
 	background-color: #e0e0e0;
   }
-  
   

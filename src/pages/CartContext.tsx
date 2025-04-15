@@ -164,7 +164,9 @@ export const CartPage: React.FC = () => {
   const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
 
   // Fetch all organizations (full list with names)
-  const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
+  const [organizations, setOrganizations] = useState<{ OrganizationID: number; 
+    OrganizationName: string;
+    PointDollarRatio: number; }[]>([]);
   
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -237,15 +239,14 @@ export const CartPage: React.FC = () => {
     return orgFound ? orgFound.OrganizationName : "Unknown Organization";
   };
 
-  const { cart, removeFromCart } = useCart();
+  const { cart, removeFromCart, clearCart } = useCart();
+
   const filteredCart = cart.filter((item) => item.org === selectedOrganizationID);
-  // Calculate the total cost from the filtered cart items
   const totalCost = filteredCart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
-  // Update order summary calculations.
+
   const subtotal = totalCost;
-  const point_conversion = 2;
+  const point_conversion = organizations.find((org) => org.OrganizationID === selectedOrganizationID)?.PointDollarRatio || 0;
   const total_points = subtotal * point_conversion;
-  // Determine if the cart (for the selected organization) is empty.
   const isCartEmpty = filteredCart.length === 0;
 
   const [orderPlacedEmails, setOrderPlacedEmails] = useState<number>(0);
@@ -372,6 +373,7 @@ export const CartPage: React.FC = () => {
     }
   };
 
+
   return (
     <div className="cart-page">
       <nav className="cart-page__navbar">
@@ -381,17 +383,13 @@ export const CartPage: React.FC = () => {
               MoneyMiles
             </a>
           </div>
-        </div>
-      </nav>
-
-      {/* Main cart container */}
-      <div className="cart-page__container">
-        <div className="cart-page__content">
-          {/* Organization selector (only allow change if not impersonating and multiple organizations exist) */}
           {!impersonation && currentOrganizations.length > 1 && (
             <div className="cart-page__org-selector">
-              <label htmlFor="org-selector">Select Organization:</label>
-              <select id="org-selector" value={selectedOrganizationID ?? ""} onChange={handleOrganizationChange}>
+              <select
+                id="org-selector"
+                value={selectedOrganizationID ?? ""}
+                onChange={handleOrganizationChange}
+              >
                 {currentOrganizations.map((org) => (
                   <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
                     {getOrganizationName(org.DriversSponsorID)}
@@ -400,7 +398,12 @@ export const CartPage: React.FC = () => {
               </select>
             </div>
           )}
+        </div>
+      </nav>
 
+      {/* Main cart container */}
+      <div className="cart-page__container">
+        <div className="cart-page__content">
           {isCartEmpty ? (
             <>
               <h1 className="cart-page__title">Looks like your bag is empty</h1>
@@ -416,20 +419,37 @@ export const CartPage: React.FC = () => {
               <h1>Your Bag</h1>
               {filteredCart.map((item, index) => (
                 <div key={index} className="cart-page__item">
-                  <div className="cart-page__item-info">
-                    <h2>{item.name}</h2>
-                    <p>Cost: {item.cost} points</p>
-                    <p>Quantity: {item.quantity}</p>
+                  <div className="cart-page__item-left">
+                    <h3 className="cart-page__item-title">{item.name}</h3>
+                    <div className="cart-page__item-details">
+                      <span className="cart-page__item-cost">{item.cost} points</span>
+                      <span className="cart-page__item-quantity">Qty: {item.quantity}</span>
+                    </div>
                   </div>
-                  <button
-                    className="cart-page__button cart-page__button--remove"
-                    onClick={() => removeFromCart(index)}
-                  >
-                    Remove
-                  </button>
+                  
+                  <div className="cart-page__item-right">
+                    <button
+                      className="cart-page__button cart-page__button--remove"
+                      onClick={() => removeFromCart(index)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
-              <button className="cart-page__button cart-page__button--primary" onClick={handleSubmitOrder}>
+
+              {/* NEW: Remove All Button */}
+              <button
+                className="cart-page__button cart-page__button--secondary"
+                onClick={clearCart}
+              >
+                Remove All
+              </button>
+
+              <button
+                className="cart-page__button cart-page__button--primary"
+                onClick={handleSubmitOrder}
+              >
                 Submit Order
               </button>
               <button
@@ -445,14 +465,33 @@ export const CartPage: React.FC = () => {
         {/* Order summary box on the right */}
         <div className="cart-page__summary">
           <h2 className="cart-page__summary-title">Order Summary</h2>
+
+          <div className="cart-page__summary-row">
+            <span>Organization</span>
+            <span>{getOrganizationName(selectedOrganizationID ?? 0)}</span>
+          </div>
+
+          <div className="cart-page__summary-row">
+            <span>Current Points</span>
+            <span>
+              {
+                currentOrganizations.find(
+                  (org) => org.DriversSponsorID === selectedOrganizationID
+                )?.DriversPoints ?? 0
+              }
+            </span>
+          </div>
+
           <div className="cart-page__summary-row">
             <span>Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
+
           <div className="cart-page__summary-row">
             <span>Point Ratio</span>
-            <span>{point_conversion.toFixed(2)}</span>
+            <span>{point_conversion}</span>
           </div>
+
           <div className="cart-page__summary-row cart-page__summary-total">
             <span>Estimated total</span>
             <span>{total_points.toFixed(2)} points</span>
