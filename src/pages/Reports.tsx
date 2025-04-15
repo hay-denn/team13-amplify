@@ -353,14 +353,18 @@ const Reports: React.FC = () => {
 
     const originalViewMode = viewMode;
 
+    let chartHeightFinal = 0;
+
     // Capture the chart view
     setViewMode("chart");
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
     const chartElement = document.getElementById("report-content");
     if (chartElement) {
         const chartCanvas = await html2canvas(chartElement);
-        const chartImage = chartCanvas.toDataURL("image/png");
-    pdf.addImage(chartImage, "PNG", 10, 10, 180, 120); // Add chart to PDF
+        const chartImgData = chartCanvas.toDataURL("image/png");
+        const chartHeight = (chartCanvas.height * 180) / chartCanvas.width; // Scale dynamically
+        chartHeightFinal = chartHeight;
+        pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
     } else {
         console.error("Element with ID 'report-content' not found.");
     }
@@ -371,9 +375,9 @@ const Reports: React.FC = () => {
     const tableElement = document.getElementById("report-content");
     if (tableElement) {
         const tableCanvas = await html2canvas(tableElement);
-        const tableImage = tableCanvas.toDataURL("image/png");
-        pdf.addPage();
-        pdf.addImage(tableImage, "PNG", 10, 10, 180, 120);
+        const tableImgData = tableCanvas.toDataURL("image/png");
+        const tableHeight = (tableCanvas.height * 180) / tableCanvas.width; // Scale dynamically
+        pdf.addImage(tableImgData, "PNG", 10, 10 + chartHeightFinal, 180, tableHeight);
     } else {
         console.error("Element with ID 'report-content' not found.");
     }
