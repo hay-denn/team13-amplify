@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./HomeStyles.css";
 import { TopBox } from "../components/TopBox/TopBox";
+import { CatalogPreview } from "../components/CatalogPreview/CatalogPreview";
 import "bootstrap/dist/css/bootstrap.min.css";
 import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
@@ -306,7 +307,9 @@ export const DriverDashBoard = () => {
             {/* Placeholder rows/items */}
             <div className="row mt-3">
               <div className="col-md-4">
-                <div className="box box3">Placeholder Item</div>
+                <div className="box box3">
+                  <CatalogPreview />
+                </div>
               </div>
               <div className="col-md-8">
               <div className="box box5" style={{ overflow: "visible" }}>

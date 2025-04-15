@@ -58,12 +58,12 @@ export const TopBox = () => {
 
   return (
     <div className="topBox">
-      <h3>Your Most Recent Purchases</h3>
+      <h3>Recent Purchases</h3>
       <button
         className="btn btn-primary"
         onClick={() => navigate("../account")}
       >
-        View Recent Purchases
+        View All Purchases
       </button>
       <div className="list">
         {purchases.length ? (
