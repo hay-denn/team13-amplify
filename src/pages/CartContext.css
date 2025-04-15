@@ -1,0 +1,178 @@
+/* -- Reset or base styles if needed -- */
+
+/* Container for everything */
+.cart-page {
+	font-family: Arial, sans-serif;
+	background-color: #fff;
+	color: #1a1a1a;
+	margin: 5rem auto;
+	padding: 2rem;
+	margin-bottom: 0rem;
+  }
+  
+  /* Top Nav */
+  .cart-page__navbar {
+	background-color: #000;
+	color: #fff;
+	padding: 0.75rem 1rem;
+  }
+  
+  .cart-page__navbar-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	max-width: 1200px;
+	margin: 0 auto;
+  }
+  
+  /* Left, center, right areas in the navbar (optional) */
+  .cart-page__navbar-left a,
+  .cart-page__navbar-right a {
+	color: #fff;
+	text-decoration: none;
+	margin-right: 1.5rem;
+	font-weight: 600;
+  }
+  
+  .cart-page__navbar-left a:hover,
+  .cart-page__navbar-right a:hover {
+	opacity: 0.8;
+  }
+  
+  .cart-page__brand {
+	font-size: 1.25rem;
+	font-weight: bold;
+  }
+  
+  .cart-page__navbar-center {
+	font-size: 0.9rem;
+	font-style: italic;
+	opacity: 0.8;
+  }
+  
+  /* Main Container Layout */
+  .cart-page__container {
+	display: flex;
+	flex-direction: column;
+	max-width: 1200px;
+	margin: 1rem auto;
+	gap: 2rem;
+  }
+  
+  @media (min-width: 992px) {
+	.cart-page__container {
+	  flex-direction: row;
+	}
+  }
+  
+  /* Left side content (empty bag text, cart items, etc.) */
+  .cart-page__content {
+	flex: 2;
+	margin: 1rem;
+  }
+  
+  .cart-page__title {
+	font-size: 2rem;
+	margin-bottom: 0.5rem;
+  }
+  
+  .cart-page__subtitle {
+	margin-bottom: 1.5rem;
+	font-size: 1rem;
+	color: #666;
+  }
+  
+  /* Buttons */
+  .cart-page__button {
+	display: inline-block;
+	margin-right: 1rem;
+	margin-bottom: 1rem;
+	padding: 0.75rem 1.25rem;
+	font-size: 1rem;
+	border: none;
+	border-radius: 999px; /* pill shape similar to Patagonia’s style */
+	cursor: pointer;
+  }
+  
+  .cart-page__button--login {
+	background-color: #000;
+	color: #fff;
+  }
+  
+  .cart-page__button--login:hover {
+	opacity: 0.9;
+  }
+  
+  .cart-page__button--secondary {
+	background-color: transparent;
+	border: 1px solid #000;
+	color: #000;
+  }
+  
+  .cart-page__button--secondary:hover {
+	background-color: #f8f8f8;
+  }
+  
+  /* Right side (order summary) */
+  .cart-page__summary {
+	flex: 1;
+	border: 1px solid #e2e2e2;
+	padding: 1rem;
+	margin: 1rem;
+	min-width: 300px;
+	height: fit-content;
+  }
+  
+  .cart-page__summary-title {
+	font-size: 1.25rem;
+	margin-bottom: 1rem;
+	font-weight: 600;
+  }
+  
+  .cart-page__summary-row {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+	font-size: 0.95rem;
+  }
+  
+  .cart-page__summary-total span {
+	font-weight: 600;
+  }
+  
+  .cart-page__promo-input {
+	border: 1px solid #ccc;
+	padding: 0.5rem;
+	flex: 1;
+	max-width: 100px;
+  }
+  
+  .cart-page__payment-icons {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 1rem;
+  }
+  
+  /* Additional Info / Guarantee Section */
+  .cart-page__info {
+	max-width: 1200px;
+	margin: 1rem auto 2rem;
+	padding: 0 1rem;
+	border-top: 1px solid #e2e2e2;
+	padding-top: 2rem;
+  }
+  
+  .cart-page__info h3 {
+	font-size: 1.25rem;
+	margin-bottom: 0.5rem;
+	font-weight: bold;
+  }
+  
+  .cart-page__info p {
+	font-size: 0.95rem;
+	color: #555;
+	line-height: 1.5;
+	margin-bottom: 0;
+  }
+  

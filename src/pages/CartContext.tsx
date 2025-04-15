@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { AuthContext } from "react-oidc-context";
 import "./Manageusers.css";
+import "./CartContext.css";
 
 // Define item type
 interface CartItem {
-  name: string; //Name of the item (can be anything, this info is not stored in our DB)
-  cost: number; //cost (in points) of item
-  quantity: number; //quantity of item (probably just use 1)
-  org: number; //the organization ID for the catalog that the user is adding the item from
-  id: number; //the trackID of the item
-  driverEmail?: string; //the email of the driver (if applicable)
+  name: string; // Name of the item (can be anything, this info is not stored in our DB)
+  cost: number; // cost (in points) of item
+  quantity: number; // quantity of item (probably just use 1)
+  org: number; // the organization ID for the catalog that the user is adding the item from
+  id: number; // the trackID of the item
+  driverEmail?: string; // the email of the driver (if applicable)
 }
 
 // Define context type
@@ -82,12 +83,12 @@ export const useCart = () => {
   return { cart, addToCart, removeFromCart, clearCart }; // Include removeFromCart here
 };
 
-//Getting SQL friendly date
+// Getting SQL friendly date
 function getCurrentMySQLDate(): string {
   const now = new Date();
 
   // Pad single digits with a leading zero
-  const pad = (num: number): string => num < 10 ? '0' + num : num.toString();
+  const pad = (num: number): string => (num < 10 ? "0" + num : num.toString());
 
   const year = now.getFullYear();
   const month = pad(now.getMonth() + 1); // Months are 0-indexed
@@ -96,7 +97,7 @@ function getCurrentMySQLDate(): string {
   return `${year}-${month}-${day}`;
 }
 
-//API LINKS
+// API LINKS
 const PUR_API = import.meta.env.VITE_API_PURCHASES;
 const PROD_PUR_API = import.meta.env.VITE_API_PRODUCTS_PURCHASED;
 const POINT_CHANGE_API = import.meta.env.VITE_API_POINTCHANGES;
@@ -105,27 +106,25 @@ const EMAIL_API = import.meta.env.VITE_API_EMAIL;
 const DRIVER_API = import.meta.env.VITE_API_DRIVER;
 const ORG_API = import.meta.env.VITE_API_ORGANIZATION;
 
-
-//API call function for purchases
+// API call function for purchases
 async function callAPI(url: string, methodType: string, data: object): Promise<any> {
   try {
     const response = await fetch(url, {
       method: methodType, // HTTP method
       headers: {
-        'Content-Type': 'application/json', // Content type header
+        "Content-Type": "application/json", // Content type header
       },
       body: JSON.stringify(data), // Convert the data to JSON string
     });
     if (response.ok) {
       // If the request was successful
       const responseData = await response.json();
-      console.log('Success: ' + JSON.stringify(responseData))
+      console.log("Success: " + JSON.stringify(responseData));
       return responseData;
     } else {
       // Handle error if response status is not OK
-      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`); // Display error alert with status and message
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
       throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
-
     }
   } catch (error) {
     // Catch any network or other errors
@@ -133,7 +132,7 @@ async function callAPI(url: string, methodType: string, data: object): Promise<a
   }
 }
 
-//GET API call function for purchases
+// GET API call function for purchases
 async function callAPIGET(url: string): Promise<any> {
   try {
     const response = await fetch(url, {
@@ -142,13 +141,12 @@ async function callAPIGET(url: string): Promise<any> {
     if (response.ok) {
       // If the request was successful
       const responseData = await response.json();
-      console.log('Success: ' + JSON.stringify(responseData))
+      console.log("Success: " + JSON.stringify(responseData));
       return responseData;
     } else {
       // Handle error if response status is not OK
-      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`); // Display error alert with status and message
+      console.log(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
       throw new Error(`API call failed for url ${url} : ${response.status} - ${response.statusText}`);
-
     }
   } catch (error) {
     // Catch any network or other errors
@@ -161,48 +159,16 @@ export const CartPage: React.FC = () => {
   const authContext = useContext(AuthContext);
   const storedImpersonation = localStorage.getItem("impersonatingDriver");
   const impersonation = storedImpersonation ? JSON.parse(storedImpersonation) : null;
-  
+
   // When impersonating, use the sponsor org id; otherwise use the driver's email
   const userEmail = impersonation ? impersonation.email : authContext?.user?.profile?.email || "";
 
-  
+  // Fetch all organizations (full list with names)
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
-  const [currentOrganizations, setCurrentOrganizations] = useState<{
-    DriversEmail: string; 
-    DriversSponsorID: number; 
-    DriversPoints: number
-  }[]>([]);
-
-
-  const [orderPlacedEmails, setOrderPlacedEmails] = useState<number>(0);
-  // Fetch driver order placed notification preference
-   useEffect(() => {
-    if (userEmail) {
-      const fetchNotificationPref = async () => {
-        try {
-          const response = await fetch(
-            DRIVER_API + "/driver?DriverEmail=" + encodeURIComponent(userEmail)
-          );
-          const data = await response.json();
-          if (data && data.DriverOrderPlacedNotification !== undefined) {
-            // Here we assume the attribute appears only once and is either 1 or 0
-            setOrderPlacedEmails(data.DriverOrderPlacedNotification);
-          }
-        } catch (error) {
-          console.error("Error fetching organizations:", error);
-        }
-    };
-    fetchNotificationPref();
-    }
-  }, [userEmail]);
-
-  // Fetch all organizations
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
-        const response = await fetch(
-          `${ORG_API}/organizations`
-        );
+        const response = await fetch(`${ORG_API}/organizations`);
         const data = await response.json();
         if (!Array.isArray(data)) {
           console.error("Unexpected response format:", data);
@@ -217,6 +183,11 @@ export const CartPage: React.FC = () => {
   }, []);
 
   // Fetch driver's relationships
+  const [currentOrganizations, setCurrentOrganizations] = useState<{
+    DriversEmail: string;
+    DriversSponsorID: number;
+    DriversPoints: number;
+  }[]>([]);
   useEffect(() => {
     if (userEmail) {
       const getDriverRelationships = async () => {
@@ -240,7 +211,7 @@ export const CartPage: React.FC = () => {
 
   // Filter organizations: if impersonating, only include the organization that matches impersonation.sponsorOrgID; otherwise, display all
   const filteredOrgs = impersonation?.sponsorOrgID
-    ? currentOrganizations.filter(org => org.DriversSponsorID === Number(impersonation.sponsorOrgID))
+    ? currentOrganizations.filter((org) => org.DriversSponsorID === Number(impersonation.sponsorOrgID))
     : currentOrganizations;
 
   // Default selected organization state. Initialize when filteredOrgs changes.
@@ -254,45 +225,75 @@ export const CartPage: React.FC = () => {
     }
   }, [filteredOrgs, selectedOrganizationID]);
 
+  // Handler for organization change via dropdown
   const handleOrganizationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOrganizationID(Number(event.target.value));
   };
 
+  // Helper to get the organization name from its ID using the organizations list
+  const getOrganizationName = (orgID: number): string => {
+    const orgFound = organizations.find((org) => org.OrganizationID === orgID);
+    return orgFound ? orgFound.OrganizationName : "Unknown Organization";
+  };
+
   const { cart, removeFromCart } = useCart();
   const filteredCart = cart.filter((item) => item.org === selectedOrganizationID);
+  // Calculate the total cost from the filtered cart items
   const totalCost = filteredCart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+  // Update order summary calculations.
+  const subtotal = totalCost;
+  const point_conversion = 2;
+  const total_points = subtotal * point_conversion;
+  // Determine if the cart (for the selected organization) is empty.
+  const isCartEmpty = filteredCart.length === 0;
+
+  const [orderPlacedEmails, setOrderPlacedEmails] = useState<number>(0);
+  // Fetch driver order placed notification preference
+  useEffect(() => {
+    if (userEmail) {
+      const fetchNotificationPref = async () => {
+        try {
+          const response = await fetch(
+            DRIVER_API + "/driver?DriverEmail=" + encodeURIComponent(userEmail)
+          );
+          const data = await response.json();
+          if (data && data.DriverOrderPlacedNotification !== undefined) {
+            // Here we assume the attribute appears only once and is either 1 or 0
+            setOrderPlacedEmails(data.DriverOrderPlacedNotification);
+          }
+        } catch (error) {
+          console.error("Error fetching organizations:", error);
+        }
+      };
+      fetchNotificationPref();
+    }
+  }, [userEmail]);
 
   const handleSubmitOrder = async () => {
     if (!selectedOrganizationID) {
       alert("Select an organization before submitting the order!");
       return;
     }
-  
+
     // Determine the driver context
-    const driverEmail = impersonation
-      ? impersonation.email // Impersonated driver
-      : userEmail; // Normal signed-in driver
-  
+    const driverEmail = impersonation ? impersonation.email : userEmail;
     const sponsorOrgID = impersonation
-      ? Number(impersonation.sponsorOrgID) // Impersonated driver's sponsorOrgID
-      : selectedOrganizationID; // Selected organization for the signed-in driver
-  
+      ? Number(impersonation.sponsorOrgID)
+      : selectedOrganizationID;
+
     // Ensure driverEmail and sponsorOrgID are available
     if (!driverEmail || !sponsorOrgID) {
       alert("Unable to process the order. Missing driver or organization information.");
       return;
     }
-  
+
     // Check point balance
-    const orgIndex = currentOrganizations.findIndex(
-      (org) => org.DriversSponsorID === sponsorOrgID
-    );
-  
+    const orgIndex = currentOrganizations.findIndex((org) => org.DriversSponsorID === sponsorOrgID);
     if (orgIndex === -1 || currentOrganizations[orgIndex].DriversPoints < totalCost) {
       alert("Insufficient points!");
       return;
     }
-  
+
     // Prepare purchase data
     const purchaseData = {
       PurchaseDriver: driverEmail,
@@ -301,26 +302,24 @@ export const CartPage: React.FC = () => {
       PurchaseSponsorID: sponsorOrgID,
       PurchasePrice: totalCost,
     };
-  
+
     try {
       // Post purchase
       console.log("Posting purchase data:", purchaseData);
       const purchaseResult = await callAPI(`${PUR_API}/purchase`, "POST", purchaseData);
       const purchaseID = purchaseResult?.PurchaseID;
-  
       if (!purchaseID) {
         throw new Error("Failed to create purchase.");
       }
-  
+
       // Get sponsor email for point change
       let sponsorEmail = "";
       const sponsorResult = await callAPIGET(`${SPONSOR_API}/sponsors?UserOrganization=${sponsorOrgID}`);
       sponsorEmail = sponsorResult[0]?.UserEmail;
-  
       if (!sponsorEmail) {
         throw new Error("Failed to retrieve sponsor email.");
       }
-  
+
       // Subtract points
       const pointChangeData = {
         PointChangeDriver: driverEmail,
@@ -329,7 +328,7 @@ export const CartPage: React.FC = () => {
         PointChangeAction: "Subtract",
       };
       await callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
-  
+
       // Add purchased products
       let emailBody = "Thank you for your order!\nProducts Purchased:\n";
       await Promise.all(
@@ -343,17 +342,17 @@ export const CartPage: React.FC = () => {
           return callAPI(`${PROD_PUR_API}/productpurchased`, "POST", productData);
         })
       );
-  
-      // Remove items from the cart
+
+      // Remove items from the cart (for the current organization)
       const indicesToRemove = cart
         .map((item, index) => (item.org === sponsorOrgID ? index : -1))
         .filter((index) => index !== -1)
         .sort((a, b) => b - a); // Remove from highest index to lowest
-  
+
       indicesToRemove.forEach((index) => {
         removeFromCart(index);
       });
-  
+
       // Send confirmation email if enabled
       if (orderPlacedEmails === 1) {
         emailBody += "Order Total: " + totalCost;
@@ -364,7 +363,7 @@ export const CartPage: React.FC = () => {
         };
         await callAPI(`${EMAIL_API}/send-email`, "POST", emailData);
       }
-  
+
       alert("Purchase success!");
     } catch (error) {
       console.error("Error occurred processing purchase:", error);
@@ -373,70 +372,90 @@ export const CartPage: React.FC = () => {
   };
 
   return (
-    <div className="container manage-users-container py-3 m-5">
-      <div className="card manage-users-card mt-5">
-        <div className="card-body">
-          <h1 className="text-2xl font-bold mb-2">Shopping Cart</h1>
-          <label htmlFor="organizationDropdown" className="mr-2">Select Organization:</label>
-          <select
-            id="organizationDropdown"
-            value={selectedOrganizationID || ""}
-            onChange={handleOrganizationChange}
-          >
-            <option value="" disabled>
-              Select an Organization
-            </option>
-            {filteredOrgs.map((org) => {
-              const organization = organizations.find(
-                (o) => o.OrganizationID === org.DriversSponsorID
-              );
-              return (
-                <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
-                  {organization ? organization.OrganizationName : "Unknown Organization"}
-                </option>
-              );
-            })}
-          </select>
+    <div className="cart-page">
+      <nav className="cart-page__navbar">
+        <div className="cart-page__navbar-content">
+          <div className="cart-page__navbar-left">
+            <a href="/" className="cart-page__brand">
+              MoneyMiles
+            </a>
+          </div>
         </div>
-      </div>
-      <div className="card manage-users-card mt-5">
-        <div className="card-body">
-          {filteredCart.length === 0 ? (
-            <p>Your cart is empty.</p>
-          ) : (
-            <ul>
-              {filteredCart.map((item) => {
-                const itemIndex = cart.findIndex(
-                  (cartItem) =>
-                    cartItem.name === item.name &&
-                    cartItem.org === item.org &&
-                    cartItem.quantity === item.quantity &&
-                    cartItem.cost === item.cost &&
-                    cartItem.id === item.id
-                );
-                return (
-                  <li key={itemIndex} className="flex justify-between items-center border-b p-2">
-                    <span>
-                      {item.name} (x{item.quantity}) - {item.cost * item.quantity} Points
-                    </span>
-                    <button
-                      className="text-black px-2 py-1 rounded"
-                      onClick={() => removeFromCart(itemIndex)}
-                    >
-                      Remove
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+      </nav>
+
+      {/* Main cart container */}
+      <div className="cart-page__container">
+        <div className="cart-page__content">
+          {/* Organization selector (only allow change if not impersonating and multiple organizations exist) */}
+          {!impersonation && currentOrganizations.length > 1 && (
+            <div className="cart-page__org-selector">
+              <label htmlFor="org-selector">Select Organization:</label>
+              <select id="org-selector" value={selectedOrganizationID ?? ""} onChange={handleOrganizationChange}>
+                {currentOrganizations.map((org) => (
+                  <option key={org.DriversSponsorID} value={org.DriversSponsorID}>
+                    {getOrganizationName(org.DriversSponsorID)}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
-          <h2 className="text-xl font-bold mt-4">Total: {totalCost.toFixed(2)} Points</h2>
-          <button
-                      className="text-black px-2 py-1 rounded"
-                      onClick={() => handleSubmitOrder()}
-                    >
-                      Submit Order
-                    </button>
+
+          {isCartEmpty ? (
+            <>
+              <h1 className="cart-page__title">Looks like your bag is empty</h1>
+              <button
+                className="cart-page__button cart-page__button--secondary"
+                onClick={() => (window.location.href = "/catalog")}
+              >
+                Continue Shopping
+              </button>
+            </>
+          ) : (
+            <>
+              <h1>Your Bag</h1>
+              {filteredCart.map((item, index) => (
+                <div key={index} className="cart-page__item">
+                  <div className="cart-page__item-info">
+                    <h2>{item.name}</h2>
+                    <p>Cost: {item.cost} points</p>
+                    <p>Quantity: {item.quantity}</p>
+                  </div>
+                  <button
+                    className="cart-page__button cart-page__button--remove"
+                    onClick={() => removeFromCart(index)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button className="cart-page__button cart-page__button--primary" onClick={handleSubmitOrder}>
+                Submit Order
+              </button>
+              <button
+                className="cart-page__button cart-page__button--secondary"
+                onClick={() => (window.location.href = "/catalog")}
+              >
+                Continue Shopping
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Order summary box on the right */}
+        <div className="cart-page__summary">
+          <h2 className="cart-page__summary-title">Order Summary</h2>
+          <div className="cart-page__summary-row">
+            <span>Subtotal</span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="cart-page__summary-row">
+            <span>Point Ratio</span>
+            <span>{point_conversion.toFixed(2)}</span>
+          </div>
+          <div className="cart-page__summary-row cart-page__summary-total">
+            <span>Estimated total</span>
+            <span>{total_points.toFixed(2)} points</span>
+          </div>
         </div>
       </div>
     </div>

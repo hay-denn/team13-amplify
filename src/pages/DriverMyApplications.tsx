@@ -42,7 +42,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
   const [organizationsLoaded, setOrganizationsLoaded] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const applicationsPerPage = 5;
+  const applicationsPerPage = 6;
 
   const orgApiUrl = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1/organizations";
   const appsApiUrl = "https://2ml4i1kz7j.execute-api.us-east-1.amazonaws.com/dev1";
@@ -89,7 +89,7 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
           return;
         }
 
-        // Combine with organization names
+        // Combine applications with organization names
         const appsWithOrgNames = data.map((app) => {
           const matchingOrg = organizations.find(
             (org) => org.OrganizationID === app.ApplicationOrganization
@@ -101,6 +101,13 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
               : "Unknown Organization",
           };
         });
+
+        // Sort the applications so the most recently submitted appear first.
+        appsWithOrgNames.sort(
+          (a, b) =>
+            new Date(b.ApplicationDateSubmitted).getTime() -
+            new Date(a.ApplicationDateSubmitted).getTime()
+        );
 
         setApplications(appsWithOrgNames);
         setCurrentPage(1); // Reset to first page when data is fetched
@@ -157,48 +164,47 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
   // Render
   //-------------------------------------
   return (
-    <div className="container mt-4">
+    <div className="driver-applications-container">
       <h2>My Applications</h2>
 
       {applications.length === 0 ? (
         <p>No applications found.</p>
       ) : (
         <>
-          <div className="applications-container">
+          <div className="applications-grid">
             {currentApplications.map((app) => (
               <div key={app.ApplicationID} className="application-card">
-                <span className="application-date">
-                  {app.ApplicationDateSubmitted
-                    ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })
-                    : "N/A"}
-                </span>
-
-                <span className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
-                  {app.ApplicationStatus}
-                </span>
-
-                <p>{app.OrganizationName || "Unknown Organization"}</p>
-
-                <p>
+                <div className="card-header">
+                  <div className="application-date">
+                    {app.ApplicationDateSubmitted
+                      ? new Date(app.ApplicationDateSubmitted).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })
+                      : "N/A"}
+                  </div>
+                  <div className={`application-status ${app.ApplicationStatus.toLowerCase()}`}>
+                    {app.ApplicationStatus}
+                  </div>
+                </div>
+                <div className="card-body">
+                  <p className="org-name">{app.OrganizationName || "Unknown Organization"}</p>
                   {app.ApplicationStatus.toLowerCase() !== "submitted" && (
-                    <>
-                      <strong>Application Decision Reason:</strong>
-                      {app.ApplicationDecisionReason || " No reason provided."}
-                    </>
+                    <p className="decision-reason">
+                      <strong>Decision:</strong> {app.ApplicationDecisionReason || "No reason provided."}
+                    </p>
                   )}
-                </p>
-
+                </div>
                 {app.ApplicationStatus.toLowerCase() === "submitted" && (
-                  <button
-                    className="btn btn-danger cancel-button"
-                    onClick={() => handleCancelApplication(app.ApplicationID)}
-                  >
-                    Cancel
-                  </button>
+                  <div className="card-footer">
+                    <button
+                      className="cancel-button btn btn-danger"
+                      onClick={() => handleCancelApplication(app.ApplicationID)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
@@ -209,7 +215,9 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
               <button onClick={handlePrevPage} disabled={currentPage === 1}>
                 Previous
               </button>
-              <span>Page {currentPage} of {totalPages}</span>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
               <button onClick={handleNextPage} disabled={currentPage === totalPages}>
                 Next
               </button>
@@ -220,3 +228,5 @@ export const DriverMyApplications = (inputUserEmail: DriverMyApplicationsProps) 
     </div>
   );
 };
+
+export default DriverMyApplications;
