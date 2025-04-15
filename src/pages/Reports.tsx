@@ -683,9 +683,9 @@ const Reports: React.FC = () => {
                <YAxis />
                <Tooltip />
                <Legend wrapperStyle={{ marginTop: 20 }} />
-               <Bar dataKey="Ordered" fill="#4caf50" />
+               <Bar dataKey="Ordered" fill="#9e9e9e" />
                <Bar dataKey="Canceled" fill="#f44336" />
-               <Bar dataKey="Delivered" fill="#9e9e9e" />
+               <Bar dataKey="Delivered" fill="#4caf50" />
             </BarChart>
           );
     } else if (selectedReport === "Invoices") {
