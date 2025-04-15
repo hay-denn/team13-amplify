@@ -290,11 +290,11 @@ export const DriverDashBoard = () => {
                   <div className="mt-4">
                     <Link
                       to="/myapplications"
-                      className="btn btn-secondary mr-2"
+                      className="btn btn-primary mr-2"
                     >
                       My Applications
                     </Link>
-                    <Link to="/mysponsors" className="btn btn-secondary">
+                    <Link to="/mysponsors" className="btn btn-primary">
                       My Sponsors
                     </Link>
                   </div>
