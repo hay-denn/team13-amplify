@@ -84,7 +84,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   useEffect(() => {
     if (!organizationData) return;
     setMaxProducts(organizationData.AmountOfProducts || 10);
-    setSearchTerm(organizationData.SearchTerm || "");
+    setSearchTerm(organizationData.SearchTerm || "pop");
     setType(organizationData.ProductType || "music");
     setPriceToPointRatio(Number(organizationData.PointDollarRatio) || 1);
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
@@ -144,9 +144,10 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
       });
   
       // Filter out explicit content (case-insensitive).
-      const cleanItems = uniqueItems.filter(
-        (item) => item.trackExplicitness.toLowerCase() !== "explicit"
-      );
+      const cleanItems = uniqueItems.filter((item) => {
+        const explicitness = item.trackExplicitness || "";
+        return explicitness.toLowerCase() !== "explicit";
+      });
   
       // Limit final items to maxProducts.
       const finalItems = cleanItems.slice(0, maxProducts);
@@ -267,7 +268,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           <div className="col text-center">
             <span>
               Max Price: <strong>${maxPrice}</strong> | Point to Dollar Ratio:{" "}
-              <strong>{priceToPointRatio}</strong> | Organization Category (Term):{" "}
+              <strong>{priceToPointRatio}</strong> | Organization Category:{" "}
               {!organizationData.SearchTerm ? (
                 <b>Your Org Has Selected The Default Catalog</b>
               ) : (

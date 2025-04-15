@@ -216,7 +216,6 @@ export const AccountSettings: React.FC = () => {
 
       
       setSuccessMessage("Attributes updated successfully.");
-      alert("✅ Profile updated successfully!");
     } catch (error: any) {
       console.error("Error updating user attributes:", error);
       setErrorMessage(error.message || "Error updating user attributes");

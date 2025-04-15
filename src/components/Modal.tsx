@@ -475,6 +475,10 @@ export const SponsorApplyModal = ({
     fetchApplications: () => void;
     organizationIDInput?: number;
   }) => {
+
+  const auth = useAuth();
+
+  const currentDriverEmail = driverEmail || auth.user?.profile?.email || "";
   
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedOrg, setSelectedOrgID] = useState<number | null>(null);
@@ -498,7 +502,7 @@ export const SponsorApplyModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
-    if (!driverEmail.trim()) {
+    if (!currentDriverEmail) {
       alert("Driver email is required.");
       return;
     }
@@ -514,7 +518,7 @@ export const SponsorApplyModal = ({
     const selectedOrgID = organizationIDInput !== -1 ? organizationIDInput : selectedOrg;
 
     const applicationData = {
-      ApplicationDriver: driverEmail,
+      ApplicationDriver: currentDriverEmail,
       ApplicationOrganization: selectedOrgID,
       ApplicationStatus: "Submitted",
       ApplicationReason: reason,
@@ -553,7 +557,7 @@ export const SponsorApplyModal = ({
                       <Form.Label>Driver Email</Form.Label>
                       <Form.Control
                           type="email"
-                          value={driverEmail}
+                          value={currentDriverEmail}
                           readOnly
                       />
                   </Form.Group>

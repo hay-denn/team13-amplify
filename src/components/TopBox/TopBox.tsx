@@ -26,7 +26,6 @@ export const TopBox = () => {
   const userEmail = impersonation
     ? impersonation.email
     : authContext?.user?.profile?.email || "";
-  //Gets the purhcases info and filters it by your eamil
 
   const [purchases, setPurchases] = useState<Purchase[]>([]);
 
@@ -58,12 +57,12 @@ export const TopBox = () => {
 
   return (
     <div className="topBox">
-      <h3>Your Most Recent Purchases</h3>
+      <h3>Recent Purchases</h3>
       <button
         className="btn btn-primary"
         onClick={() => navigate("../account")}
       >
-        View Recent Purchases
+        View All Purchases
       </button>
       <div className="list">
         {purchases.length ? (

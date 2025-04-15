@@ -2,10 +2,47 @@ import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./HomeStyles.css";
 import { TopBox } from "../components/TopBox/TopBox";
+import { CatalogPreview } from "../components/CatalogPreview/CatalogPreview";
 import "bootstrap/dist/css/bootstrap.min.css";
 import CarouselTemplate from "../components/WelcomeImages";
 import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+const CustomXAxisTick = (props: any) => {
+  const { x, y, payload } = props;
+  const d = new Date(payload.value);
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="end"
+        fill="#000000" 
+        transform="rotate(-45)"
+      >
+        {`${month}/${year}`}
+      </text>
+    </g>
+  );
+};
+
+interface OrganizationData {
+  OrganizationID: number;
+  OrganizationName: string;
+  SearchTerm: string;
+}
 
 export const DriverDashBoard = () => {
   //Auth & Impersonation
@@ -57,9 +94,7 @@ export const DriverDashBoard = () => {
   );
 
   //Fetch all organizations (so we can display org name) and the driver's relationships
-  const [organizations, setOrganizations] = useState<
-    { OrganizationID: number; OrganizationName: string }[]
-  >([]);
+  const [organizations, setOrganizations] = useState<OrganizationData[]>([]);
   const [_, setOrganizationsLoaded] = useState(false);
 
   const driverRelationshipURL =
@@ -147,28 +182,56 @@ export const DriverDashBoard = () => {
     getPointChanges();
   }, []);
 
+  const driverPointChanges = pointChanges
+  .filter((change) => change.PointChangeDriver === userEmail)
+  .sort(
+    (a, b) =>
+      new Date(a.PointChangeDate).getTime() -
+      new Date(b.PointChangeDate).getTime()
+  );
+
+  const adjustedDriverPointChanges = driverPointChanges.map(item => ({
+    ...item,
+    PointChangeNumber: item.PointChangeNumber < -20 ? -20 : item.PointChangeNumber,
+  }));
+
   const handleOrganizationChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setSelectedOrganizationID(Number(event.target.value));
   };
 
+  const selectedOrgData = organizations.find(
+    (o) => o.OrganizationID === selectedOrganizationID
+  );
+
   return (
     <>
-      <h1 className="text-center mb-5 mt-5">Welcome Back {userFName}!</h1>
+      <h1 className="text-center mb-5 mt-5">Welcome Back, {userFName}!</h1>
       {organizationsDoneLoading ? (
         filteredOrganizations.length > 0 ? (
           // If the driver is part of at least one sponsor org
           <div className="container">
-            {/* Top row: left box + selected org info */}
+            {/* Top row: left box (TopBox) + selected org info */}
             <div className="row">
-              <div className="col-md-4">
-                <div className="box box1">
-                  <TopBox />
+              {/* LEFT COLUMN: TopBox (Recent Purchases) */}
+              <div className="col-md-4 d-flex">
+                <div
+                  className="box topBoxContainer flex-fill d-flex flex-column"
+                  style={{ height: "500px", overflow: "hidden" }}
+                >
+                  <div style={{ flex: 1, overflowY: "auto" }}>
+                    <TopBox />
+                  </div>
                 </div>
               </div>
-              <div className="col-md-8">
-                <div className="box box2">
+
+              {/* RIGHT COLUMN: Current Point Balance, Table, and Buttons */}
+              <div className="col-md-8 d-flex">
+                <div
+                  className="box box2 flex-fill d-flex flex-column"
+                  style={{ height: "500px" }}
+                >
                   <h2>
                     Current Point Balance:{" "}
                     {selectedOrganization?.DriversPoints || "N/A"}
@@ -176,7 +239,7 @@ export const DriverDashBoard = () => {
                   <br />
                   <div className="d-flex align-items-center">
                     <label htmlFor="organizationDropdown" className="mr-2">
-                      Current Point Balance Organization:
+                      Select Organization:
                     </label>
                     <select
                       id="organizationDropdown"
@@ -196,16 +259,14 @@ export const DriverDashBoard = () => {
                             key={org.DriversSponsorID}
                             value={org.DriversSponsorID}
                           >
-                            {orgInfo
-                              ? orgInfo.OrganizationName
-                              : "Unknown Organization"}
+                            {orgInfo ? orgInfo.OrganizationName : "Unknown Organization"}
                           </option>
                         );
                       })}
                     </select>
                   </div>
-                  {/* Recent Point Change Table */}
-                  <div className="mt-4">
+                  {/* Recent Point Changes Table */}
+                  <div className="mt-4" style={{ flex: 1, overflowY: "auto" }}>
                     <h4>Recent Point Changes</h4>
                     <table className="table table-striped">
                       <thead>
@@ -218,10 +279,7 @@ export const DriverDashBoard = () => {
                       </thead>
                       <tbody>
                         {pointChanges
-                          .filter(
-                            (change) =>
-                              change.PointChangeDriver === userEmail
-                          )
+                          .filter((change) => change.PointChangeDriver === userEmail)
                           .sort(
                             (a, b) =>
                               new Date(b.PointChangeDate).getTime() -
@@ -231,9 +289,7 @@ export const DriverDashBoard = () => {
                           .map((change) => (
                             <tr key={change.PointChangeID}>
                               <td>
-                                {new Date(
-                                  change.PointChangeDate
-                                ).toLocaleDateString()}
+                                {new Date(change.PointChangeDate).toLocaleDateString()}
                               </td>
                               <td>{change.PointChangeSponsor}</td>
                               <td>{change.PointChangeNumber}</td>
@@ -243,15 +299,12 @@ export const DriverDashBoard = () => {
                       </tbody>
                     </table>
                   </div>
-                  {/* LINKS to My Applications and My Sponsors */}
+                  {/* Navigation Buttons */}
                   <div className="mt-4">
-                    <Link
-                      to="/myapplications"
-                      className="btn btn-secondary mr-2"
-                    >
+                    <Link to="/myapplications" className="btn btn-primary mr-2">
                       My Applications
                     </Link>
-                    <Link to="/mysponsors" className="btn btn-secondary">
+                    <Link to="/mysponsors" className="btn btn-primary">
                       My Sponsors
                     </Link>
                   </div>
@@ -261,17 +314,48 @@ export const DriverDashBoard = () => {
 
             {/* Placeholder rows/items */}
             <div className="row mt-3">
-              <div className="col-md-4">
-                <div className="box box3">Placeholder Item</div>
+              <div className="col-md-4" style={{ height: "500px", overflow: "hidden" }}>
+                <div className="box box3">
+                  <CatalogPreview searchTerm={selectedOrgData?.SearchTerm || ""}/>
+                </div>
               </div>
-              <div className="col-md-4">
-                <div className="box box4">Placeholder Item</div>
-              </div>
-              <div className="col-md-4">
-                <div className="box box5">My Point Progress Chart:</div>
+
+              <div className="col-md-8">
+              <div className="box box5" style={{ overflow: "visible" }}>
+                <h4>Point Progress Chart</h4>
+                <div style={{ width: "100%", height: "450px", overflow: "visible" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={adjustedDriverPointChanges}  // Use the clamped data here
+                      margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
+                    >
+                      <XAxis
+                        dataKey="PointChangeDate"
+                        tick={<CustomXAxisTick />}
+                        interval="preserveStartEnd"
+                        minTickGap={20}
+                        tickMargin={15}
+                      />
+                      <YAxis domain={[-20, "auto"]} tick={{ fill: "#000000" }} />
+                      <Tooltip
+                        labelFormatter={(label) => {
+                          const d = new Date(label);
+                          const month = String(d.getMonth() + 1).padStart(2, "0");
+                          const day = String(d.getDate()).padStart(2, "0");
+                          const year = d.getFullYear();
+                          return `${month}/${day}/${year}`;
+                        }}
+                        contentStyle={{ color: "#000000" }}
+                        labelStyle={{ color: "#000000" }}
+                      />
+                      <Bar dataKey="PointChangeNumber" fill="#000000" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
+        </div>
         ) : (
           // If the driver has no sponsor relationships yet
           <div className="container-fluid">
@@ -292,12 +376,12 @@ export const DriverDashBoard = () => {
                 <div style={{ marginTop: "1rem" }}>
                   <Link
                     to="/myapplications"
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     style={{ marginRight: "1rem" }}
                   >
                     My Applications
                   </Link>
-                  <Link to="/mysponsors" className="btn btn-secondary">
+                  <Link to="/mysponsors" className="btn btn-primary">
                     My Sponsors
                   </Link>
                 </div>

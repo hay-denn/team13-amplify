@@ -594,20 +594,28 @@ const Reports: React.FC = () => {
 
       return (
         <BarChart data={updatedData}>
-           <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -10}} />
+           <XAxis dataKey="ApplicationOrganization" />
            <YAxis />
            <Tooltip />
-           <Legend />
+           <Legend wrapperStyle={{ marginTop: 20 }} />
            <Bar dataKey="Approved" fill="#4caf50" />
            <Bar dataKey="Rejected" fill="#f44336" />
            <Bar dataKey="Submitted" fill="#9e9e9e" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
+        type ReportDataItem = {
+            PointChangeDriver: string;
+            PointChangeNumber: number;
+        };
+        
+        const minValue = Math.min(...reportData.map((item: ReportDataItem) => item.PointChangeNumber));
+        const maxValue = Math.max(...reportData.map((item: ReportDataItem) => item.PointChangeNumber));
+
         return (
         <BarChart data={reportData}>
             <XAxis dataKey="PointChangeDriver" />
-            <YAxis />
+            <YAxis domain={[minValue, maxValue]} />
             <Tooltip />
             <Bar dataKey="PointChangeNumber" />
         </BarChart>
@@ -631,22 +639,95 @@ const Reports: React.FC = () => {
         </BarChart>
         );
     } else if (selectedReport === "Password Change Logs") {
+        type ReportDataItem = {
+            user: string;
+            changeType: "forgot password" | "manual change" | "admin reset";
+          }; 
+    
+        type ProcessedDataItem = {
+            user: string;
+            forgotPassword?: number;
+            manualChange?: number;
+            adminReset?: number;
+            [key: string]: number | string | undefined;
+        };
+        
+        const changeTypeMapping: Record<string, keyof ProcessedDataItem> = {
+            "forgot password": "forgotPassword",
+            "manual change": "manualChange",
+            "admin reset": "adminReset",
+        };
+          
+        const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
+        const org = acc.find(
+            (item: ProcessedDataItem) => item.user === curr.user
+        );
+        if (org) {
+            const mappedKey = changeTypeMapping[curr.changeType];
+            org[mappedKey] = (org[mappedKey] as number || 0) + 1;
+        } else {
+            const mappedKey = changeTypeMapping[curr.changeType];
+            acc.push({
+            user: curr.user,
+            [mappedKey]: 1,
+            });
+        }        
+        return acc;
+        }, []);
+        
         return (
-        <BarChart data={reportData}>
+          <BarChart data={updatedData}>
             <XAxis dataKey="user" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="changeType" />
-        </BarChart>
+            <Legend />
+            <Bar dataKey="forgotPassword" fill="#2196f3" />
+            <Bar dataKey="manualChange" fill="#ffa500" />
+            <Bar dataKey="adminReset" fill="#9c27b0" />
+          </BarChart>
         );
     } else if (selectedReport === "Login Attempts Logs") {
+        type ReportDataItem = {
+            user: string;
+            success: 0 | 1;
+          }; 
+    
+        type ProcessedDataItem = {
+            user: string;
+            Success?: number;
+            Failed?: number;
+        };
+          
+        const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
+        const org = acc.find(
+            (item: ProcessedDataItem) => item.user === curr.user
+        );
+        if (org) {
+            if (curr.success === 1) {
+              org.Success = (org.Success || 0) + 1;
+            } else {
+              org.Failed = (org.Failed || 0) + 1;
+            }        
+        } else {
+            acc.push({
+            user: curr.user,
+            ...(curr.success === 1
+                ? { Success: 1 }
+                : { Failed: 1 }),
+            });
+        }        
+        return acc;
+        }, []);
+        
         return (
-        <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
+          <BarChart data={updatedData}>
+            <XAxis dataKey="user" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
-        </BarChart>
+            <Legend wrapperStyle={{ marginTop: 20 }} />
+            <Bar dataKey="Success" fill="#4caf50" />
+            <Bar dataKey="Failed" fill="#f44336" />
+          </BarChart>
         );
     } else {
         return (
