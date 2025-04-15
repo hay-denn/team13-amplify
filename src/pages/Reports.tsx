@@ -593,7 +593,7 @@ const Reports: React.FC = () => {
       }, []);
 
       return (
-        <BarChart data={updatedData}>
+        <BarChart data={updatedData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
            <XAxis dataKey="ApplicationOrganization" label={{ value: "Organization", position: "insideBottom", offset: -5 }}
             padding={{ left: 20, right: 20 }} />
            <YAxis />
