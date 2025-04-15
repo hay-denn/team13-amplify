@@ -12,7 +12,7 @@ interface CatalogPreviewProps {
 export const CatalogPreview = ({
   searchTerm,
   mediaType = "music",
-  limit = 6,
+  limit = 5,
 }: CatalogPreviewProps) => {
   const [catalogItems, setCatalogItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

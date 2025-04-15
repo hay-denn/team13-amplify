@@ -1,8 +1,7 @@
 .catalog-preview {
     padding: 10px;
     background-color: #fff;
-    border-radius: 15px;
-    height: 500px;         
+    border-radius: 15px;         
     overflow: hidden;     
     display: flex;
     flex-direction: column;

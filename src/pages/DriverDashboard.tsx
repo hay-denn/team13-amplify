@@ -314,7 +314,7 @@ export const DriverDashBoard = () => {
 
             {/* Placeholder rows/items */}
             <div className="row mt-3">
-              <div className="col-md-4">
+              <div className="col-md-4" style={{ height: "500px", overflow: "hidden" }}>
                 <div className="box box3">
                   <CatalogPreview searchTerm={selectedOrgData?.SearchTerm || ""}/>
                 </div>
