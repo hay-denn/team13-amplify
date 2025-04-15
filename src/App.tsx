@@ -39,8 +39,9 @@ function App() {
   // auth.isAuthenticated = true;
 
   return (
-    <CartProvider>
-      <Router>
+    <Router>
+      <CartProvider>
+      
         <Layout userType={userGroup} userEmail={userEmail}>
           <Routes>
             {auth.isAuthenticated ? (
@@ -127,9 +128,9 @@ function App() {
 
           <APIRoutes />
         </Layout>
-      </Router>
-      <Footer />
-    </CartProvider>
+        <Footer />
+      </CartProvider>
+    </Router>
   );
 }
 
