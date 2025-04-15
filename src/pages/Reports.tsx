@@ -655,7 +655,7 @@ const Reports: React.FC = () => {
         );
         if (org) {
             const mappedKey = changeTypeMapping[curr.changeType];
-            org[mappedKey] = (org[mappedKey] || 0) + 1;
+            org[mappedKey] = (org[mappedKey] || 0) as number + 1;
         } else {
             const mappedKey = changeTypeMapping[curr.changeType];
             acc.push({
