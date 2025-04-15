@@ -144,9 +144,10 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
       });
   
       // Filter out explicit content (case-insensitive).
-      const cleanItems = uniqueItems.filter(
-        (item) => item.trackExplicitness.toLowerCase() !== "explicit"
-      );
+      const cleanItems = uniqueItems.filter((item) => {
+        const explicitness = item.trackExplicitness || "";
+        return explicitness.toLowerCase() !== "explicit";
+      });
   
       // Limit final items to maxProducts.
       const finalItems = cleanItems.slice(0, maxProducts);
