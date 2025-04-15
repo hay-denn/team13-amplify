@@ -349,37 +349,39 @@ const Reports: React.FC = () => {
     setReportData(data);
   };
   const downloadPDF = async () => {
+    const pdf = new jsPDF();
+
+    const chartElement = document.getElementById("report-content");
+    const tableElement = document.querySelector("table");
+
+    // Temporarily make both elements visible
+    if (chartElement) chartElement.style.display = "block";
+    if (tableElement) tableElement.style.display = "block";
+
     try {
-        const pdf = new jsPDF();
-
-        // Capture Chart (if it exists)
-        const chartElement = document.getElementById("report-content"); // Ensure the correct ID
-        if (chartElement) {
-          const chartCanvas = await html2canvas(chartElement, { scale: 2 }); // High-resolution capture
-          const chartImgData = chartCanvas.toDataURL("image/png");
-          const chartHeight = (chartCanvas.height * 180) / chartCanvas.width; // Scale dynamically
-          pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
-        }
-    
-        // Add spacing or a new page if both elements are present
-        //if (chartElement) {
-        //  pdf.addPage(); // Add a new page for the chart
-        //}
-
-        // Capture Table (if it exists)
-        const tableElement = document.querySelector("table"); // Adjust selector if needed
-        if (tableElement) {
-          const tableCanvas = await html2canvas(tableElement, { scale: 2 }); // High-resolution capture
-          const tableImgData = tableCanvas.toDataURL("image/png");
-          const tableHeight = (tableCanvas.height * 180) / tableCanvas.width; // Scale dynamically
-          pdf.addImage(tableImgData, "PNG", 10, 10, 180, tableHeight);
-        }
-    
-        // Save the PDF
-        pdf.save("report.pdf");
-      } catch (error) {
-        console.error("Error generating PDF:", error);
+      if (chartElement) {
+        const chartCanvas = await html2canvas(chartElement, { scale: 2 });
+        const chartImgData = chartCanvas.toDataURL("image/png");
+        const chartHeight = (chartCanvas.height * 180) / chartCanvas.width;
+        pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
+      }  
+      
+      if (tableElement) {
+        const tableCanvas = await html2canvas(tableElement, { scale: 2 });
+        const tableImgData = tableCanvas.toDataURL("image/png");
+        const tableHeight = (tableCanvas.height * 180) / tableCanvas.width;
+        pdf.addImage(tableImgData, "PNG", 10, 10, 180, tableHeight);
+        pdf.addPage();
       }
+
+      pdf.save("report.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      // Restore original visibility state
+      if (tableElement) tableElement.style.display = "";
+      if (chartElement) chartElement.style.display = "";
+    }
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
