@@ -281,26 +281,32 @@ export const DriverDashBoard = () => {
                 <div className="box box3">Placeholder Item</div>
               </div>
               <div className="col-md-8">
-                <div className="box box5">
-                  <h4>Point Progress Chart</h4>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={driverPointChanges}>
-                      <XAxis
-                        dataKey="PointChangeDate"
-                        tickFormatter={(date) =>
-                          new Date(date).toLocaleDateString()
-                        }
-                      />
-                      <YAxis />
-                      <Tooltip 
-                        labelFormatter={(label) => 
-                          new Date(label).toLocaleDateString()
-                        }
-                      />
-                      <Bar dataKey="PointChangeNumber" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+              <div className="box box5">
+                <h4>Point Progress Chart</h4>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={driverPointChanges}>
+                    <XAxis
+                      dataKey="PointChangeDate"
+                      tickFormatter={(date) => {
+                        const d = new Date(date);
+                        const month = (d.getMonth() + 1).toString().padStart(2, "0");
+                        const year = d.getFullYear();
+                        return `${month}/${year}`;
+                      }}
+                    />
+                    <YAxis domain={[-20, "auto"]} />
+                    <Tooltip 
+                      labelFormatter={(label) => {
+                        const d = new Date(label);
+                        const month = (d.getMonth() + 1).toString().padStart(2, "0");
+                        const year = d.getFullYear();
+                        return `${month}/${year}`;
+                      }}
+                    />
+                    <Bar dataKey="PointChangeNumber" fill="#000000" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
               </div>
             </div>
           </div>
