@@ -84,7 +84,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   useEffect(() => {
     if (!organizationData) return;
     setMaxProducts(organizationData.AmountOfProducts || 10);
-    setSearchTerm(organizationData.SearchTerm || "");
+    setSearchTerm(organizationData.SearchTerm || "pop");
     setType(organizationData.ProductType || "music");
     setPriceToPointRatio(Number(organizationData.PointDollarRatio) || 1);
     setMaxPrice(Number(organizationData.MaxPrice) || 100);
@@ -267,7 +267,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           <div className="col text-center">
             <span>
               Max Price: <strong>${maxPrice}</strong> | Point to Dollar Ratio:{" "}
-              <strong>{priceToPointRatio}</strong> | Organization Category (Term):{" "}
+              <strong>{priceToPointRatio}</strong> | Organization Category:{" "}
               {!organizationData.SearchTerm ? (
                 <b>Your Org Has Selected The Default Catalog</b>
               ) : (
