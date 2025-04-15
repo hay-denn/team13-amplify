@@ -28,7 +28,9 @@ export const CompanyListBox = () => {
   return (
     <div className="topBox">
       <h2>List Of Organizations</h2>
-      <button>View Organizations</button>
+      <a href="/managesponsors" className="stats-button">
+        Manage Sponsors
+      </a>
       {isLoading ? (
         <p>Loading organizations…</p>
       ) : error ? (

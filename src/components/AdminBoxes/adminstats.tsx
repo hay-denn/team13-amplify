@@ -60,7 +60,7 @@ export const AdminStats = () => {
       <div className="stats-section">
         <h5 className="stats-title">Total Number Of Users</h5>
         <p className="stats-value">{driverCount}</p>
-        <a href="/DriverManagement" className="stats-button">
+        <a href="/manageusers" className="stats-button">
           Manage Users
         </a>
       </div>
@@ -69,9 +69,6 @@ export const AdminStats = () => {
         <p className="stats-value">{appData.length}</p>
         <p className="stats-approved">Approved: {approvedCount} Applications</p>
         <p className="stats-rejected">Rejected: {rejectedCount} Applications</p>
-        <a href="/DriverManagement" className="stats-button">
-          View All Applications
-        </a>
       </div>
     </div>
   );
