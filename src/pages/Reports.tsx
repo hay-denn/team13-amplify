@@ -650,14 +650,44 @@ const Reports: React.FC = () => {
         </BarChart>
         );
     } else if (selectedReport === "Purchases") {
-        return (
-        <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
-        </BarChart>
-        );
+        type ReportDataItem = {
+            PurchaseOrganization: string;
+            PurchaseStatus: "Ordered" | "Canceled" | "Delivered";
+          }; 
+    
+          type ProcessedDataItem = {
+            PurchaseOrganization: string;
+            Ordered?: number;
+            Canceled?: number;
+            Delivered?: number;
+          };      
+          
+          const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
+            const org = acc.find(
+                (item: ProcessedDataItem) => item.PurchaseOrganization === curr.PurchaseOrganization
+            );
+            if (org) {
+              org[curr.PurchaseStatus] = (org[curr.PurchaseStatus] || 0) + 1;
+            } else {
+              acc.push({
+                PurchaseOrganization: curr.PurchaseStatus,
+                [curr.PurchaseStatus]: 1,
+              });
+            }        
+            return acc;
+          }, []);
+    
+          return (
+            <BarChart data={updatedData}>
+               <XAxis dataKey="PurchaseOrganization" />
+               <YAxis />
+               <Tooltip />
+               <Legend wrapperStyle={{ marginTop: 20 }} />
+               <Bar dataKey="Ordered" fill="#4caf50" />
+               <Bar dataKey="Canceled" fill="#f44336" />
+               <Bar dataKey="Delivered" fill="#9e9e9e" />
+            </BarChart>
+          );
     } else if (selectedReport === "Invoices") {
         return (
         <BarChart data={reportData}>

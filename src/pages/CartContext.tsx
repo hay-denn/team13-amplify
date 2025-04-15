@@ -89,10 +89,13 @@ function getCurrentMySQLDate(): string {
   const pad = (num: number): string => (num < 10 ? "0" + num : num.toString());
 
   const year = now.getFullYear();
-  const month = pad(now.getMonth() + 1); // Months are 0-indexed
+  const month = pad(now.getMonth() + 1);
   const day = pad(now.getDate());
+  const hours = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+  const seconds = pad(now.getSeconds());
 
-  return `${year}-${month}-${day}`;
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 // API LINKS
