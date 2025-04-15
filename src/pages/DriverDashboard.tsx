@@ -305,16 +305,27 @@ export const DriverDashBoard = () => {
               <div className="col-md-8">
               <div className="box box5">
                 <h4>Point Progress Chart</h4>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={driverPointChanges}>
+                <ResponsiveContainer width="100%" height={450}>
+                  <BarChart
+                    data={driverPointChanges}
+                    // Give extra space on the bottom to prevent cutting off labels
+                    margin={{ top: 20, right: 20, left: 20, bottom: 60 }}
+                  >
                     <XAxis
                       dataKey="PointChangeDate"
-                      tick={<CustomXAxisTick />}
+                      tick={<CustomXAxisTick />}     // if using your custom tick component
                       interval="preserveStartEnd"
                       minTickGap={20}
+                      // If you haven't set a custom tick, consider:
+                      // tickMargin={10}
+                      // tickFormatter={(date) => {
+                      //   // Format date as MM/YYYY, e.g. 03/2025
+                      // }}
                     />
-                    <YAxis tick={{ fill: "#000000" }} />
+                    {/* Clamps the Y-axis to never go below –20 */}
+                    <YAxis domain={[-20, "auto"]} tick={{ fill: "#000000" }} />
                     <Tooltip
+                      // Hover date as MM/DD/YYYY, or whichever format you prefer
                       labelFormatter={(label) => {
                         const d = new Date(label);
                         const month = String(d.getMonth() + 1).padStart(2, "0");
