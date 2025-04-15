@@ -349,15 +349,27 @@ const Reports: React.FC = () => {
     setReportData(data);
   };
   const downloadPDF = async () => {
-    const element = document.getElementById("report-content");
-    if (!element) return;
-    try {
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
-      pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
-      pdf.save("report.pdf");
-    } catch (error) {}
+    const pdf = new jsPDF();
+
+    // Capture the chart
+    const chartElement = document.getElementById("report-content");
+    const chartCanvas = await html2canvas(chartElement);
+    const chartImage = chartCanvas.toDataURL("image/png");
+
+    // Capture the table
+    const tableElement = document.querySelector("table"); // Adjust the selector if needed
+    const tableCanvas = await html2canvas(tableElement);
+    const tableImage = tableCanvas.toDataURL("image/png");
+
+    // Add chart to PDF
+    pdf.addImage(chartImage, "PNG", 10, 10, 180, 100); // Adjust positions and dimensions
+
+    // Add table to PDF
+    pdf.addPage(); // Add a new page for the table
+    pdf.addImage(tableImage, "PNG", 10, 10, 180, 100); // Adjust positions and dimensions
+
+    // Save the PDF
+    pdf.save("report.pdf");
   };
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
