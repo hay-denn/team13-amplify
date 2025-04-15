@@ -326,6 +326,7 @@ export const CartPage: React.FC = () => {
         PointChangeSponsor: sponsorEmail,
         PointChangeNumber: -total_points,
         PointChangeAction: "Subtract",
+        PointChangeReason: `Purchase Order ${purchaseID}`
       };
       await callAPI(`${POINT_CHANGE_API}/pointchange`, "POST", pointChangeData);
 
