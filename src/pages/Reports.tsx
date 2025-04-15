@@ -564,7 +564,12 @@ const Reports: React.FC = () => {
   };
   const renderChart = () => {
     if (selectedReport === "Driver Applications") {
-      const updatedData = reportData.reduce((acc, curr) => {
+      type ReportDataItem = {
+        ApplicationOrganization: string;
+        ApplicationStatus: "Accepted" | "Rejected" | "Pending";
+      };  
+      
+      const updatedData = reportData.reduce((acc, curr: ReportDataItem) => {
         const org = acc.find(
             (item) => item.ApplicationOrganization === curr.ApplicationOrganization
         );
