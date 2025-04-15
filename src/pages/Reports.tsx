@@ -360,7 +360,7 @@ const Reports: React.FC = () => {
     if (chartElement) {
         const chartCanvas = await html2canvas(chartElement);
         const chartImage = chartCanvas.toDataURL("image/png");
-    pdf.addImage(chartImage, "PNG", 10, 10, 180, 80); // Add chart to PDF
+    pdf.addImage(chartImage, "PNG", 10, 10, 180, 60); // Add chart to PDF
     } else {
         console.error("Element with ID 'report-content' not found.");
     }
@@ -372,8 +372,7 @@ const Reports: React.FC = () => {
     if (tableElement) {
         const tableCanvas = await html2canvas(tableElement);
         const tableImage = tableCanvas.toDataURL("image/png");
-        pdf.addPage();
-        pdf.addImage(tableImage, "PNG", 10, 100, 180, 120);
+        pdf.addImage(tableImage, "PNG", 10, 100, 180, 80);
     } else {
         console.error("Element with ID 'report-content' not found.");
     }
