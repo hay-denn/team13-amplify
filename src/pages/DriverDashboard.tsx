@@ -274,7 +274,7 @@ export const DriverDashBoard = () => {
                           <th>Point Change Date</th>
                           <th>Point Change Sponsor</th>
                           <th>Point Change Amount</th>
-                          <th>Point Change Action</th>
+                          <th>Point Change Reason</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -293,7 +293,7 @@ export const DriverDashBoard = () => {
                               </td>
                               <td>{change.PointChangeSponsor}</td>
                               <td>{change.PointChangeNumber}</td>
-                              <td>{change.PointChangeAction}</td>
+                              <td>{change.PointChangeReason}</td>
                             </tr>
                           ))}
                       </tbody>
