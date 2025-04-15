@@ -607,7 +607,7 @@ const Reports: React.FC = () => {
         return (
         <BarChart data={reportData}>
             <XAxis dataKey="PointChangeDriver" />
-            <YAxis domain={['auto', 'auto']} />
+            <YAxis domain={['dataMin', 'dataMax']} />
             <Tooltip />
             <Bar dataKey="PointChangeNumber" />
         </BarChart>
