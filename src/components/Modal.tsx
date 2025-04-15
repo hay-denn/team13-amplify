@@ -475,6 +475,10 @@ export const SponsorApplyModal = ({
     fetchApplications: () => void;
     organizationIDInput?: number;
   }) => {
+
+  const auth = useAuth();
+
+  const currentDriverEmail = driverEmail || auth.user?.profile?.email || "";
   
   const [organizations, setOrganizations] = useState<{ OrganizationID: number; OrganizationName: string }[]>([]);
   const [selectedOrg, setSelectedOrgID] = useState<number | null>(null);
@@ -553,7 +557,7 @@ export const SponsorApplyModal = ({
                       <Form.Label>Driver Email</Form.Label>
                       <Form.Control
                           type="email"
-                          value={driverEmail}
+                          value={currentDriverEmail}
                           readOnly
                       />
                   </Form.Group>
