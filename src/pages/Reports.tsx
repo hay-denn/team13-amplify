@@ -598,11 +598,11 @@ const Reports: React.FC = () => {
            <YAxis />
            <Tooltip />
            <Bar dataKey="Approved" fill="#4caf50" />
-            <LabelList dataKey="Approved" position="top" />
+            <LabelList dataKey="Approved" position="insideTop" />
            <Bar dataKey="Rejected" fill="#f44336" />
             <LabelList dataKey="Rejected" position="top" />
            <Bar dataKey="Submitted" fill="#9e9e9e" />
-            <LabelList dataKey="Submitted" position="top" />
+            <LabelList dataKey="Submitted" position="insideBottom" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
