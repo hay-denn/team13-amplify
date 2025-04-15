@@ -52,7 +52,7 @@ export const AvgPointAvgPurchase = ({ SponsorEmail }: Props) => {
     const getDriversTotalNumOfPurchases = async (): Promise<void> => {
       try {
         const response = await fetch(
-          `${purchaseCountForDriver}/purchases?DriverEmail==${SponsorEmail}`
+          `${purchaseCountForDriver}/purchases?DriverEmail=${SponsorEmail}`
         );
         const data = await response.json();
         setDriverPurchaseCount(Array.isArray(data) ? data.length : 0);
