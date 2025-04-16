@@ -702,10 +702,17 @@ const Reports: React.FC = () => {
             </BarChart>
           );
     } else if (selectedReport === "Invoices") {
+        type ReportDataItem = {
+            PurchaseID: string;
+            PurchasePrice: number;
+        };
+        
+        const maxPurchasePrice = Math.max(...reportData.map((item: ReportDataItem) => item.PurchasePrice));
+
         return (
         <BarChart data={reportData}>
             <XAxis dataKey="PurchaseID" />
-            <YAxis />
+            <YAxis domain={[0, maxPurchasePrice]} />
             <Tooltip />
             <Bar dataKey="PurchasePrice" />
         </BarChart>
