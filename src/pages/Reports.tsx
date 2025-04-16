@@ -15,6 +15,8 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Switch,
+  FormControlLabel
 } from "@mui/material";
 import {
   BarChart,
@@ -262,6 +264,7 @@ const Reports: React.FC = () => {
   const [endDate, setEndDate] = useState("");
   const [sponsorId, setSponsorId] = useState("");
   const [driverEmail, setDriverEmail] = useState("");
+  const [summaryOrDetailed, setSummaryOrDetailed] = useState('summary');
   const generateReport = async () => {
     const finalSponsorId = String(sponsorOrgID || sponsorId || "");
     let data: any[] = [];
@@ -590,6 +593,12 @@ const Reports: React.FC = () => {
             value={driverEmail}
             onChange={(e) => setDriverEmail(e.target.value)}
           />
+          )}
+          {selectedReport === "Purchases" && (
+            <FormControlLabel
+              control={<Switch checked={summaryOrDetailed === 'detailed'} onChange={() => setSummaryOrDetailed(summaryOrDetailed === 'summary' ? 'detailed' : 'summary')} />}
+              label={summaryOrDetailed === 'summary' ? 'Summary View' : 'Detailed View'}
+            />
           )}
         </div>
       );
