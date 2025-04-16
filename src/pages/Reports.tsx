@@ -438,10 +438,12 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Invoices") {
       return (
         <TableRow>
+          <TableCell>PurchaseID</TableCell>
           <TableCell>PurchaseDriver</TableCell>
-          <TableCell>OrganizationName</TableCell>
+          <TableCell>PurchaseSponsorID</TableCell>
           <TableCell>PurchaseDate</TableCell>
           <TableCell>PurchaseStatus</TableCell>
+          <TableCell>PurchasePrice</TableCell>
         </TableRow>
       );
     } else if (selectedReport === "Password Change Logs") {
@@ -505,10 +507,12 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Invoices") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
+          <TableCell>{item.PurchaseID}</TableCell>
           <TableCell>{item.PurchaseDriver}</TableCell>
-          <TableCell>{item.OrganizationName}</TableCell>
+          <TableCell>{item.PurchaseSponsorID}</TableCell>
           <TableCell>{item.PurchaseDate}</TableCell>
           <TableCell>{item.PurchaseStatus}</TableCell>
+          <TableCell>{item.PurchasePrice}</TableCell>
         </TableRow>
       ));
     } else if (selectedReport === "Password Change Logs") {
@@ -691,10 +695,10 @@ const Reports: React.FC = () => {
     } else if (selectedReport === "Invoices") {
         return (
         <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
+            <XAxis dataKey="PurchaseID" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
+            <Bar dataKey="PurchasePrice" />
         </BarChart>
         );
     } else if (selectedReport === "Password Change Logs") {
