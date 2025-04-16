@@ -182,7 +182,7 @@ async function getInvoices(
     endDate?: string | number,
     sponsorId?: string | number
   ): Promise<any[]> {
-    const url = new URL(`${REPORTS_URL}/purchases`);
+    const url = new URL(`${REPORTS_URL}/invoices`);
     if (startDate && String(startDate).trim() !== "") {
       url.searchParams.append("StartDate", String(startDate));
     }
