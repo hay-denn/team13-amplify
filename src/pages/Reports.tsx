@@ -301,7 +301,7 @@ const Reports: React.FC = () => {
           break;
         }
         case "Purchases": {
-          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail, summaryOrDetailed);
+          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail);
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
