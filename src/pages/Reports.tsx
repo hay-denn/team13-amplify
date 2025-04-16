@@ -150,7 +150,8 @@ async function getPurchaseData(
   startDate?: string | number,
   endDate?: string | number,
   sponsorId?: string | number,
-  driverEmail?: string | number
+  driverEmail?: string | number,
+  summaryDetail?: string
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/purchases`);
   if (startDate && String(startDate).trim() !== "") {
@@ -164,6 +165,9 @@ async function getPurchaseData(
   }
   if (driverEmail && String(driverEmail).trim() !== "") {
     url.searchParams.append("DriverEmail", String(driverEmail));
+  }
+  if (summaryDetail && String(summaryDetail).trim() !== "") {
+    url.searchParams.append("SummaryDetail", String(summaryDetail));
   }
   try {
     const response = await fetch(url.toString());
@@ -297,7 +301,7 @@ const Reports: React.FC = () => {
           break;
         }
         case "Purchases": {
-          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail);
+          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail, summaryOrDetailed);
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
@@ -447,7 +451,8 @@ const Reports: React.FC = () => {
                   <TableCell>OrganizationName</TableCell>
                   <TableCell>PurchaseDate</TableCell>
                   <TableCell>PurchaseStatus</TableCell>
-                  <TableCell>PurchaseItems</TableCell>
+                  <TableCell>ProductsPurchased</TableCell>
+                  <TableCell>ProductPurchasedQuantity</TableCell>
                 </TableRow>
             );
         }
@@ -512,14 +517,25 @@ const Reports: React.FC = () => {
         </TableRow>
       ));
     } else if (selectedReport === "Purchases") {
-      return reportData.map((item, index) => (
+      if(summaryOrDetailed === "summary"){
+        return reportData.map((item, index) => (
         <TableRow key={index}>
           <TableCell>{item.PurchaseDriver}</TableCell>
           <TableCell>{item.OrganizationName}</TableCell>
           <TableCell>{item.PurchaseDate}</TableCell>
           <TableCell>{item.PurchaseStatus}</TableCell>
-        </TableRow>
-      ));
+        </TableRow>));
+      } else {
+        return reportData.map((item, index) => (
+        <TableRow key={index}>
+            <TableCell>{item.PurchaseDriver}</TableCell>
+            <TableCell>{item.OrganizationName}</TableCell>
+            <TableCell>{item.PurchaseDate}</TableCell>
+            <TableCell>{item.PurchaseStatus}</TableCell>
+            <TableCell>{item.ProductsPurchased}</TableCell>
+            <TableCell>{item.ProductPurchasedQuantity}</TableCell>
+        </TableRow>));
+      }
     } else if (selectedReport === "Invoices") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
