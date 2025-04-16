@@ -429,15 +429,28 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
-    } else if (selectedReport === "Purchases") {
-      return (
-        <TableRow>
-          <TableCell>PurchaseDriver</TableCell>
-          <TableCell>OrganizationName</TableCell>
-          <TableCell>PurchaseDate</TableCell>
-          <TableCell>PurchaseStatus</TableCell>
-        </TableRow>
-      );
+    } else if (selectedReport === "Purchases") {   
+        if(summaryOrDetailed === "summary"){
+            return (
+                <TableRow>
+                  <TableCell>PurchaseDriver</TableCell>
+                  <TableCell>OrganizationName</TableCell>
+                  <TableCell>PurchaseDate</TableCell>
+                  <TableCell>PurchaseStatus</TableCell>
+                </TableRow>
+            );
+        }
+        else{
+            return (
+                <TableRow>
+                  <TableCell>PurchaseDriver</TableCell>
+                  <TableCell>OrganizationName</TableCell>
+                  <TableCell>PurchaseDate</TableCell>
+                  <TableCell>PurchaseStatus</TableCell>
+                  <TableCell>PurchaseItems</TableCell>
+                </TableRow>
+            );
+        }
     } else if (selectedReport === "Invoices") {
       return (
         <TableRow>
