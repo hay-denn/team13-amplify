@@ -452,7 +452,7 @@ const Reports: React.FC = () => {
                   <TableCell>PurchaseDate</TableCell>
                   <TableCell>PurchaseStatus</TableCell>
                   <TableCell>ProductsPurchased</TableCell>
-                  <TableCell>ProductPurchasedQuantity</TableCell>
+                  <TableCell>ProductPurchaseQuantity</TableCell>
                 </TableRow>
             );
         }
@@ -533,7 +533,7 @@ const Reports: React.FC = () => {
             <TableCell>{item.PurchaseDate}</TableCell>
             <TableCell>{item.PurchaseStatus}</TableCell>
             <TableCell>{item.ProductsPurchased}</TableCell>
-            <TableCell>{item.ProductPurchasedQuantity}</TableCell>
+            <TableCell>{item.ProductPurchaseQuantity}</TableCell>
         </TableRow>));
       }
     } else if (selectedReport === "Invoices") {
