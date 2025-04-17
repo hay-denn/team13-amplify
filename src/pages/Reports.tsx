@@ -879,12 +879,6 @@ const Reports: React.FC = () => {
           <InputLabel>Report</InputLabel>
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
             {renderMenu()}
-            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
-            <MenuItem value="Driver Applications">Driver Applications</MenuItem>
-            <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
-            <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
-            <MenuItem value="Purchases">Purchases</MenuItem>
-            <MenuItem value="Invoices">Invoices</MenuItem>
           </Select>
         </FormControl>
         <Button variant="contained" onClick={generateReport}>
