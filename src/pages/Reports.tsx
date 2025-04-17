@@ -231,9 +231,12 @@ async function getSponsorDrivers(
 
 const Reports: React.FC = () => {
   const auth = useAuth();
-  const [isSponsor, setIsSponsor] = useState<boolean>(true);
+  const [isSponsor, setIsSponsor] = useState<boolean>(false);
   const [sponsorDoneLoading, setSponsorDoneLoading] = useState<boolean>(false);
   useEffect(() => {
+    console.log("OIDC user:", auth.user);
+    console.log("Groups claim:", auth.user?.profile?.["cognito:groups"]);
+
     if (!auth.user) return;
 
     const groups = Array.isArray(auth.user.profile["cognito:groups"])
