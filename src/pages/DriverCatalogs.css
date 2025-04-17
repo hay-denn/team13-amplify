@@ -36,3 +36,38 @@
   font-style: italic;
   color: #888;
 }
+
+.catalog-title {
+  font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+  position: relative;
+}
+
+.catalog-title::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #3498db, #8e44ad);
+  border-radius: 2px;
+}
+
+.centered-paragraph {
+  max-width: 600px;              
+  margin: 0 auto 1rem;
+  padding: 0 1.5rem;             
+  font-size: 1rem;              
+  line-height: 1.6;              
+  text-align: center;           
+  color: #4a4a4a;              
+}
+
+.CatalogTitle {
+  margin-bottom: 1.5rem;
+}

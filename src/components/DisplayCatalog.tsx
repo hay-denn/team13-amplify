@@ -39,7 +39,8 @@ interface Props {
 
 export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const [currOrgId, setCurrOrgId] = useState(currentCatalog);
-  const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
+  const [organizationData, setOrganizationData] =
+    useState<OrganizationData | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [type, setType] = useState("music");
@@ -48,7 +49,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
 
   // maxProducts is set from organizationData.AmountOfProducts.
   const [maxProducts, setMaxProducts] = useState(100);
-  
+
   // pageSize is used for pagination of the final (limited) results.
   const pageSize = 12;
   const [page, setPage] = useState(0);
@@ -61,12 +62,15 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const { addToCart } = useCart();
   const auth = useAuth();
 
-  const url_getOrganization = "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+  const url_getOrganization =
+    "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
   // Fetch organization data.
   const fetchOrganization = async () => {
     try {
-      console.log(`${url_getOrganization}/organization?OrganizationID=${currOrgId}`);
+      console.log(
+        `${url_getOrganization}/organization?OrganizationID=${currOrgId}`
+      );
       const response = await axios.get(
         `${url_getOrganization}/organization?OrganizationID=${currOrgId}`
       );
@@ -115,10 +119,10 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
           searchTerm
         )}&media=${type}&limit=${limit}&offset=${offset}&explicit=No`;
-  
+
         const response = await axios.get(url);
         const batch = response.data.results as CatalogItem[];
-  
+
         if (batch.length === 0) {
           keepFetching = false;
         } else {
@@ -134,7 +138,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           }
         }
       }
-  
+
       // Deduplicate items by trackId.
       const seen = new Set<number>();
       const uniqueItems = fetchedItems.filter((item) => {
@@ -142,16 +146,16 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
         seen.add(item.trackId);
         return true;
       });
-  
+
       // Filter out explicit content (case-insensitive).
       const cleanItems = uniqueItems.filter((item) => {
         const explicitness = item.trackExplicitness || "";
         return explicitness.toLowerCase() !== "explicit";
       });
-  
+
       // Limit final items to maxProducts.
       const finalItems = cleanItems.slice(0, maxProducts);
-  
+
       setAllResults(finalItems);
     } catch (error) {
       console.error("Error fetching catalog:", error);
@@ -215,15 +219,21 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
   const handleTestAddItems = (item: CatalogItem) => {
     const userEmail = auth.user?.profile.email || "";
     const impersonationData = localStorage.getItem("impersonatingDriver");
-    const impersonatedDriver = impersonationData ? JSON.parse(impersonationData) : null;
+    const impersonatedDriver = impersonationData
+      ? JSON.parse(impersonationData)
+      : null;
 
-    const driverEmail = impersonatedDriver ? impersonatedDriver.email : userEmail;
+    const driverEmail = impersonatedDriver
+      ? impersonatedDriver.email
+      : userEmail;
     const sponsorOrgID = impersonatedDriver
       ? impersonatedDriver.sponsorOrgID
       : organizationData?.OrganizationID;
 
     if (!driverEmail || !sponsorOrgID) {
-      alert("Unable to add item to cart. Missing driver or organization information.");
+      alert(
+        "Unable to add item to cart. Missing driver or organization information."
+      );
       return;
     }
 
@@ -249,7 +259,9 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           <label className="me-2">Sort by Price:</label>
           <select
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as "asc" | "desc" | "")}
+            onChange={(e) =>
+              setSortOrder(e.target.value as "asc" | "desc" | "")
+            }
             className="me-4"
           >
             <option value="">None</option>
@@ -278,60 +290,79 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           </div>
         </div>
         {/* Catalog grid */}
-        <div className="row">
-          {catalog.map((item) => {
-            const price = Number(item.trackPrice);
-            return (
-              <div key={item.trackId} className="col-sm-6 col-md-4 col-lg-3 mb-4">
-                <div className="card h-100 catalog-card">
-                  <img
-                    src={item.artworkUrl100}
-                    alt={item.trackName}
-                    className="card-img-top"
-                  />
-                  <div className="card-body limited-card-height">
-                    <h6 className="card-title mb-2">{item.trackName}</h6>
-                    <p className="card-text text-muted mb-2">
-                      ${price.toFixed(2)} • {(price * priceToPointRatio).toFixed(2)} points
-                    </p>
-                    <p className="mb-1">
-                      <strong>Artist:</strong> {item.artistName}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Collection:</strong> {item.collectionName}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Release Date:</strong> {new Date(item.releaseDate).toLocaleDateString()}
-                    </p>
-                    <p className="mb-2">
-                      <strong>Genre:</strong> {item.primaryGenreName}
-                    </p>
-                    <p className="card-text">
-                      {item.longDescription ||
-                        item.shortDescription ||
-                        "No description available."}
-                    </p>
+        {!organizationData.SearchTerm ? (
+          <b>Your Organization does not have a selected Catalog</b>
+        ) : (
+          <div className="row">
+            {catalog.map((item) => {
+              const price = Number(item.trackPrice);
+              return (
+                <div
+                  key={item.trackId}
+                  className="col-sm-6 col-md-4 col-lg-3 mb-4"
+                >
+                  <div className="card h-100 catalog-card">
+                    <img
+                      src={item.artworkUrl100}
+                      alt={item.trackName}
+                      className="card-img-top"
+                    />
+                    <div className="card-body limited-card-height">
+                      <h6 className="card-title mb-2">{item.trackName}</h6>
+                      <p className="card-text text-muted mb-2">
+                        ${price.toFixed(2)} •{" "}
+                        {(price * priceToPointRatio).toFixed(2)} points
+                      </p>
+                      <p className="mb-1">
+                        <strong>Artist:</strong> {item.artistName}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Collection:</strong> {item.collectionName}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Release Date:</strong>{" "}
+                        {new Date(item.releaseDate).toLocaleDateString()}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Genre:</strong> {item.primaryGenreName}
+                      </p>
+                      <p className="card-text">
+                        {item.longDescription ||
+                          item.shortDescription ||
+                          "No description available."}
+                      </p>
+                    </div>
+                    <button
+                      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                      onClick={() => handleTestAddItems(item)}
+                    >
+                      Add To Cart
+                    </button>
                   </div>
-                  <button
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                    onClick={() => handleTestAddItems(item)}
-                  >
-                    Add To Cart
-                  </button>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+      {!organizationData.SearchTerm ? (
+        <p>N/A</p>
+      ) : (
+        <div>
+          <button
+            onClick={handlePrevPage}
+            disabled={page === 0}
+            className="me-2"
+          >
+            Previous
+          </button>
+          <button onClick={handleNextPage}>Next</button>
+          <p>Page: {page + 1}</p>
+          <button onClick={handleFetchAll}>Fetch All Items</button>
+        </div>
+      )}
       {/* Pagination */}
-      <button onClick={handlePrevPage} disabled={page === 0} className="me-2">
-        Previous
-      </button>
-      <button onClick={handleNextPage}>Next</button>
-      <p>Page: {page + 1}</p>
-      <button onClick={handleFetchAll}>Fetch All Items</button>
-    </div> 
+    </div>
   );
 };
 

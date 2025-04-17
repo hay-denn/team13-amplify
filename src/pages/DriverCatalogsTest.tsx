@@ -166,7 +166,6 @@ export const DriverCatalogsTest = ({
             );
           })}
         </div>
-
         <div className="point-balance">
           <b>
             Current Point Balance For {orgName} (ID={orgId}):{"  "}

@@ -19,11 +19,10 @@ export const DriverCatalogs = ({ inputUserEmail }: DriverCatalogsProps) => {
   return (
     <div className="driver-catalogs-wrapper">
       <div className="CatalogTitle">
-        <h1>🎁 Redeem Your Points</h1>
+        <h1 className="catalog-title">🎁 Redeem Your Points</h1>
         <p className="centered-paragraph">
-          Browse and purchase items from your sponsor organizations.
+          Select a Catalog from your list of Organizations.
           <br />
-          Select a Sponsor from your organizations from the list below to view their catalog!
         </p>
       </div>
 
