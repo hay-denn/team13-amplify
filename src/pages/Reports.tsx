@@ -851,19 +851,23 @@ const Reports: React.FC = () => {
   const renderMenu = () => {
     if(isSponsor){
         return (
+          <>
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
+          </>
         );
     } else {
         return (
+          <>
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
             <MenuItem value="Purchases">Purchases</MenuItem>
             <MenuItem value="Invoices">Invoices</MenuItem>
+            </>
         );
     }
   };
