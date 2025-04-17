@@ -848,18 +848,6 @@ const Reports: React.FC = () => {
         );
     }
   };
-  const renderMenu = () => {
-    if(!isSponsor){
-        return (
-          <>
-            <MenuItem value="Purchases">Purchases</MenuItem>
-            <MenuItem value="Invoices">Invoices</MenuItem>
-          </>
-        );
-    } else {
-        return null;
-    }
-  };
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
@@ -871,7 +859,12 @@ const Reports: React.FC = () => {
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
-            {renderMenu()}
+            {!isSponsor && (
+              <>
+                <MenuItem value="Purchases">Purchases</MenuItem>
+                <MenuItem value="Invoices">Invoices</MenuItem>
+              </>
+            )}
           </Select>
         </FormControl>
         <Button variant="contained" onClick={generateReport}>
