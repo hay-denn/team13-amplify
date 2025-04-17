@@ -15,6 +15,8 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Switch,
+  FormControlLabel
 } from "@mui/material";
 import {
   BarChart,
@@ -148,7 +150,8 @@ async function getPurchaseData(
   startDate?: string | number,
   endDate?: string | number,
   sponsorId?: string | number,
-  driverEmail?: string | number
+  driverEmail?: string | number,
+  summaryDetail?: string
 ): Promise<any[]> {
   const url = new URL(`${REPORTS_URL}/purchases`);
   if (startDate && String(startDate).trim() !== "") {
@@ -162,6 +165,9 @@ async function getPurchaseData(
   }
   if (driverEmail && String(driverEmail).trim() !== "") {
     url.searchParams.append("DriverEmail", String(driverEmail));
+  }
+  if (summaryDetail && String(summaryDetail).trim() !== "") {
+    url.searchParams.append("SummaryDetail", String(summaryDetail));
   }
   try {
     const response = await fetch(url.toString());
@@ -180,7 +186,7 @@ async function getInvoices(
     endDate?: string | number,
     sponsorId?: string | number
   ): Promise<any[]> {
-    const url = new URL(`${REPORTS_URL}/purchases`);
+    const url = new URL(`${REPORTS_URL}/invoices`);
     if (startDate && String(startDate).trim() !== "") {
       url.searchParams.append("StartDate", String(startDate));
     }
@@ -262,6 +268,7 @@ const Reports: React.FC = () => {
   const [endDate, setEndDate] = useState("");
   const [sponsorId, setSponsorId] = useState("");
   const [driverEmail, setDriverEmail] = useState("");
+  const [summaryOrDetailed, setSummaryOrDetailed] = useState('summary');
   const generateReport = async () => {
     const finalSponsorId = String(sponsorOrgID || sponsorId || "");
     let data: any[] = [];
@@ -426,22 +433,38 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
-    } else if (selectedReport === "Purchases") {
-      return (
-        <TableRow>
-          <TableCell>PurchaseDriver</TableCell>
-          <TableCell>OrganizationName</TableCell>
-          <TableCell>PurchaseDate</TableCell>
-          <TableCell>PurchaseStatus</TableCell>
-        </TableRow>
-      );
+    } else if (selectedReport === "Purchases") {   
+        if(summaryOrDetailed === "summary"){
+            return (
+                <TableRow>
+                  <TableCell>PurchaseDriver</TableCell>
+                  <TableCell>OrganizationName</TableCell>
+                  <TableCell>PurchaseDate</TableCell>
+                  <TableCell>PurchaseStatus</TableCell>
+                </TableRow>
+            );
+        }
+        else{
+            return (
+                <TableRow>
+                  <TableCell>PurchaseDriver</TableCell>
+                  <TableCell>OrganizationName</TableCell>
+                  <TableCell>PurchaseDate</TableCell>
+                  <TableCell>PurchaseStatus</TableCell>
+                  <TableCell>ProductsPurchased</TableCell>
+                  <TableCell>ProductPurchaseQuantity</TableCell>
+                </TableRow>
+            );
+        }
     } else if (selectedReport === "Invoices") {
       return (
         <TableRow>
+          <TableCell>PurchaseID</TableCell>
           <TableCell>PurchaseDriver</TableCell>
-          <TableCell>OrganizationName</TableCell>
+          <TableCell>PurchaseSponsorID</TableCell>
           <TableCell>PurchaseDate</TableCell>
           <TableCell>PurchaseStatus</TableCell>
+          <TableCell>PurchasePrice</TableCell>
         </TableRow>
       );
     } else if (selectedReport === "Password Change Logs") {
@@ -494,21 +517,34 @@ const Reports: React.FC = () => {
         </TableRow>
       ));
     } else if (selectedReport === "Purchases") {
-      return reportData.map((item, index) => (
+      if(summaryOrDetailed === "summary"){
+        return reportData.map((item, index) => (
         <TableRow key={index}>
           <TableCell>{item.PurchaseDriver}</TableCell>
           <TableCell>{item.OrganizationName}</TableCell>
           <TableCell>{item.PurchaseDate}</TableCell>
           <TableCell>{item.PurchaseStatus}</TableCell>
-        </TableRow>
-      ));
+        </TableRow>));
+      } else {
+        return reportData.map((item, index) => (
+        <TableRow key={index}>
+            <TableCell>{item.PurchaseDriver}</TableCell>
+            <TableCell>{item.OrganizationName}</TableCell>
+            <TableCell>{item.PurchaseDate}</TableCell>
+            <TableCell>{item.PurchaseStatus}</TableCell>
+            <TableCell>{item.ProductsPurchased}</TableCell>
+            <TableCell>{item.ProductPurchaseQuantity}</TableCell>
+        </TableRow>));
+      }
     } else if (selectedReport === "Invoices") {
       return reportData.map((item, index) => (
         <TableRow key={index}>
+          <TableCell>{item.PurchaseID}</TableCell>
           <TableCell>{item.PurchaseDriver}</TableCell>
-          <TableCell>{item.OrganizationName}</TableCell>
+          <TableCell>{item.PurchaseSponsorID}</TableCell>
           <TableCell>{item.PurchaseDate}</TableCell>
           <TableCell>{item.PurchaseStatus}</TableCell>
+          <TableCell>{item.PurchasePrice}</TableCell>
         </TableRow>
       ));
     } else if (selectedReport === "Password Change Logs") {
@@ -586,6 +622,12 @@ const Reports: React.FC = () => {
             value={driverEmail}
             onChange={(e) => setDriverEmail(e.target.value)}
           />
+          )}
+          {selectedReport === "Purchases" && (
+            <FormControlLabel
+              control={<Switch checked={summaryOrDetailed === 'detailed'} onChange={() => setSummaryOrDetailed(summaryOrDetailed === 'summary' ? 'detailed' : 'summary')} />}
+              label={summaryOrDetailed === 'summary' ? 'Summary View' : 'Detailed View'}
+            />
           )}
         </div>
       );
@@ -689,12 +731,19 @@ const Reports: React.FC = () => {
             </BarChart>
           );
     } else if (selectedReport === "Invoices") {
+        type ReportDataItem = {
+            PurchaseID: string;
+            PurchasePrice: number;
+        };
+        
+        const maxPurchasePrice = Math.max(...reportData.map((item: ReportDataItem) => item.PurchasePrice));
+
         return (
         <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
-            <YAxis />
+            <XAxis dataKey="PurchaseID" />
+            <YAxis domain={[0, maxPurchasePrice]} />
             <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
+            <Bar dataKey="PurchasePrice" />
         </BarChart>
         );
     } else if (selectedReport === "Password Change Logs") {
@@ -810,8 +859,12 @@ const Reports: React.FC = () => {
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
-            <MenuItem value="Purchases">Purchases</MenuItem>
-            <MenuItem value="Invoices">Invoices</MenuItem>
+            {!isSponsor && (
+                <MenuItem value="Purchases">Purchases</MenuItem>
+            )}
+            {!isSponsor && (
+                <MenuItem value="Invoices">Invoices</MenuItem>
+            )}
           </Select>
         </FormControl>
         <Button variant="contained" onClick={generateReport}>
