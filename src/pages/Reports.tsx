@@ -860,10 +860,10 @@ const Reports: React.FC = () => {
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
             {!isSponsor && (
-              <>
                 <MenuItem value="Purchases">Purchases</MenuItem>
+            )}
+            {!isSponsor && (
                 <MenuItem value="Invoices">Invoices</MenuItem>
-              </>
             )}
           </Select>
         </FormControl>
