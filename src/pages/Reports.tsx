@@ -16,7 +16,7 @@ import {
   TableRow,
   Paper,
   Switch,
-  FormControlLabel
+  FormControlLabel,
 } from "@mui/material";
 import {
   BarChart,
@@ -25,14 +25,17 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
 } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const REPORTS_URL = "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
-const SPONSOR_BASE_URL = "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
-const SPONSOR_DRIVERS_URL = "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
+const REPORTS_URL =
+  "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_BASE_URL =
+  "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+const SPONSOR_DRIVERS_URL =
+  "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
 async function getPointChanges(
   startDate?: string | number,
@@ -182,33 +185,35 @@ async function getPurchaseData(
 }
 
 async function getInvoices(
-    startDate?: string | number,
-    endDate?: string | number,
-    sponsorId?: string | number
-  ): Promise<any[]> {
-    const url = new URL(`${REPORTS_URL}/invoices`);
-    if (startDate && String(startDate).trim() !== "") {
-      url.searchParams.append("StartDate", String(startDate));
-    }
-    if (endDate && String(endDate).trim() !== "") {
-      url.searchParams.append("EndDate", String(endDate));
-    }
-    if (sponsorId && String(sponsorId).trim() !== "") {
-      url.searchParams.append("SponsorID", String(sponsorId));
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        await response.text();
-        return [];
-      }
-      return await response.json();
-    } catch (error) {
+  startDate?: string | number,
+  endDate?: string | number,
+  sponsorId?: string | number
+): Promise<any[]> {
+  const url = new URL(`${REPORTS_URL}/invoices`);
+  if (startDate && String(startDate).trim() !== "") {
+    url.searchParams.append("StartDate", String(startDate));
+  }
+  if (endDate && String(endDate).trim() !== "") {
+    url.searchParams.append("EndDate", String(endDate));
+  }
+  if (sponsorId && String(sponsorId).trim() !== "") {
+    url.searchParams.append("SponsorID", String(sponsorId));
+  }
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      await response.text();
       return [];
     }
+    return await response.json();
+  } catch (error) {
+    return [];
   }
+}
 
-async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[]> {
+async function getSponsorDrivers(
+  sponsorOrgID: string | number
+): Promise<string[]> {
   const url = new URL(`${SPONSOR_DRIVERS_URL}/driverssponsors`);
   url.searchParams.append("DriversSponsorID", String(sponsorOrgID));
   try {
@@ -227,10 +232,12 @@ async function getSponsorDrivers(sponsorOrgID: string | number): Promise<string[
 const Reports: React.FC = () => {
   const auth = useAuth();
   const [isSponsor, setIsSponsor] = useState<boolean>(false);
+  const [sponsorDoneLoading, setSponsorDoneLoading] = useState<boolean>(false);
   useEffect(() => {
     const maybeGroups = auth.user?.profile?.["cognito:groups"];
     const groups = Array.isArray(maybeGroups) ? maybeGroups : [];
     setIsSponsor(groups.includes("Sponsor"));
+    setSponsorDoneLoading(true);
   }, [auth.user]);
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
   const [driverEmails, setDriverEmails] = useState<string[]>([]);
@@ -238,10 +245,13 @@ const Reports: React.FC = () => {
     if (!isSponsor || !auth.user?.profile?.email) return;
     const fetchSponsorOrg = async () => {
       try {
-        const sponsorEmail = encodeURIComponent(auth.user?.profile?.email || "");
+        const sponsorEmail = encodeURIComponent(
+          auth.user?.profile?.email || ""
+        );
         const url = `${SPONSOR_BASE_URL}/sponsor?UserEmail=${sponsorEmail}`;
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`Failed to fetch sponsor: ${response.status}`);
+        if (!response.ok)
+          throw new Error(`Failed to fetch sponsor: ${response.status}`);
         const data = await response.json();
         let sponsor = Array.isArray(data)
           ? data.find((s: any) => s.UserEmail === auth.user?.profile?.email)
@@ -268,7 +278,7 @@ const Reports: React.FC = () => {
   const [endDate, setEndDate] = useState("");
   const [sponsorId, setSponsorId] = useState("");
   const [driverEmail, setDriverEmail] = useState("");
-  const [summaryOrDetailed, setSummaryOrDetailed] = useState('summary');
+  const [summaryOrDetailed, setSummaryOrDetailed] = useState("summary");
   const generateReport = async () => {
     const finalSponsorId = String(sponsorOrgID || sponsorId || "");
     let data: any[] = [];
@@ -288,7 +298,12 @@ const Reports: React.FC = () => {
           break;
         }
         case "Driver Applications": {
-          let fetched = await getDriverApplications(startDate, endDate, finalSponsorId, driverEmail);
+          let fetched = await getDriverApplications(
+            startDate,
+            endDate,
+            finalSponsorId,
+            driverEmail
+          );
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
@@ -301,7 +316,12 @@ const Reports: React.FC = () => {
           break;
         }
         case "Purchases": {
-          let fetched = await getPurchaseData(startDate, endDate, finalSponsorId, driverEmail);
+          let fetched = await getPurchaseData(
+            startDate,
+            endDate,
+            finalSponsorId,
+            driverEmail
+          );
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
           }
@@ -327,7 +347,11 @@ const Reports: React.FC = () => {
           break;
         }
         case "Password Change Logs": {
-          let fetched = await getPasswordChanges(startDate, endDate, driverEmail);
+          let fetched = await getPasswordChanges(
+            startDate,
+            endDate,
+            driverEmail
+          );
           if (isSponsor && driverEmails.length > 0) {
             fetched = fetched.filter((item) =>
               driverEmails.includes(item.user)
@@ -367,13 +391,13 @@ const Reports: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
     const chartElement = document.getElementById("report-content");
     if (chartElement) {
-        const chartCanvas = await html2canvas(chartElement);
-        const chartImgData = chartCanvas.toDataURL("image/png");
-        const chartHeight = (chartCanvas.height * 180) / chartCanvas.width; // Scale dynamically
-        chartHeightFinal = chartHeight;
-        pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
+      const chartCanvas = await html2canvas(chartElement);
+      const chartImgData = chartCanvas.toDataURL("image/png");
+      const chartHeight = (chartCanvas.height * 180) / chartCanvas.width; // Scale dynamically
+      chartHeightFinal = chartHeight;
+      pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
     } else {
-        console.error("Element with ID 'report-content' not found.");
+      console.error("Element with ID 'report-content' not found.");
     }
 
     // Capture the table view
@@ -381,12 +405,19 @@ const Reports: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
     const tableElement = document.getElementById("report-content");
     if (tableElement) {
-        const tableCanvas = await html2canvas(tableElement);
-        const tableImgData = tableCanvas.toDataURL("image/png");
-        const tableHeight = (tableCanvas.height * 180) / tableCanvas.width; // Scale dynamically
-        pdf.addImage(tableImgData, "PNG", 10, 10 + chartHeightFinal, 180, tableHeight);
+      const tableCanvas = await html2canvas(tableElement);
+      const tableImgData = tableCanvas.toDataURL("image/png");
+      const tableHeight = (tableCanvas.height * 180) / tableCanvas.width; // Scale dynamically
+      pdf.addImage(
+        tableImgData,
+        "PNG",
+        10,
+        10 + chartHeightFinal,
+        180,
+        tableHeight
+      );
     } else {
-        console.error("Element with ID 'report-content' not found.");
+      console.error("Element with ID 'report-content' not found.");
     }
 
     // Save the PDF
@@ -396,7 +427,8 @@ const Reports: React.FC = () => {
     setViewMode(originalViewMode);
   };
   const downloadCSV = () => {
-    if (!reportData || !Array.isArray(reportData) || reportData.length === 0) return;
+    if (!reportData || !Array.isArray(reportData) || reportData.length === 0)
+      return;
     const headers = Object.keys(reportData[0]).join(",");
     const rows = reportData.map((item) =>
       Object.values(item)
@@ -433,29 +465,28 @@ const Reports: React.FC = () => {
           <TableCell>Reason</TableCell>
         </TableRow>
       );
-    } else if (selectedReport === "Purchases") {   
-        if(summaryOrDetailed === "summary"){
-            return (
-                <TableRow>
-                  <TableCell>PurchaseDriver</TableCell>
-                  <TableCell>OrganizationName</TableCell>
-                  <TableCell>PurchaseDate</TableCell>
-                  <TableCell>PurchaseStatus</TableCell>
-                </TableRow>
-            );
-        }
-        else{
-            return (
-                <TableRow>
-                  <TableCell>PurchaseDriver</TableCell>
-                  <TableCell>OrganizationName</TableCell>
-                  <TableCell>PurchaseDate</TableCell>
-                  <TableCell>PurchaseStatus</TableCell>
-                  <TableCell>ProductsPurchased</TableCell>
-                  <TableCell>ProductPurchaseQuantity</TableCell>
-                </TableRow>
-            );
-        }
+    } else if (selectedReport === "Purchases") {
+      if (summaryOrDetailed === "summary") {
+        return (
+          <TableRow>
+            <TableCell>PurchaseDriver</TableCell>
+            <TableCell>OrganizationName</TableCell>
+            <TableCell>PurchaseDate</TableCell>
+            <TableCell>PurchaseStatus</TableCell>
+          </TableRow>
+        );
+      } else {
+        return (
+          <TableRow>
+            <TableCell>PurchaseDriver</TableCell>
+            <TableCell>OrganizationName</TableCell>
+            <TableCell>PurchaseDate</TableCell>
+            <TableCell>PurchaseStatus</TableCell>
+            <TableCell>ProductsPurchased</TableCell>
+            <TableCell>ProductPurchaseQuantity</TableCell>
+          </TableRow>
+        );
+      }
     } else if (selectedReport === "Invoices") {
       return (
         <TableRow>
@@ -517,24 +548,26 @@ const Reports: React.FC = () => {
         </TableRow>
       ));
     } else if (selectedReport === "Purchases") {
-      if(summaryOrDetailed === "summary"){
+      if (summaryOrDetailed === "summary") {
         return reportData.map((item, index) => (
-        <TableRow key={index}>
-          <TableCell>{item.PurchaseDriver}</TableCell>
-          <TableCell>{item.OrganizationName}</TableCell>
-          <TableCell>{item.PurchaseDate}</TableCell>
-          <TableCell>{item.PurchaseStatus}</TableCell>
-        </TableRow>));
+          <TableRow key={index}>
+            <TableCell>{item.PurchaseDriver}</TableCell>
+            <TableCell>{item.OrganizationName}</TableCell>
+            <TableCell>{item.PurchaseDate}</TableCell>
+            <TableCell>{item.PurchaseStatus}</TableCell>
+          </TableRow>
+        ));
       } else {
         return reportData.map((item, index) => (
-        <TableRow key={index}>
+          <TableRow key={index}>
             <TableCell>{item.PurchaseDriver}</TableCell>
             <TableCell>{item.OrganizationName}</TableCell>
             <TableCell>{item.PurchaseDate}</TableCell>
             <TableCell>{item.PurchaseStatus}</TableCell>
             <TableCell>{item.ProductsPurchased}</TableCell>
             <TableCell>{item.ProductPurchaseQuantity}</TableCell>
-        </TableRow>));
+          </TableRow>
+        ));
       }
     } else if (selectedReport === "Invoices") {
       return reportData.map((item, index) => (
@@ -561,7 +594,11 @@ const Reports: React.FC = () => {
           <TableCell>{item.user}</TableCell>
           <TableCell>{item.loginDate}</TableCell>
           <TableCell>
-            {item.success === 1 ? "Success" : item.success === 0 ? "Failed" : item.success}
+            {item.success === 1
+              ? "Success"
+              : item.success === 0
+              ? "Failed"
+              : item.success}
           </TableCell>
         </TableRow>
       ));
@@ -578,7 +615,9 @@ const Reports: React.FC = () => {
   };
   const renderFilters = () => {
     const hideSponsorIdField =
-      (selectedReport === "Driver Applications" || selectedReport === "Purchases") && isSponsor;
+      (selectedReport === "Driver Applications" ||
+        selectedReport === "Purchases") &&
+      isSponsor;
     if (
       selectedReport === "Driver Point Changes" ||
       selectedReport === "Driver Applications" ||
@@ -603,30 +642,47 @@ const Reports: React.FC = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-          {(selectedReport === "Driver Applications" || selectedReport === "Purchases" || selectedReport === "Invoices") && !hideSponsorIdField && (
-            <TextField
-              label="Sponsor ID"
-              type="text"
-              value={sponsorId}
-              onChange={(e) => setSponsorId(e.target.value)}
-            />
-          )}
+          {(selectedReport === "Driver Applications" ||
+            selectedReport === "Purchases" ||
+            selectedReport === "Invoices") &&
+            !hideSponsorIdField && (
+              <TextField
+                label="Sponsor ID"
+                type="text"
+                value={sponsorId}
+                onChange={(e) => setSponsorId(e.target.value)}
+              />
+            )}
           {selectedReport !== "Invoices" && (
-          <TextField
-            label={
-              selectedReport === "Password Change Logs" || selectedReport === "Login Attempts Logs"
-                ? "User Email"
-                : "Driver Email"
-            }
-            type="email"
-            value={driverEmail}
-            onChange={(e) => setDriverEmail(e.target.value)}
-          />
+            <TextField
+              label={
+                selectedReport === "Password Change Logs" ||
+                selectedReport === "Login Attempts Logs"
+                  ? "User Email"
+                  : "Driver Email"
+              }
+              type="email"
+              value={driverEmail}
+              onChange={(e) => setDriverEmail(e.target.value)}
+            />
           )}
           {selectedReport === "Purchases" && (
             <FormControlLabel
-              control={<Switch checked={summaryOrDetailed === 'detailed'} onChange={() => setSummaryOrDetailed(summaryOrDetailed === 'summary' ? 'detailed' : 'summary')} />}
-              label={summaryOrDetailed === 'summary' ? 'Summary View' : 'Detailed View'}
+              control={
+                <Switch
+                  checked={summaryOrDetailed === "detailed"}
+                  onChange={() =>
+                    setSummaryOrDetailed(
+                      summaryOrDetailed === "summary" ? "detailed" : "summary"
+                    )
+                  }
+                />
+              }
+              label={
+                summaryOrDetailed === "summary"
+                  ? "Summary View"
+                  : "Detailed View"
+              }
             />
           )}
         </div>
@@ -639,244 +695,283 @@ const Reports: React.FC = () => {
       type ReportDataItem = {
         ApplicationOrganization: string;
         ApplicationStatus: "Accepted" | "Rejected" | "Pending";
-      }; 
+      };
 
       type ProcessedDataItem = {
         ApplicationOrganization: string;
         Accepted?: number;
         Rejected?: number;
         Pending?: number;
-      };      
-      
-      const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
-        const org = acc.find(
-            (item: ProcessedDataItem) => item.ApplicationOrganization === curr.ApplicationOrganization
-        );
-        if (org) {
-          org[curr.ApplicationStatus] = (org[curr.ApplicationStatus] || 0) + 1;
-        } else {
-          acc.push({
-            ApplicationOrganization: curr.ApplicationOrganization,
-            [curr.ApplicationStatus]: 1,
-          });
-        }        
-        return acc;
-      }, []);
+      };
+
+      const updatedData = reportData.reduce<ProcessedDataItem[]>(
+        (acc, curr: ReportDataItem) => {
+          const org = acc.find(
+            (item: ProcessedDataItem) =>
+              item.ApplicationOrganization === curr.ApplicationOrganization
+          );
+          if (org) {
+            org[curr.ApplicationStatus] =
+              (org[curr.ApplicationStatus] || 0) + 1;
+          } else {
+            acc.push({
+              ApplicationOrganization: curr.ApplicationOrganization,
+              [curr.ApplicationStatus]: 1,
+            });
+          }
+          return acc;
+        },
+        []
+      );
 
       return (
         <BarChart data={updatedData}>
-           <XAxis dataKey="ApplicationOrganization" />
-           <YAxis />
-           <Tooltip />
-           <Legend />
-           <Bar dataKey="Approved" fill="#4caf50" />
-           <Bar dataKey="Rejected" fill="#f44336" />
-           <Bar dataKey="Submitted" fill="#9e9e9e" />
+          <XAxis dataKey="ApplicationOrganization" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="Approved" fill="#4caf50" />
+          <Bar dataKey="Rejected" fill="#f44336" />
+          <Bar dataKey="Submitted" fill="#9e9e9e" />
         </BarChart>
       );
     } else if (selectedReport === "Driver Point Changes") {
-        type ReportDataItem = {
-            PointChangeDriver: string;
-            PointChangeNumber: number;
-        };
-        
-        const minValue = Math.min(...reportData.map((item: ReportDataItem) => item.PointChangeNumber));
-        const maxValue = Math.max(...reportData.map((item: ReportDataItem) => item.PointChangeNumber));
+      type ReportDataItem = {
+        PointChangeDriver: string;
+        PointChangeNumber: number;
+      };
 
-        return (
+      const minValue = Math.min(
+        ...reportData.map((item: ReportDataItem) => item.PointChangeNumber)
+      );
+      const maxValue = Math.max(
+        ...reportData.map((item: ReportDataItem) => item.PointChangeNumber)
+      );
+
+      return (
         <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
-            <YAxis domain={[minValue, maxValue]} />
-            <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
+          <XAxis dataKey="PointChangeDriver" />
+          <YAxis domain={[minValue, maxValue]} />
+          <Tooltip />
+          <Bar dataKey="PointChangeNumber" />
         </BarChart>
-        );
+      );
     } else if (selectedReport === "Purchases") {
-        type ReportDataItem = {
-            OrganizationName: string;
-            PurchaseStatus: "Ordered" | "Canceled" | "Delivered";
-          }; 
-    
-          type ProcessedDataItem = {
-            OrganizationName: string;
-            Ordered?: number;
-            Canceled?: number;
-            Delivered?: number;
-          };      
-          
-          const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
-            const org = acc.find(
-                (item: ProcessedDataItem) => item.OrganizationName === curr.OrganizationName
-            );
-            if (org) {
-              org[curr.PurchaseStatus] = (org[curr.PurchaseStatus] || 0) + 1;
-            } else {
-              acc.push({
-                OrganizationName: curr.OrganizationName,
-                [curr.PurchaseStatus]: 1,
-              });
-            }        
-            return acc;
-          }, []);
-    
-          return (
-            <BarChart data={updatedData}>
-               <XAxis dataKey="PurchaseOrganization" />
-               <YAxis />
-               <Tooltip />
-               <Legend />
-               <Bar dataKey="Ordered" fill="#9e9e9e" />
-               <Bar dataKey="Canceled" fill="#f44336" />
-               <Bar dataKey="Delivered" fill="#4caf50" />
-            </BarChart>
-          );
-    } else if (selectedReport === "Invoices") {
-        type ReportDataItem = {
-            PurchaseID: string;
-            PurchasePrice: number;
-        };
-        
-        const maxPurchasePrice = Math.max(...reportData.map((item: ReportDataItem) => item.PurchasePrice));
+      type ReportDataItem = {
+        OrganizationName: string;
+        PurchaseStatus: "Ordered" | "Canceled" | "Delivered";
+      };
 
-        return (
-        <BarChart data={reportData}>
-            <XAxis dataKey="PurchaseID" />
-            <YAxis domain={[0, maxPurchasePrice]} />
-            <Tooltip />
-            <Bar dataKey="PurchasePrice" />
+      type ProcessedDataItem = {
+        OrganizationName: string;
+        Ordered?: number;
+        Canceled?: number;
+        Delivered?: number;
+      };
+
+      const updatedData = reportData.reduce<ProcessedDataItem[]>(
+        (acc, curr: ReportDataItem) => {
+          const org = acc.find(
+            (item: ProcessedDataItem) =>
+              item.OrganizationName === curr.OrganizationName
+          );
+          if (org) {
+            org[curr.PurchaseStatus] = (org[curr.PurchaseStatus] || 0) + 1;
+          } else {
+            acc.push({
+              OrganizationName: curr.OrganizationName,
+              [curr.PurchaseStatus]: 1,
+            });
+          }
+          return acc;
+        },
+        []
+      );
+
+      return (
+        <BarChart data={updatedData}>
+          <XAxis dataKey="PurchaseOrganization" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="Ordered" fill="#9e9e9e" />
+          <Bar dataKey="Canceled" fill="#f44336" />
+          <Bar dataKey="Delivered" fill="#4caf50" />
         </BarChart>
-        );
+      );
+    } else if (selectedReport === "Invoices") {
+      type ReportDataItem = {
+        PurchaseID: string;
+        PurchasePrice: number;
+      };
+
+      const maxPurchasePrice = Math.max(
+        ...reportData.map((item: ReportDataItem) => item.PurchasePrice)
+      );
+
+      return (
+        <BarChart data={reportData}>
+          <XAxis dataKey="PurchaseID" />
+          <YAxis domain={[0, maxPurchasePrice]} />
+          <Tooltip />
+          <Bar dataKey="PurchasePrice" />
+        </BarChart>
+      );
     } else if (selectedReport === "Password Change Logs") {
-        type ReportDataItem = {
-            user: string;
-            changeType: "forgot password" | "manual change" | "admin reset";
-          }; 
-    
-        type ProcessedDataItem = {
-            user: string;
-            forgotPassword?: number;
-            manualChange?: number;
-            adminReset?: number;
-            [key: string]: number | string | undefined;
-        };
-        
-        const changeTypeMapping: Record<string, keyof ProcessedDataItem> = {
-            "forgot password": "forgotPassword",
-            "manual change": "manualChange",
-            "admin reset": "adminReset",
-        };
-          
-        const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
-        const org = acc.find(
+      type ReportDataItem = {
+        user: string;
+        changeType: "forgot password" | "manual change" | "admin reset";
+      };
+
+      type ProcessedDataItem = {
+        user: string;
+        forgotPassword?: number;
+        manualChange?: number;
+        adminReset?: number;
+        [key: string]: number | string | undefined;
+      };
+
+      const changeTypeMapping: Record<string, keyof ProcessedDataItem> = {
+        "forgot password": "forgotPassword",
+        "manual change": "manualChange",
+        "admin reset": "adminReset",
+      };
+
+      const updatedData = reportData.reduce<ProcessedDataItem[]>(
+        (acc, curr: ReportDataItem) => {
+          const org = acc.find(
             (item: ProcessedDataItem) => item.user === curr.user
-        );
-        if (org) {
+          );
+          if (org) {
             const mappedKey = changeTypeMapping[curr.changeType];
-            org[mappedKey] = (org[mappedKey] as number || 0) + 1;
-        } else {
+            org[mappedKey] = ((org[mappedKey] as number) || 0) + 1;
+          } else {
             const mappedKey = changeTypeMapping[curr.changeType];
             acc.push({
-            user: curr.user,
-            [mappedKey]: 1,
+              user: curr.user,
+              [mappedKey]: 1,
             });
-        }        
-        return acc;
-        }, []);
-        
-        return (
-          <BarChart data={updatedData}>
-            <XAxis dataKey="user" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="forgotPassword" fill="#2196f3" />
-            <Bar dataKey="manualChange" fill="#ffa500" />
-            <Bar dataKey="adminReset" fill="#9c27b0" />
-          </BarChart>
-        );
+          }
+          return acc;
+        },
+        []
+      );
+
+      return (
+        <BarChart data={updatedData}>
+          <XAxis dataKey="user" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="forgotPassword" fill="#2196f3" />
+          <Bar dataKey="manualChange" fill="#ffa500" />
+          <Bar dataKey="adminReset" fill="#9c27b0" />
+        </BarChart>
+      );
     } else if (selectedReport === "Login Attempts Logs") {
-        type ReportDataItem = {
-            user: string;
-            success: 0 | 1;
-          }; 
-    
-        type ProcessedDataItem = {
-            user: string;
-            Success?: number;
-            Failed?: number;
-        };
-          
-        const updatedData = reportData.reduce<ProcessedDataItem[]>((acc, curr: ReportDataItem) => {
-        const org = acc.find(
+      type ReportDataItem = {
+        user: string;
+        success: 0 | 1;
+      };
+
+      type ProcessedDataItem = {
+        user: string;
+        Success?: number;
+        Failed?: number;
+      };
+
+      const updatedData = reportData.reduce<ProcessedDataItem[]>(
+        (acc, curr: ReportDataItem) => {
+          const org = acc.find(
             (item: ProcessedDataItem) => item.user === curr.user
-        );
-        if (org) {
+          );
+          if (org) {
             if (curr.success === 1) {
               org.Success = (org.Success || 0) + 1;
             } else {
               org.Failed = (org.Failed || 0) + 1;
-            }        
-        } else {
+            }
+          } else {
             acc.push({
-            user: curr.user,
-            ...(curr.success === 1
-                ? { Success: 1 }
-                : { Failed: 1 }),
+              user: curr.user,
+              ...(curr.success === 1 ? { Success: 1 } : { Failed: 1 }),
             });
-        }        
-        return acc;
-        }, []);
-        
-        return (
-          <BarChart data={updatedData}>
-            <XAxis dataKey="user" />
-            <YAxis />
-            <Tooltip />
-            <Legend wrapperStyle={{ marginTop: 20 }} />
-            <Bar dataKey="Success" fill="#4caf50" />
-            <Bar dataKey="Failed" fill="#f44336" />
-          </BarChart>
-        );
-    } else {
-        return (
-        <BarChart data={reportData}>
-            <XAxis dataKey="PointChangeDriver" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="PointChangeNumber" />
+          }
+          return acc;
+        },
+        []
+      );
+
+      return (
+        <BarChart data={updatedData}>
+          <XAxis dataKey="user" />
+          <YAxis />
+          <Tooltip />
+          <Legend wrapperStyle={{ marginTop: 20 }} />
+          <Bar dataKey="Success" fill="#4caf50" />
+          <Bar dataKey="Failed" fill="#f44336" />
         </BarChart>
-        );
+      );
+    } else {
+      return (
+        <BarChart data={reportData}>
+          <XAxis dataKey="PointChangeDriver" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="PointChangeNumber" />
+        </BarChart>
+      );
     }
   };
+  console.log(isSponsor);
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Reports</h1>
       <div className="flex flex-wrap items-center gap-4 mb-4">
-        <FormControl>
-          <InputLabel>Report</InputLabel>
-          <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
-            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
-            <MenuItem value="Driver Applications">Driver Applications</MenuItem>
-            <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
-            <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
-            {!isSponsor && (
-                <MenuItem value="Purchases">Purchases</MenuItem>
-            )}
-            {!isSponsor && (
-                <MenuItem value="Invoices">Invoices</MenuItem>
-            )}
-          </Select>
-        </FormControl>
-        <Button variant="contained" onClick={generateReport}>
-          Generate
-        </Button>
+        {sponsorDoneLoading ? (
+          <div>
+            <FormControl>
+              <InputLabel>Report</InputLabel>
+              <Select
+                value={selectedReport}
+                onChange={(e) => setSelectedReport(e.target.value)}
+              >
+                <MenuItem value="Driver Point Changes">
+                  Driver Point Changes
+                </MenuItem>
+                <MenuItem value="Driver Applications">
+                  Driver Applications
+                </MenuItem>
+                <MenuItem value="Password Change Logs">
+                  Password Change Logs
+                </MenuItem>
+                <MenuItem value="Login Attempts Logs">
+                  Login Attempts Logs
+                </MenuItem>
+                {!isSponsor && <MenuItem value="Purchases">Purchases</MenuItem>}
+                {!isSponsor && <MenuItem value="Invoices">Invoices</MenuItem>}
+              </Select>
+            </FormControl>
+            <Button variant="contained" onClick={generateReport}>
+              Generate
+            </Button>
+          </div>
+        ) : (
+          <p>Loading Report Info...</p>
+        )}
       </div>
       {renderFilters()}
       <div className="flex items-center gap-4 mb-4">
-        <Button variant={viewMode === "table" ? "contained" : "outlined"} onClick={() => setViewMode("table")}>
+        <Button
+          variant={viewMode === "table" ? "contained" : "outlined"}
+          onClick={() => setViewMode("table")}
+        >
           Table
         </Button>
-        <Button variant={viewMode === "chart" ? "contained" : "outlined"} onClick={() => setViewMode("chart")}>
+        <Button
+          variant={viewMode === "chart" ? "contained" : "outlined"}
+          onClick={() => setViewMode("chart")}
+        >
           Chart
         </Button>
       </div>
@@ -890,7 +985,9 @@ const Reports: React.FC = () => {
               </Table>
             </TableContainer>
           ) : (
-            <ResponsiveContainer width="100%" height={400}>{renderChart()}</ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={400}>
+              {renderChart()}
+            </ResponsiveContainer>
           )}
         </div>
       </Card>
