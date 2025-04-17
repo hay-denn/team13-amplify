@@ -849,26 +849,15 @@ const Reports: React.FC = () => {
     }
   };
   const renderMenu = () => {
-    if(isSponsor){
+    if(!isSponsor){
         return (
           <>
-            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
-            <MenuItem value="Driver Applications">Driver Applications</MenuItem>
-            <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
-            <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
+            <MenuItem value="Purchases">Purchases</MenuItem>
+            <MenuItem value="Invoices">Invoices</MenuItem>
           </>
         );
     } else {
-        return (
-          <>
-            <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
-            <MenuItem value="Driver Applications">Driver Applications</MenuItem>
-            <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
-            <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
-            <MenuItem value="Purchases">Purchases</MenuItem>
-            <MenuItem value="Invoices">Invoices</MenuItem>
-            </>
-        );
+        return null;
     }
   };
   return (
@@ -878,13 +867,11 @@ const Reports: React.FC = () => {
         <FormControl>
           <InputLabel>Report</InputLabel>
           <Select value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
-            {renderMenu()}
             <MenuItem value="Driver Point Changes">Driver Point Changes</MenuItem>
             <MenuItem value="Driver Applications">Driver Applications</MenuItem>
             <MenuItem value="Password Change Logs">Password Change Logs</MenuItem>
             <MenuItem value="Login Attempts Logs">Login Attempts Logs</MenuItem>
-            <MenuItem value="Purchases">Purchases</MenuItem>
-            <MenuItem value="Invoices">Invoices</MenuItem>
+            {renderMenu()}
           </Select>
         </FormControl>
         <Button variant="contained" onClick={generateReport}>
