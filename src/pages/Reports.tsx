@@ -851,10 +851,10 @@ const Reports: React.FC = () => {
   const renderMenu = () => {
     if(!isSponsor){
         return (
-          [
+          <>
             <MenuItem value="Purchases">Purchases</MenuItem>
             <MenuItem value="Invoices">Invoices</MenuItem>
-          ]
+          </>
         );
     } else {
         return null;
