@@ -231,11 +231,15 @@ async function getSponsorDrivers(
 
 const Reports: React.FC = () => {
   const auth = useAuth();
-  const [isSponsor, setIsSponsor] = useState<boolean>(false);
+  const [isSponsor, setIsSponsor] = useState<boolean>(true);
   const [sponsorDoneLoading, setSponsorDoneLoading] = useState<boolean>(false);
   useEffect(() => {
-    const maybeGroups = auth.user?.profile?.["cognito:groups"];
-    const groups = Array.isArray(maybeGroups) ? maybeGroups : [];
+    if (!auth.user) return;
+
+    const groups = Array.isArray(auth.user.profile["cognito:groups"])
+      ? auth.user.profile["cognito:groups"]
+      : [];
+
     setIsSponsor(groups.includes("Sponsor"));
     setSponsorDoneLoading(true);
   }, [auth.user]);
@@ -957,7 +961,7 @@ const Reports: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <p>Loading Report Info...</p>
+          <p>Loading Report Options...</p>
         )}
       </div>
       {renderFilters()}
