@@ -68,3 +68,10 @@
     background-color: #0056b3;
   }
   
+  div.faststats-container > .stats-section:last-child .stats-approved {
+    color: #28a745;
+  }
+
+  div.faststats-container > .stats-section:last-child .stats-rejected {
+    color: #dc3545;
+  }
