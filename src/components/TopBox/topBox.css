@@ -35,4 +35,12 @@
   .purchase-item div {
     margin-bottom: 5px;
   }
-  
+  .purchase-item[data-status="delivered"] {
+    border-left: 4px solid #28a745;
+  }
+  .purchase-item[data-status="ordered"] {
+    border-left: 4px solid #ffc107;
+  }
+  .purchase-item[data-status="canceled"] {
+    border-left: 4px solid #dc3545;
+  }

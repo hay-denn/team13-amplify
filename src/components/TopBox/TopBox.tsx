@@ -68,7 +68,11 @@ export const TopBox = () => {
         {purchases.length ? (
           <ul>
             {purchases.map((purchase) => (
-              <li key={purchase.PurchaseID} className="purchase-item">
+              <li
+                key={purchase.PurchaseID}
+                className="purchase-item"
+                data-status={purchase.PurchaseStatus.toLowerCase()}
+              >
                 <div>
                   <strong>🛒 Purchase ID:</strong> {purchase.PurchaseID}
                 </div>

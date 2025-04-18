@@ -59,8 +59,6 @@ export const DriverDashBoard = () => {
     ? impersonation.email
     : authContext?.user?.profile?.email || "";
 
-  // const userEmail = "mattpollehn@gmail.com";
-
   const userFName = impersonation
     ? impersonation.firstName
     : authContext?.user?.profile?.given_name || "";
