@@ -209,104 +209,209 @@ export const DriverDashBoard = () => {
 
   return (
     <>
-      <h1 className="welcome-message">Welcome Back, {userFName}!</h1>
-      {organizationsDoneLoading ? (
-        filteredOrganizations.length > 0 ? (
-          // If the driver is part of at least one sponsor org
-          <div className="container">
-            <div className="row">
-              <div className="col-md-4 d-flex">
-                <div
-                  className="box topBoxContainer flex-fill d-flex flex-column"
-                  style={{ height: "500px", overflow: "hidden" }}
-                >
-                  <div style={{ flex: 1, overflowY: "auto" }}>
-                    <TopBox />
+      <div className="container manage-users-container py-5 m-1">
+        <h1 className="welcome-message">Welcome Back, {userFName}!</h1>
+        {organizationsDoneLoading ? (
+          filteredOrganizations.length > 0 ? (
+            // If the driver is part of at least one sponsor org
+            <div className="container">
+              <div className="row">
+                <div className="col-md-4 d-flex">
+                  <div
+                    className="box topBoxContainer flex-fill d-flex flex-column"
+                    style={{ height: "500px", overflow: "hidden" }}
+                  >
+                    <div style={{ flex: 1, overflowY: "auto" }}>
+                      <TopBox />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-8 d-flex">
+                  <div
+                    className="box box2 flex-fill d-flex flex-column"
+                    style={{ height: "500px" }}
+                  >
+                    <h2>
+                      Current Point Balance:{" "}
+                      {selectedOrganization?.DriversPoints || "N/A"}
+                    </h2>
+                    <br />
+                    <div className="d-flex align-items-center">
+                      <label htmlFor="organizationDropdown" className="mr-2">
+                        Select Organization:
+                      </label>
+                      <select
+                        id="organizationDropdown"
+                        className="form-control"
+                        value={selectedOrganizationID || ""}
+                        onChange={handleOrganizationChange}
+                      >
+                        <option value="" disabled>
+                          Select an Organization
+                        </option>
+                        {filteredOrganizations.map((org) => {
+                          const orgInfo = organizations.find(
+                            (o) => o.OrganizationID === org.DriversSponsorID
+                          );
+                          return (
+                            <option
+                              key={org.DriversSponsorID}
+                              value={org.DriversSponsorID}
+                            >
+                              {orgInfo
+                                ? orgInfo.OrganizationName
+                                : "Unknown Organization"}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                    {/* Recent Point Changes Table */}
+                    <div
+                      className="mt-4"
+                      style={{ flex: 1, overflowY: "auto" }}
+                    >
+                      <h4>Recent Point Changes</h4>
+                      <table className="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>Point Change Date</th>
+                            <th>Point Change Sponsor</th>
+                            <th>Point Change Amount</th>
+                            <th>Point Change Reason</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pointChanges
+                            .filter(
+                              (change) => change.PointChangeDriver === userEmail
+                            )
+                            .sort(
+                              (a, b) =>
+                                new Date(b.PointChangeDate).getTime() -
+                                new Date(a.PointChangeDate).getTime()
+                            )
+                            .slice(0, 5)
+                            .map((change) => (
+                              <tr key={change.PointChangeID}>
+                                <td>
+                                  {new Date(
+                                    change.PointChangeDate
+                                  ).toLocaleDateString()}
+                                </td>
+                                <td>{change.PointChangeSponsor}</td>
+                                <td>{change.PointChangeNumber}</td>
+                                <td>{change.PointChangeReason}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-4">
+                      <Link
+                        to="/myapplications"
+                        className="btn btn-primary mr-2"
+                      >
+                        My Applications
+                      </Link>
+                      <Link to="/mysponsors" className="btn btn-primary">
+                        My Sponsors
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-md-8 d-flex">
+              <div className="row mt-3">
                 <div
-                  className="box box2 flex-fill d-flex flex-column"
-                  style={{ height: "500px" }}
+                  className="col-md-4"
+                  style={{ height: "500px", overflow: "hidden" }}
                 >
-                  <h2>
-                    Current Point Balance:{" "}
-                    {selectedOrganization?.DriversPoints || "N/A"}
-                  </h2>
-                  <br />
-                  <div className="d-flex align-items-center">
-                    <label htmlFor="organizationDropdown" className="mr-2">
-                      Select Organization:
-                    </label>
-                    <select
-                      id="organizationDropdown"
-                      className="form-control"
-                      value={selectedOrganizationID || ""}
-                      onChange={handleOrganizationChange}
-                    >
-                      <option value="" disabled>
-                        Select an Organization
-                      </option>
-                      {filteredOrganizations.map((org) => {
-                        const orgInfo = organizations.find(
-                          (o) => o.OrganizationID === org.DriversSponsorID
-                        );
-                        return (
-                          <option
-                            key={org.DriversSponsorID}
-                            value={org.DriversSponsorID}
-                          >
-                            {orgInfo
-                              ? orgInfo.OrganizationName
-                              : "Unknown Organization"}
-                          </option>
-                        );
-                      })}
-                    </select>
+                  <div className="box box3">
+                    <CatalogPreview
+                      searchTerm={selectedOrgData?.SearchTerm || ""}
+                    />
                   </div>
-                  {/* Recent Point Changes Table */}
-                  <div className="mt-4" style={{ flex: 1, overflowY: "auto" }}>
-                    <h4>Recent Point Changes</h4>
-                    <table className="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>Point Change Date</th>
-                          <th>Point Change Sponsor</th>
-                          <th>Point Change Amount</th>
-                          <th>Point Change Reason</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pointChanges
-                          .filter(
-                            (change) => change.PointChangeDriver === userEmail
-                          )
-                          .sort(
-                            (a, b) =>
-                              new Date(b.PointChangeDate).getTime() -
-                              new Date(a.PointChangeDate).getTime()
-                          )
-                          .slice(0, 5)
-                          .map((change) => (
-                            <tr key={change.PointChangeID}>
-                              <td>
-                                {new Date(
-                                  change.PointChangeDate
-                                ).toLocaleDateString()}
-                              </td>
-                              <td>{change.PointChangeSponsor}</td>
-                              <td>{change.PointChangeNumber}</td>
-                              <td>{change.PointChangeReason}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
+                </div>
 
-                  <div className="mt-4">
-                    <Link to="/myapplications" className="btn btn-primary mr-2">
+                <div className="col-md-8">
+                  <div className="box box5" style={{ overflow: "visible" }}>
+                    <h4>Point Progress Chart</h4>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "450px",
+                        overflow: "visible",
+                      }}
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={adjustedDriverPointChanges} // Use the clamped data here
+                          margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
+                        >
+                          <XAxis
+                            dataKey="PointChangeDate"
+                            tick={<CustomXAxisTick />}
+                            interval="preserveStartEnd"
+                            minTickGap={20}
+                            tickMargin={15}
+                          />
+                          <YAxis
+                            domain={[-20, "auto"]}
+                            tick={{ fill: "#000000" }}
+                          />
+                          <Tooltip
+                            labelFormatter={(label) => {
+                              const d = new Date(label);
+                              const month = String(d.getMonth() + 1).padStart(
+                                2,
+                                "0"
+                              );
+                              const day = String(d.getDate()).padStart(2, "0");
+                              const year = d.getFullYear();
+                              return `${month}/${day}/${year}`;
+                            }}
+                            contentStyle={{ color: "#000000" }}
+                            labelStyle={{ color: "#000000" }}
+                          />
+                          <Bar dataKey="PointChangeNumber" fill="#000000" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div>
+                      <AvgPointAvgPurchase
+                        SponsorEmail={userEmail}
+                      ></AvgPointAvgPurchase>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // If the driver has no sponsor relationships yet
+            <div className="container-fluid">
+              <div className="row align-items-center">
+                <div className="col-md-5 left-col">
+                  <h2>Next Steps:</h2>
+                  <p>
+                    Now that you have completed registration as a driver, it is
+                    time for you to start applying to a sponsor of your choice.
+                  </p>
+                  <button
+                    className="btn btn-primary mb-3"
+                    onClick={() => setShowModal(true)}
+                  >
+                    Apply Now!
+                  </button>
+
+                  <div style={{ marginTop: "1rem" }}>
+                    <Link
+                      to="/myapplications"
+                      className="btn btn-primary"
+                      style={{ marginRight: "1rem" }}
+                    >
                       My Applications
                     </Link>
                     <Link to="/mysponsors" className="btn btn-primary">
@@ -314,121 +419,24 @@ export const DriverDashBoard = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="row mt-3">
-              <div
-                className="col-md-4"
-                style={{ height: "500px", overflow: "hidden" }}
-              >
-                <div className="box box3">
-                  <CatalogPreview
-                    searchTerm={selectedOrgData?.SearchTerm || ""}
-                  />
-                </div>
-              </div>
-
-              <div className="col-md-8">
-                <div className="box box5" style={{ overflow: "visible" }}>
-                  <h4>Point Progress Chart</h4>
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "450px",
-                      overflow: "visible",
-                    }}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={adjustedDriverPointChanges} // Use the clamped data here
-                        margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
-                      >
-                        <XAxis
-                          dataKey="PointChangeDate"
-                          tick={<CustomXAxisTick />}
-                          interval="preserveStartEnd"
-                          minTickGap={20}
-                          tickMargin={15}
-                        />
-                        <YAxis
-                          domain={[-20, "auto"]}
-                          tick={{ fill: "#000000" }}
-                        />
-                        <Tooltip
-                          labelFormatter={(label) => {
-                            const d = new Date(label);
-                            const month = String(d.getMonth() + 1).padStart(
-                              2,
-                              "0"
-                            );
-                            const day = String(d.getDate()).padStart(2, "0");
-                            const year = d.getFullYear();
-                            return `${month}/${day}/${year}`;
-                          }}
-                          contentStyle={{ color: "#000000" }}
-                          labelStyle={{ color: "#000000" }}
-                        />
-                        <Bar dataKey="PointChangeNumber" fill="#000000" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div>
-                    <AvgPointAvgPurchase
-                      SponsorEmail={userEmail}
-                    ></AvgPointAvgPurchase>
-                  </div>
+                <div className="col-md-7 right-col">
+                  <CarouselTemplate />
                 </div>
               </div>
             </div>
-          </div>
+          )
         ) : (
-          // If the driver has no sponsor relationships yet
-          <div className="container-fluid">
-            <div className="row align-items-center">
-              <div className="col-md-5 left-col">
-                <h2>Next Steps:</h2>
-                <p>
-                  Now that you have completed registration as a driver, it is
-                  time for you to start applying to a sponsor of your choice.
-                </p>
-                <button
-                  className="btn btn-primary mb-3"
-                  onClick={() => setShowModal(true)}
-                >
-                  Apply Now!
-                </button>
+          <div>Loading Organizations...</div>
+        )}
 
-                <div style={{ marginTop: "1rem" }}>
-                  <Link
-                    to="/myapplications"
-                    className="btn btn-primary"
-                    style={{ marginRight: "1rem" }}
-                  >
-                    My Applications
-                  </Link>
-                  <Link to="/mysponsors" className="btn btn-primary">
-                    My Sponsors
-                  </Link>
-                </div>
-              </div>
-
-              <div className="col-md-7 right-col">
-                <CarouselTemplate />
-              </div>
-            </div>
-          </div>
-        )
-      ) : (
-        <div>Loading Organizations...</div>
-      )}
-
-      <SponsorApplyModal
-        show={showModal}
-        handleClose={() => setShowModal(false)}
-        driverEmail={userEmail}
-        fetchApplications={() => {}}
-      />
+        <SponsorApplyModal
+          show={showModal}
+          handleClose={() => setShowModal(false)}
+          driverEmail={userEmail}
+          fetchApplications={() => {}}
+        />
+      </div>
     </>
   );
 };

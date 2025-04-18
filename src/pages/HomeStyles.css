@@ -1,24 +1,22 @@
 .home {
-    display: grid;
-    gap: 20px;
-    padding: 30px;
-    margin-top: 20px;
-    grid-template-columns: repeat(4,1fr);
-    grid-auto-rows: minmax(180px, auto);
-    
+  display: grid;
+  gap: 20px;
+  padding: 0;           
+  margin-top: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(180px, auto);
+}
 
-    .welcome-message {
-      text-align: center;
-      margin: 2rem 0;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      color: #2c3e50;
-      font-size: 2rem;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      position: relative;
-      top: 50px;
-    }
-
+.welcome-message {
+  position: static;
+  margin: 80px 0 10px;    
+  text-align: center;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
 .welcome-message::after {
   content: "";
   display: block;
@@ -29,116 +27,99 @@
   border-radius: 2px;
 }
 
-    .box {
-        padding: 20px;
-        border-radius: 15px; 
-        border: 2px solid #ddd;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: rgba(255, 255, 255, 0.597);
-    }
 
-
-    .box1{
-        grid-column: span 1;
-        grid-row: span 3;
-    }
-    .box2{
-        grid-column: span 1;
-        grid-row: span 1;
-    }
-    .topBoxContainer {
-      grid-column: span 1;
-      grid-row: span 1;
-    }
-    .box3{
-        grid-column: span 1;
-        grid-row: span 1;
-    }
-    .box4{
-        grid-column: span 1;
-        grid-row: span 3;
-    }
-    .box5{
-        grid-column: span 2;
-        grid-row: span 2;
-    }
-
-    .box6{
-        grid-column: span 1;
-        grid-row: span 2;
-    }
+.box {
+  padding: 20px;
+  border-radius: 15px;
+  border: 2px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.6);
+  overflow: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
+
+.box1            { grid-column: span 1; grid-row: span 3; }
+.box2            { grid-column: span 1; grid-row: span 1; }
+.topBoxContainer { grid-column: span 1; grid-row: span 1; }
+.box3            { grid-column: span 1; grid-row: span 1; }
+.box4            { grid-column: span 1; grid-row: span 3; }
+.box5            { grid-column: span 2; grid-row: span 2; }
+.box6            { grid-column: span 1; grid-row: span 2; }
+
+
 .welcome {
-    font-family: "Poppins", sans-serif;
-    font-size: 24px;
-    color: #0c0f4c; /* Soft green for a friendly feel */
-    font-weight: bold;
-    text-transform: capitalize;
-    margin-bottom: 10px;
-    padding-top: 120px;
-    padding-left: 30px;
-  }
+  font-family: "Poppins", sans-serif;
+  font-size: 24px;
+  color: #0c0f4c;
+  font-weight: bold;
+  text-transform: capitalize;
+  margin-bottom: 10px;
+  padding: 120px 0 0 30px;
+}
 
-  .applications-container {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 10px;
-  }
-  
-  .application-card {
-    position: relative; /* ✅ Allows positioning of elements inside */
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
-    display: flex; /* ✅ Makes sure everything aligns properly */
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .application-date {
-    position: absolute; /* ✅ Moves to top left */
-    top: 10px;
-    left: 15px;
-    font-size: 0.9em;
-    color: gray;
-    text-align: left;
-    line-height: 1.2;
-  }
-  
-  .application-status {
-    position: absolute; /* ✅ Moves to top right */
-    top: 10px;
-    right: 15px;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 5px;
-    color: white;
-    background-color: gray;
-  }
 
-  .cancel-button {
-    display: block;
-    margin-top: 10px;
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-  }
-  
-  .cancel-button:hover {
-    background-color: darkred;
-  }
-  
-  .application-status.pending { background-color: orange; }
-  .application-status.approved { background-color: green; }
-  .application-status.rejected { background-color: red; }
+.applications-container {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.application-card {
+  position: relative;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.application-date {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  font-size: 0.9rem;
+  color: gray;
+}
+
+.application-status {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #fff;
+  background-color: gray;
+}
+
+
+.application-status.pending  { background-color: orange; }
+.application-status.approved { background-color: green; }
+.application-status.rejected { background-color: red; }
+
+
+.cancel-button {
+  display: block;
+  margin-top: 10px;
+  width: 100%;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cancel-button:hover {
+  background-color: darkred;
+}

@@ -84,7 +84,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
     fetchOrganization();
   }, [currOrgId]);
 
-  // Once organization data is loaded, update related state.
   useEffect(() => {
     if (!organizationData) return;
     setMaxProducts(organizationData.AmountOfProducts || 10);
@@ -358,7 +357,6 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
           </button>
           <button onClick={handleNextPage}>Next</button>
           <p>Page: {page + 1}</p>
-          <button onClick={handleFetchAll}>Fetch All Items</button>
         </div>
       )}
       {/* Pagination */}
