@@ -1,62 +1,43 @@
+.chart-section {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
 
-.comparison-container {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 900px;
-    margin: 20px auto;
-    font-family: "Arial", sans-serif;
-  }
-  
+.chart-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
 
-  .comparison-container h3 {
-    text-align: center;
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
+.chart-section h4 {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: #1f2d3d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid #e1e4e8;
+  padding-bottom: 0.5rem;
+}
 
-  .charts-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: space-around;
-  }
-  
+.charts-container {
+  align-items: stretch;    
+  max-width: 1000px;
+  margin: 0 auto;
+}
 
-  .chart-section {
-    flex: 1;
-    min-width: 100px;
-  }
-  
+.recharts-legend-item text,
+.recharts-axis-tick text {
+  font-family: "Arial", sans-serif;
+  font-size: 0.85rem;
+  fill: #555555;
+}
 
-  .chart-section h4 {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #444;
-    margin-bottom: 10px;
-  }
-  
-
-  .chart-wrapper {
-    width: 100%;
-    height: 300px;
-    transition: transform 0.3s ease;
-  }
-  
-  .chart-wrapper:hover {
-    transform: scale(1.03);
-  }
-  
-
-  @media (max-width: 768px) {
-    .comparison-container {
-      padding: 15px;
-    }
-    .chart-wrapper {
-      height: 250px;
-    }
-  }
-  
+.recharts-default-tooltip {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  font-size: 0.85rem !important;
+}

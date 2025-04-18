@@ -1,5 +1,6 @@
 import { AuthContext } from "react-oidc-context";
 import { useContext, useEffect, useState } from "react";
+import "./RecentSponsorPurchases.css";
 
 interface Purchase {
   PurchaseID: number;
@@ -67,7 +68,11 @@ export const RecentSponsorPurchases = ({
         {purchases.length ? (
           <ul>
             {purchases.map((purchase) => (
-              <li key={purchase.PurchaseID} className="purchase-item">
+              <li
+                key={purchase.PurchaseID}
+                className="purchase-item"
+                data-status={purchase.PurchaseStatus.toLowerCase()}
+              >
                 <div>
                   <strong>🛒 Purchase ID:</strong> {purchase.PurchaseID}
                 </div>
@@ -77,6 +82,9 @@ export const RecentSponsorPurchases = ({
                 <div>
                   <strong>Date:</strong>{" "}
                   {new Date(purchase.PurchaseDate).toLocaleString()}
+                </div>
+                <div>
+                  <strong>Status: </strong> {purchase.PurchaseStatus}
                 </div>
                 <div>
                   <strong>Price</strong> {purchase.PurchasePrice}

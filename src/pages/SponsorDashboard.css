@@ -3,7 +3,23 @@ body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #f8f8f8;
   }
-  
+
+.row.g-2 > [class^="col-"] {
+  display: flex;
+}
+
+.row.g-2 > [class^="col-"] > .box {
+  flex: 1 1 auto;
+}
+
+.box { min-height: 100%; }
+
+
+.box {
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid #e1e4e8;
+}
+
   
   .welcome-message {
     text-align: center;
@@ -14,7 +30,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.05em;
     position: relative;
-    top: 50px;
+    top: 30px;
   }
  
   .welcome-message::after {
@@ -102,3 +118,28 @@ body {
     margin: 0;
     line-height: 1.4;
   }  
+
+  .catalog-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #0d6efd 0%, #3d8bfd 100%);
+    color: #fff;
+    font-weight: 600;
+      padding: 0.75rem 1.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(13, 110, 253, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease,
+                background 0.25s ease;
+  }
+  
+  .catalog-btn:hover {
+    background: linear-gradient(135deg, #0b5ed7 0%, #3376e7 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.45);
+  }
+  
+  .catalog-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(13, 110, 253, 0.35);
+  }

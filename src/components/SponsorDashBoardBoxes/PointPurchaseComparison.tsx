@@ -118,7 +118,7 @@ export const PointPurchaseComparison = ({ SponsorID }: Props) => {
   return (
     <div className="charts-container">
       <div className="chart-section">
-        <h4>Your Org's Users vs. Average Org Users</h4>
+        <h4>How your Org's number of users compares</h4>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={userComparisonData}>
@@ -134,7 +134,7 @@ export const PointPurchaseComparison = ({ SponsorID }: Props) => {
       </div>
 
       <div className="chart-section">
-        <h4>Your Org's Purchases vs. Average Org Purchases</h4>
+        <h4>How your Org's number of purchases compares</h4>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={purchaseComparisonData}>

@@ -133,7 +133,12 @@ export const SponsorDashboard = () => {
               <strong>Point To Dollar Ratio:</strong>{" "}
               {organizationData?.PointDollarRatio}
             </div>
-            <button>View Catalog info</button>
+            <button
+              className="catalog-btn"
+              onClick={() => (window.location.href = "/catalogs")}
+            >
+              View Catalog Info
+            </button>
           </div>
         </div>
         <div className="col-md-5">
