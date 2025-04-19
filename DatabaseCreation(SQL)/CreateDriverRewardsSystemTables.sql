@@ -9,8 +9,6 @@ create table admins(
     AdminFName varchar(30) NOT NULL,
     AdminLName varchar(30) NOT NULL);
 
-describe DRS.sponsororganizations;
-
 -- Table stores all information about the sponsorship companies
 create table sponsororganizations(
 	OrganizationID int auto_increment Primary Key,
@@ -19,11 +17,13 @@ create table sponsororganizations(
     PointDollarRatio decimal(3,2) NOT NULL default 1.00,
     AmountOfProducts int NOT NULL default 10,
     ProductType varchar(20) NOT NULL default "All",
+    MaxPrice decimal (6,2) NOT NULL default 100.00,
     SearchTerm varchar(255),
     HideDescription tinyint(1) default 0,
     LogoUrl varchar(1024),
     WebsiteUrl varchar(1024),
-    HideWebsiteUrl tinyint(1) default 0);
+    HideWebsiteUrl tinyint(1) default 0,
+    DailyPointChange decimal(3,1) NOT NULL default 5.0);
 
 -- Table stores all information about sponsorship users
 create table sponsorusers(
@@ -37,7 +37,10 @@ create table sponsorusers(
 create table drivers(
 	DriverEmail varchar(50) Primary Key,
     DriverFName varchar(30) NOT NULL,
-    DriverLName varchar(30) NOT NULL);
+    DriverLName varchar(30) NOT NULL,
+    DriverPointChangeNotification tinyint(1) default 0,
+    DriverOrderPlacedNotification tinyint(1) default 0,
+    DriverOrderIssueNotification tinyint(1) default 0);
 
 -- Table that stores driver's sponsors
 create table driverssponsors(
@@ -59,7 +62,7 @@ create view allusers as
 	select DriverEmail, DriverFName, DriverLName, "Driver"
 	from drivers
     order by Email;
-
+describe DRS.pointchanges;
 -- Table to store all point changes from driving actions
 create table pointchanges(
 	PointChangeID int Primary Key auto_increment,
@@ -68,6 +71,7 @@ create table pointchanges(
     PointChangeNumber decimal(8,2) NOT NULL,
     PointChangeAction varchar(200) NOT NULL,
     PointChangeDate date NOT NULL,
+    PointChangeReason varchar(1000),
     foreign key (PointChangeDriver) references drivers(DriverEmail) on update cascade on delete cascade,
     foreign key (PointChangeSponsor) references sponsorusers(UserEmail) on update cascade on delete cascade);
 
@@ -93,10 +97,6 @@ begin
     set DriversPoints = DriversPoints + NEW.PointChangeNumber - OLD.PointChangeNumber
     where DriversEmail = NEW.PointChangeDriver and DriversSponsorID = (select UserOrganization from sponsorusers where UserEmail = NEW.PointChangeSponsor);
 end$$
-
-delimiter ;
-
-delimiter $
 
 -- Add points to every driver daily
 CREATE EVENT Add_Daily_Points
@@ -126,7 +126,7 @@ BEGIN
 	SELECT TempPointChangeDriver, TempPointChangeSponsor, TempPointChangeNumber, TempPointChangeAction, TempPointChangeDate, TempPointChnagesReason from DRS.temppointchanges;
 
 	drop table temppointchanges;
-END$
+END$$
 
 delimiter ;
 
@@ -137,10 +137,12 @@ create table driversponsorapplications(
     ApplicationSponsorUser varchar(50),
     ApplicationStatus varchar(15) NOT NULL default "Submitted",
     ApplicationSubmittedDate date NOT NULL,
+    ApplicationReason varchar(1000),
+    ApplicationDecisionReason varchar(1000),
     foreign key (ApplicationDriver) references drivers(DriverEmail) on update cascade on delete cascade,
     foreign key (ApplicationOrganization) references sponsororganizations(OrganizationID) on update cascade on delete cascade,
     foreign key (ApplicationSponsorUser) references sponsorusers(UserEmail) on update cascade on delete cascade);
-    
+
 -- Trigger for automatically adding driver sponsor relationship
 delimiter $
 
@@ -148,52 +150,41 @@ create trigger updatedriverssponsors after update
 on driversponsorapplications
 for each row
 begin
-	if NEW.ApplicationStatus = "Accepted" then
+	if NEW.ApplicationStatus = "Approved" then
 		insert into DRS.driverssponsors (DriversEmail, DriversSponsorID, DriversPoints)
         values (NEW.ApplicationDriver, NEW.ApplicationOrganization, 0);
 	end if;
 end$$
 
 delimiter ;
-    
-create table catalog(
-	CatalogID int auto_increment Primary Key,
-    CatalogOrganization int NOT NULL,
-    foreign key (CatalogOrganization) references sponsororganizations(OrganizationID) on update cascade on delete cascade);
-    
-create table product(
-	ProductID int auto_increment Primary Key,
-    ProductCatalog int NOT NULL,
-    ProductName varchar(50) NOT NULL,
-    ProductDescription varchar(100),
-    ProductPrice decimal(6,2) NOT NULL,
-    ProductInventory int NOT NULL default 0,
-    foreign key (ProductCatalog) references catalog(CatalogID) on update cascade on delete cascade);
-    
+
 create table purchases(
 	PurchaseID int auto_increment Primary Key,
     PurchaseDriver varchar(50) NOT NULL,
     PurchaseDate date NOT NULL,
     PurchaseStatus varchar(20) NOT NULL,
     PurchaseSponsorID int NOT NULL,
+    PurchasePrice decimal(10,2) NOT NULL default 0.00,
     foreign key (PurchaseDriver) references drivers(DriverEmail) on update cascade on delete cascade,
     foreign key (PurchaseSponsorID) references sponsororganizations(OrganizationID) on update cascade on delete cascade);
     
 create table productspurchased(
-	ProductPurchasedID int,
+	ProductPurchasedID varchar(10),
     PurchaseAssociatedID int,
     ProductPurchaseQuantity int,
     primary key(ProductPurchasedID, PuchaseAssociatedID),
-    foreign key (ProductPurchasedID) references product(ProductID) on update cascade on delete cascade,
     foreign key (PuchaseAssociatedID) references purchases(PurchaseID) on update cascade on delete cascade);
     
 -- Create store procedures to be used for reporting
 delimiter $
 
-create procedure AllDriversPointChanges(StartDate Date, EndDate Date)
+create procedure AllDriversPointChanges(IN StartDate Date, IN EndDate Date, IN DriverEmail VARCHAR(255))
 BEGIN
-	select PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction, PointChangeDate from DRS.pointchanges
-	where PointChangeDate between StartDate and EndDate order by PointChangeDate Desc;
+	SELECT PointChangeDate, PointChangeSponsor, PointChangeDriver, PointChangeNumber, PointChangeReason
+  FROM DRS.pointchanges
+  WHERE (StartDate IS NULL OR PointChangeDate >= StartDate) AND (EndDate IS NULL OR PointChangeDate <= EndDate)
+    AND (DriverEmail IS NULL OR PointChangeDriver = DriverEmail)
+  ORDER BY PointChangeDate DESC;
 END$
 
 create procedure SpecificDriverPointChanges(StartDate Date, EndDate Date, Driver varchar(50))
@@ -204,44 +195,96 @@ END$
 
 create procedure AllSponsorInvoice(StartDate Date, EndDate Date)
 BEGIN
-	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
-	from DRS.purchases join DRS.productspurchased join DRS.product;
+	select PurchaseID, PurchaseDriver, PurchaseSponsorID, PurchaseDate, PurchaseStatus, PurchasePrice
+	from DRS.purchases where PurchaseDate between StartDate and EndDate
+	UNION ALL
+	select 'Total Price', '', '', '', '',sum(PurchasePrice)
+	from DRS.purchases where PurchaseDate between StartDate and EndDate
+    order by PurchaseDate desc;
 END$
 
 create procedure SpecificSponsorInvoice(StartDate Date, EndDate Date, SponsorID int)
 BEGIN
-	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
-	from DRS.purchases join DRS.productspurchased join DRS.product
-    where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+	select PurchaseID, PurchaseDriver, PurchaseSponsorID, PurchaseDate, PurchaseStatus, PurchasePrice
+	from DRS.purchases where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
+	UNION ALL
+	select 'Total Price', '', '', '', '',sum(PurchasePrice)
+	from DRS.purchases where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
+    order by PurchaseDate desc;
 END$
 
-create procedure AllDriverApplications(StartDate Date, EndDate Date, SponsorID int)
+create procedure AllDriverApplications(IN StartDate Date, IN EndDate Date, IN SponsorID int, IN DriverEmail VARCHAR(255))
 BEGIN
-	select ApplicationDriver, ApplicationOrganization, ApplicationStatus, ApplicationDateSubmitted
-	from DRS.driversponsorapplications where ApplicationOrganization = SponsorID order by ApplicationDateSubmitted desc;
+	SELECT ApplicationDriver, ApplicationOrganization, ApplicationStatus, ApplicationDateSubmitted, ApplicationReason
+  FROM DRS.driversponsorapplications
+  WHERE (StartDate IS NULL OR ApplicationDateSubmitted >= StartDate) AND (EndDate IS NULL OR ApplicationDateSubmitted <= EndDate)
+    AND (SponsorID IS NULL OR ApplicationOrganization = SponsorID) AND (DriverEmail IS NULL OR ApplicationDriver = DriverEmail)
+  ORDER BY ApplicationDateSubmitted DESC;
 END$
 
-create procedure SpecificSponsorPurchasees(StartDate Date, EndDate Date, SponsorID int)
+create procedure AllPurchases(StartDate Date, EndDate Date, DetailLevel varchar(10))
 BEGIN
-	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
-	from DRS.purchases join DRS.productspurchased join DRS.product
-    where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+	if DetailLevel = "summary" then
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		where PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+	else
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus,
+		GROUP_CONCAT(ProductPurchasedID) AS ProductsPurchased, GROUP_CONCAT(ProductPurchaseQuantity) AS ProductPurchaseQuantity
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		left join DRS.productspurchased on PurchaseID = PurchaseAssociatedID
+		where PurchaseDate between StartDate and EndDate group by PurchaseID order by PurchaseDate Desc;
+	end if;
 END$
 
-create procedure SpecificDriverAllSponsorPurchasees(StartDate Date, EndDate Date, DriversEmail varchar(50))
+create procedure SpecificSponsorPurchasees(StartDate Date, EndDate Date, SponsorID int, DetailLevel varchar(10))
 BEGIN
-	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
-	from DRS.purchases join DRS.productspurchased join DRS.product
-    where PurchaseDriver = DriversEmail and PurchaseDate between StartDate and EndDate
-    order by PurchaseDate Desc;
+	if DetailLevel = "summary" then
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate order by PurchaseDate Desc;
+	else
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus,
+		GROUP_CONCAT(ProductPurchasedID) AS ProductsPurchased, GROUP_CONCAT(ProductPurchaseQuantity) AS ProductPurchaseQuantity
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		left join DRS.productspurchased on PurchaseID = PurchaseAssociatedID
+		where PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
+		group by PurchaseID order by PurchaseDate Desc;
+    end if;
 END$
 
-create procedure SpecificDriverSpecificSponsorPurchasees(StartDate Date, EndDate Date, DriversEmail varchar(50), SponsorID int)
+create procedure SpecificDriverAllSponsorPurchasees(StartDate Date, EndDate Date, DriversEmail varchar(50), detailLevel varchar(10))
 BEGIN
-	select PurchaseDriver, sum(ProductPrice * ProductPurchaseQuantity) as Price, PurchaseDate
-	from DRS.purchases join DRS.productspurchased join DRS.product
-    where PurchaseDriver = DriversEmail and PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
-    order by PurchaseDate Desc;
+	if DetailLevel = "summary" then
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		where PurchaseDriver = DriversEmail and PurchaseDate between StartDate and EndDate
+		order by PurchaseDate Desc;
+	else
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus,
+		GROUP_CONCAT(ProductPurchasedID) AS ProductsPurchased, GROUP_CONCAT(ProductPurchaseQuantity) AS ProductPurchaseQuantity
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		left join DRS.productspurchased on PurchaseID = PurchaseAssociatedID
+		where PurchaseDriver = DriversEmail and PurchaseDate between StartDate and EndDate
+		group by PurchaseID order by PurchaseDate Desc;
+	end if;
+END$
+
+create procedure SpecificDriverSpecificSponsorPurchasees(StartDate Date, EndDate Date, DriversEmail varchar(50), SponsorID int, DetailLevel varchar(10))
+BEGIN
+	if DetailLevel = "summary" then
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		where PurchaseDriver = DriversEmail and PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
+		order by PurchaseDate Desc;
+	else
+		select PurchaseDriver, OrganizationName, PurchaseDate, PurchaseStatus,
+		GROUP_CONCAT(ProductPurchasedID) AS ProductsPurchased, GROUP_CONCAT(ProductPurchaseQuantity) AS ProductPurchaseQuantity
+		from DRS.purchases left join DRS.sponsororganizations on PurchaseSponsorID = OrganizationID
+		left join DRS.productspurchased on PurchaseID = PurchaseAssociatedID
+		where PurchaseDriver = DriversEmail and PurchaseSponsorID = SponsorID and PurchaseDate between StartDate and EndDate
+		group by PurchaseID order by PurchaseDate Desc;
+    end if;
 END$
 
 delimiter ;
