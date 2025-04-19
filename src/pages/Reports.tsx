@@ -327,7 +327,8 @@ const Reports: React.FC = () => {
             startDate,
             endDate,
             finalSponsorId,
-            driverEmail
+            driverEmail,
+            summaryOrDetailed
           );
           if (Array.isArray(fetched) && Array.isArray(fetched[0])) {
             fetched = fetched[0];
