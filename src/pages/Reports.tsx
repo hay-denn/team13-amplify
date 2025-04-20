@@ -389,51 +389,53 @@ const Reports: React.FC = () => {
   };
   const downloadPDF = async () => {
     const pdf = new jsPDF();
-
     const originalViewMode = viewMode;
-
     let chartHeightFinal = 0;
-
-    // Capture the chart view
+    const margin = 10;
+    const pageHeight = pdf.internal.pageSize.height;
+  
+    // 1) Capture the chart
     setViewMode("chart");
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
+    await new Promise((r) => setTimeout(r, 500));
     const chartElement = document.getElementById("report-content");
     if (chartElement) {
       const chartCanvas = await html2canvas(chartElement);
       const chartImgData = chartCanvas.toDataURL("image/png");
-      const chartHeight = (chartCanvas.height * 180) / chartCanvas.width; // Scale dynamically
+      const chartHeight = (chartCanvas.height * 180) / chartCanvas.width;
       chartHeightFinal = chartHeight;
-      pdf.addImage(chartImgData, "PNG", 10, 10, 180, chartHeight);
+      pdf.addImage(chartImgData, "PNG", margin, margin, 180, chartHeight);
     } else {
       console.error("Element with ID 'report-content' not found.");
     }
-
-    // Capture the table view
+  
+    // 2) Capture the table
     setViewMode("table");
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for UI update
+    await new Promise((r) => setTimeout(r, 500));
     const tableElement = document.getElementById("report-content");
     if (tableElement) {
       const tableCanvas = await html2canvas(tableElement);
       const tableImgData = tableCanvas.toDataURL("image/png");
-      const tableHeight = (tableCanvas.height * 180) / tableCanvas.width; // Scale dynamically
-      pdf.addImage(
-        tableImgData,
-        "PNG",
-        10,
-        10 + chartHeightFinal,
-        180,
-        tableHeight
-      );
+      const tableHeight = (tableCanvas.height * 180) / tableCanvas.width;
+  
+      // calculate where the table would sit
+      const tableY = margin + chartHeightFinal;
+      if (tableY + tableHeight > pageHeight) {
+        // it would overflow, so start a fresh page
+        pdf.addPage();
+        pdf.addImage(tableImgData, "PNG", margin, margin, 180, tableHeight);
+      } else {
+        // fits on the same page
+        pdf.addImage(tableImgData, "PNG", margin, tableY, 180, tableHeight);
+      }
     } else {
       console.error("Element with ID 'report-content' not found.");
     }
-
-    // Save the PDF
+  
+    // 3) Save and restore view
     pdf.save("Report.pdf");
-
-    // Reset back to original view mode, if necessary
     setViewMode(originalViewMode);
   };
+  
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0)
       return;
