@@ -83,19 +83,9 @@ export const useCart = (): CartContextType => {
 
 // Getting SQL friendly date
 function getCurrentMySQLDate(): string {
-  const now = new Date();
-
-  // Pad single digits with a leading zero
-  const pad = (num: number): string => (num < 10 ? "0" + num : num.toString());
-
-  const year = now.getFullYear();
-  const month = pad(now.getMonth() + 1);
-  const day = pad(now.getDate());
-  const hours = pad(now.getHours());
-  const minutes = pad(now.getMinutes());
-  const seconds = pad(now.getSeconds());
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  const today = new Date().toISOString();
+  console.log(today);
+  return today;
 }
 
 // API LINKS
@@ -303,7 +293,7 @@ export const CartPage: React.FC = () => {
       PurchaseDate: getCurrentMySQLDate(),
       PurchaseStatus: "Ordered",
       PurchaseSponsorID: sponsorOrgID,
-      PurchasePrice: totalCost,
+      PurchasePrice: total_points,
     };
 
     try {

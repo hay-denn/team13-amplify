@@ -295,9 +295,13 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
 
   // Get today's date in YYYY-MM-DD format.
   const today = new Date().toISOString().split('T')[0];
-
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  const yesterday = d.toISOString().split('T')[0];
+  
   return (
     <div className="purchase-table-container">
+      <p>today is : {today}</p>
       <table className="purchase-table">
         <thead>
           <tr>
@@ -342,7 +346,7 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
                     {purchase.PurchasePrice}
                   </td>
                   <td>
-                    {purchase.PurchaseDate.split('T')[0] === today && purchase.PurchaseStatus !== "Canceled" && (
+                    {(purchase.PurchaseDate.split('T')[0] === today || purchase.PurchaseDate.split('T')[0] === yesterday) && purchase.PurchaseStatus !== "Canceled" && (
                       <button onClick={() => handleCancel(purchase.PurchaseSponsorID, purchase.PurchaseID, purchase.PurchasePrice || 0)}>
                         Cancel
                       </button>

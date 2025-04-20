@@ -16,7 +16,7 @@ const DRIVER_SPONSOR_URL = "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.c
 
 async function getDriverSponsors(driverEmail: string) {
   try {
-    const response = await fetch(`${DRIVER_SPONSOR_URL}/driverssponsors?DriversEmail=${driverEmail}`);
+    const response = await fetch(`${DRIVER_SPONSOR_URL}/driverssponsors?DriversEmail=${encodeURIComponent(driverEmail)}`);
     if (!response.ok) throw new Error("Failed to fetch organizations");
     return await response.json();
   } catch (error) {
@@ -662,7 +662,7 @@ export const ViewOrgModal: React.FC<ViewOrgProps> = ({ isOpen, onClose, email })
     } else {
       const data = {};
       callAPI(
-        `${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${email}&DriversSponsorID=${organizationID.toString()}`,
+        `${DRIVER_SPONSOR_URL}/driverssponsor?DriversEmail=${encodeURIComponent(email)}&DriversSponsorID=${organizationID.toString()}`,
         "DELETE",
         data
       );
