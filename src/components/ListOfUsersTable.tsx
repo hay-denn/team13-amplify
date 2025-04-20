@@ -3,8 +3,6 @@ import { useAuth } from "react-oidc-context";
 import { Modal, Button, Dropdown } from "react-bootstrap";
 import "./ListOfUsersTable.css"
 
-// IMPORTANT: rename the default export from "./Modal" so it doesn't clash
-// with react-bootstrap's Modal.
 import UserModal, { ViewOrgModal } from "./Modal";
 
 interface Driver {
@@ -44,6 +42,9 @@ const driversponsor_url =
 const organizations_url =
   "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
+const sponsors_url =
+  "https://v4ihiexduh.execute-api.us-east-1.amazonaws.com/dev1";
+
 export const ListOfUsersTable = ({
   driverTable,
   sponsorTable = [],
@@ -54,7 +55,6 @@ export const ListOfUsersTable = ({
   const cognitoGroups: string[] =
   (auth.user?.profile?.["cognito:groups"] as string[]) || [];
   const userGroup = cognitoGroups[0];
-
 
   // Track organization for sponsor
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
@@ -90,7 +90,9 @@ export const ListOfUsersTable = ({
   const [driverOrganizations, setDriverOrganizations] = useState<
   { id: string; name: string }[]
 >([]);
-
+  const [sponsorImpersonation, setSponsorImpersonation] = useState<string | null>(null);
+  const [potentialImpersonationSponsors, setPotentialImpersonationSponsors] = useState<
+  { UserEmail: string }[] | null>(null);
 
   const handleRemoveDriver = async (driverEmail: string) => {
     try {
@@ -169,6 +171,7 @@ export const ListOfUsersTable = ({
       const orgs = await fetchDriverOrganizations(email);
       setDriverOrganizations(orgs);
     }
+    
   };
   
 
@@ -180,9 +183,15 @@ export const ListOfUsersTable = ({
     setRecurringPointsEdit(0);
     setReason("");
     setDriverOrganizations([]);
-    setRecurringPoints(-1);
-    setCurrentPoints(-1);
-    setSponsorOrgID(null);
+    setRecurringPoints(null);
+    setCurrentPoints(null);
+
+    if (userGroup === "Admin") {
+      setSponsorOrgID(null);
+    }
+
+    setSponsorImpersonation(null);
+    setPotentialImpersonationSponsors(null);
   };
   
 
@@ -250,6 +259,26 @@ export const ListOfUsersTable = ({
       console.error("Error fetching recurring points:", error);
       setRecurringPoints(0);
       setRecurringPointsEdit(0);
+    }
+  };
+
+  const fetchSponsorsInOrg = async (orgID: string) => {
+    try {
+      const response = await fetch(
+        `${sponsors_url}/sponsors?UserOrganization=${encodeURIComponent(orgID)}`
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      const sponsors = data.map((sponsor: any) => ({
+        UserEmail: sponsor.UserEmail,
+      }));
+      setPotentialImpersonationSponsors(sponsors);
+      return sponsors;
+    } catch (error) {
+      console.error("Error fetching sponsors in organization:", error);
+      return [];
     }
   };
 
@@ -326,8 +355,23 @@ export const ListOfUsersTable = ({
       return;
     }
 
+    if (userGroup === "Admin" && !sponsorOrgID) {
+      alert("Please select an organization before changing points.");
+      return;
+    }
+    if (userGroup === "Admin" && !sponsorImpersonation) {
+      alert("Please select a sponsor email before changing points.");
+      return;
+    }
+    
     const driverEmail = selectedUser.DriverEmail || selectedUser.UserEmail;
-    const sponsorEmail = auth.user?.profile?.email || "";
+
+    const sponsorEmail = userGroup === "Admin" && sponsorImpersonation 
+      ? sponsorImpersonation 
+      : auth.user?.profile?.email || "";
+
+    console.log("Sponsor Email:", sponsorEmail);
+
     const action = pointsChange > 0 ? "Add" : "Subtract";
     try {
       const response = await fetch(
@@ -420,6 +464,14 @@ export const ListOfUsersTable = ({
   const handleCloseEditModal = () => {
     setShowEditModal(false);
   };
+
+  useEffect(() => {
+    if (userGroup === "Admin" && sponsorOrgID) {
+      fetchSponsorsInOrg(sponsorOrgID);
+      console.log("Fetching sponsors for org ID:", sponsorOrgID);
+    }
+  }, [sponsorOrgID]);
+  
 
 // =========================================
 // RENDER
@@ -587,8 +639,13 @@ return (
               <p>
               <strong>User Organization:</strong>
               <Dropdown>
-              <Dropdown.Toggle className="btn btn-secondary dropdown-toggle">
-                {driverOrganizations.find((org) => org.id === sponsorOrgID)?.name || "Select Organization"}
+              <Dropdown.Toggle
+                className="btn btn-secondary dropdown-toggle"
+                disabled={driverOrganizations.length === 0}
+              >
+                {driverOrganizations.length === 0
+                  ? "No Organizations Found"
+                  : driverOrganizations.find((org) => org.id === sponsorOrgID)?.name || "Select Organization"}
               </Dropdown.Toggle>
                 <Dropdown.Menu>
                 {driverOrganizations.map((org, index) => (
@@ -598,6 +655,31 @@ return (
                 ))}
                 </Dropdown.Menu>
               </Dropdown>
+              </p>
+            )}
+            {userGroup === "Admin" && sponsorOrgID && (
+              <p>
+                <strong> Select Sponsor Email for Point Change</strong>
+                <Dropdown>
+                  <Dropdown.Toggle
+                    className="btn btn-secondary dropdown-toggle"
+                    disabled={driverOrganizations.length === 0}
+                  >
+                    {sponsorImpersonation || "Select Sponsor Email"}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    {potentialImpersonationSponsors?.map((sponsor, index) => (
+                      <Dropdown.Item
+                        key={index}
+                        onClick={() => {
+                          setSponsorImpersonation(sponsor.UserEmail);
+                        }}
+                      >
+                        {sponsor.UserEmail}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
               </p>
             )}
             <p>

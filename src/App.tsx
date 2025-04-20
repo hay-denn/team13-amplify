@@ -34,10 +34,6 @@ function App() {
   const userEmail = auth.user?.profile.email || "";
   const userGroup = cognitoGroups[0];
 
-  // const userEmail = "nnisbet@clemson.edu";
-  // const userGroup = "Admin";
-  // auth.isAuthenticated = true;
-
   return (
     <CartProvider>
       <Router>
