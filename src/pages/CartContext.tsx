@@ -83,7 +83,7 @@ export const useCart = (): CartContextType => {
 
 // Getting SQL friendly date
 function getCurrentMySQLDate(): string {
-  const today = new Date().toISOString();
+  const today = new Date().toISOString().split('T')[0];
   console.log(today);
   return today;
 }

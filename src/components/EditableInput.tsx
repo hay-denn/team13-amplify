@@ -36,10 +36,10 @@ const EditableInput: React.FC<EditableInputProps> = ({ attributeName, attributeV
             onChange={(e) => setTempValue(e.target.value)}
             className="border px-2 py-1 rounded"
           />
-          <button onClick={handleSaveClick} className="bg-green-500 text-white px-2 py-1 rounded">
+          <button onClick={handleSaveClick} className="bg-blue-500 text-white px-2 py-1 rounded">
             Save
           </button>
-          <button onClick={handleCancelClick} className="bg-gray-500 text-white px-2 py-1 rounded">
+          <button onClick={handleCancelClick} className="bg-blue-500 text-white px-2 py-1 rounded">
             Cancel
           </button>
         </div>
