@@ -302,7 +302,7 @@ export const GetCurrentCatalog = ({ currentCatalog }: Props) => {
                 >
                   <div className="card h-100 catalog-card">
                     <img
-                      src={item.artworkUrl100}
+                      src={item.artworkUrl100.replace("100x100bb.jpg", "600x600bb.jpg")}
                       alt={item.trackName}
                       className="card-img-top"
                     />
