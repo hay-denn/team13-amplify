@@ -9,8 +9,8 @@ import { SponsorApplyModal } from "../components/Modal";
 import { AuthContext } from "react-oidc-context";
 import { AvgPointAvgPurchase } from "../components/DriverBoxes/AvgPointAvgPurchase";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -157,6 +157,7 @@ export const DriverDashBoard = () => {
       PointChangeAction: string;
       PointChangeDate: string;
       PointChangeReason: string;
+      organizationID: number;
     }[]
   >([]);
   const POINT_CHANGE_API =
@@ -183,18 +184,23 @@ export const DriverDashBoard = () => {
 
   const driverPointChanges = pointChanges
     .filter((change) => change.PointChangeDriver === userEmail)
-    .sort(
-      (a, b) =>
-        new Date(a.PointChangeDate).getTime() -
-        new Date(b.PointChangeDate).getTime()
-    );
+    .filter((change) => change.organizationID === selectedOrganizationID)
 
-  const adjustedDriverPointChanges = driverPointChanges.map((item) => ({
-    ...item,
-    PointChangeNumber:
-      item.PointChangeNumber < -20 ? -20 : item.PointChangeNumber,
-  }));
+  const cumulativeData = driverPointChanges.map((cur, idx) => {
+    // sum of all deltas up to and including this one
+    const sumSoFar = driverPointChanges
+      .slice(0, idx + 1)
+      .reduce((acc, cur) => acc + Number(cur.PointChangeNumber), 0);
+  
+    return {
+      ...cur,
+      cumulativePoints: parseFloat(sumSoFar.toFixed(2)),
+    };
+  });
 
+  console.log("cumulativeData:", cumulativeData);
+
+  
   const handleOrganizationChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -285,11 +291,11 @@ export const DriverDashBoard = () => {
                             .filter(
                               (change) => change.PointChangeDriver === userEmail
                             )
-                            .sort(
-                              (a, b) =>
-                                new Date(b.PointChangeDate).getTime() -
-                                new Date(a.PointChangeDate).getTime()
+                            .filter(
+                              (change) =>
+                                change.organizationID === selectedOrganizationID
                             )
+                            .reverse()
                             .slice(0, 5)
                             .map((change) => (
                               <tr key={change.PointChangeID}>
@@ -344,39 +350,39 @@ export const DriverDashBoard = () => {
                         overflow: "visible",
                       }}
                     >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={adjustedDriverPointChanges} // Use the clamped data here
-                          margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
-                        >
-                          <XAxis
-                            dataKey="PointChangeDate"
-                            tick={<CustomXAxisTick />}
-                            interval="preserveStartEnd"
-                            minTickGap={20}
-                            tickMargin={15}
-                          />
-                          <YAxis
-                            domain={[-20, "auto"]}
-                            tick={{ fill: "#000000" }}
-                          />
-                          <Tooltip
-                            labelFormatter={(label) => {
-                              const d = new Date(label);
-                              const month = String(d.getMonth() + 1).padStart(
-                                2,
-                                "0"
-                              );
-                              const day = String(d.getDate()).padStart(2, "0");
-                              const year = d.getFullYear();
-                              return `${month}/${day}/${year}`;
-                            }}
-                            contentStyle={{ color: "#000000" }}
-                            labelStyle={{ color: "#000000" }}
-                          />
-                          <Bar dataKey="PointChangeNumber" fill="#000000" />
-                        </BarChart>
-                      </ResponsiveContainer>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={cumulativeData}
+                        margin={{ top: 50, right: 70, left: 10, bottom: 70 }}
+                      >
+                        <XAxis
+                          dataKey="PointChangeDate"
+                          tick={<CustomXAxisTick />}
+                          interval="preserveStartEnd"
+                          minTickGap={20}
+                          tickMargin={15}
+                        />
+                        {/* remove your manual domain so it auto‑fits the cumulative range */}
+                        <YAxis tick={{ fill: "#000" }} />
+                        <Tooltip
+                          labelFormatter={(label) => {
+                            const d = new Date(label);
+                            return [d.getMonth()+1, d.getDate(), d.getFullYear()]
+                              .map(n => String(n).padStart(2, '0'))
+                              .join('/');
+                          }}
+                          contentStyle={{ color: "#000" }}
+                          labelStyle={{ color: "#000" }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="cumulativePoints"
+                          stroke="#000"
+                          dot={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+
                     </div>
                     <div>
                       <AvgPointAvgPurchase
