@@ -29,6 +29,7 @@ import {
 } from "recharts";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import "./Reports.css";
 
 const REPORTS_URL =
   "https://8y9n1ik5pc.execute-api.us-east-1.amazonaws.com/dev1";
@@ -974,8 +975,8 @@ const Reports: React.FC = () => {
   };
   console.log(isSponsor);
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Reports</h1>
+    <div className="reports-page p-6">
+      <h1 className="title-reports text-2xl font-bold mb-4">Reports</h1>
       <div className="flex flex-wrap items-center gap-4 mb-4">
         {sponsorDoneLoading ? (
           <div>

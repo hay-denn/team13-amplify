@@ -94,7 +94,7 @@ async function callAPI(url: string, methodType: string, data: object): Promise<v
         alert('User edit successful!'); // Display success alert with response data
       } else {
         // Handle error if response status is not OK
-        alert('Unable to make user edit - Error: ' + response.status + ' - ' + response.statusText); // Display error alert with status and message
+        alert('Unable to make user edit - Error: ' + response.status + ' - ' + response); // Display error alert with status and message
       }
     } catch (error) {
       // Catch any network or other errors

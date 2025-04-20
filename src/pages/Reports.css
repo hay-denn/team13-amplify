@@ -1,0 +1,11 @@
+.reports-page input,
+.reports-page textarea,
+.reports-page select,
+.reports-page .form-control {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+.title-reports {
+  margin-top: 80px !important;
+}
