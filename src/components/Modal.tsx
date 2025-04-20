@@ -99,7 +99,7 @@ async function callAPI(url: string, methodType: string, data: object): Promise<v
         for (const key in responseData) {
           string += `${key}: ${responseData[key]}\n`;
         }
-        alert('Unable to make user edit - Error: ' + response.status + ' - ' + string); // Display error alert with status and message
+        alert('Unable to make user edit - Error: ' + response.status + ' - ' + string + '-' + url); // Display error alert with status and message
       }
     } catch (error) {
       // Catch any network or other errors
