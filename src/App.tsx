@@ -31,12 +31,12 @@ function App() {
   const cognitoGroups: string[] =
     (auth.user?.profile?.["cognito:groups"] as string[]) || [];
 
-  // const userEmail = auth.user?.profile.email || "";
-  // const userGroup = cognitoGroups[0];
+  const userEmail = auth.user?.profile.email || "";
+  const userGroup = cognitoGroups[0];
 
-  const userEmail = "noahnisbet3@gmail.com";
-  const userGroup = "Driver";
-  auth.isAuthenticated = true;
+  // const userEmail = "noahnisbet3@gmail.com";
+  // const userGroup = "Driver";
+  // auth.isAuthenticated = true;
 
   return (
     <CartProvider>
