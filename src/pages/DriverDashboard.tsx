@@ -294,9 +294,9 @@ export const DriverDashBoard = () => {
                             .map((change) => (
                               <tr key={change.PointChangeID}>
                                 <td>
-                                  {new Date(
+                                  {
                                     change.PointChangeDate
-                                  ).toLocaleDateString()}
+                                  }
                                 </td>
                                 <td>{change.PointChangeSponsor}</td>
                                 <td>{change.PointChangeNumber}</td>

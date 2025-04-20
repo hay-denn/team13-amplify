@@ -352,7 +352,7 @@ export const AccountSettings: React.FC = () => {
       <h3 className="mt-4">Change Your Password</h3>
       {!showChangePasswordForm && (
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
           onClick={handleOpenForm}
         >
           Change Password
