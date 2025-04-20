@@ -504,12 +504,12 @@ return (
       size="lg"
       dialogClassName="my-centered-dialog"
     >
-      <Modal.Header closeButton>
+      <Modal.Header closeButton className="bg-primary text-white">
         <Modal.Title style={{ width: "100%", textAlign: "center" }}>
           Edit Driver
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body style={{ background: "linear-gradient(to bottom, #ffffff, #e9ecef)" }}>
         {selectedUser && (
           <>
             <p>
@@ -609,13 +609,7 @@ return (
         )}
       </Modal.Body>
 
-      <Modal.Footer
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <Modal.Footer className="d-flex flex-column justify-content-center border-top-0">
         <Button
           variant="primary"
           onClick={() => handleViewAsDriver("/driver-dashboard")}
