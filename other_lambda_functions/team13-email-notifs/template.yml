@@ -1,0 +1,71 @@
+# This AWS SAM template has been generated from your function's configuration. If
+# your function has one or more triggers, note that the AWS resources associated
+# with these triggers aren't fully specified in this template and include
+# placeholder values. Open this template in AWS Infrastructure Composer or your
+# favorite IDE and modify it to specify a serverless application with other AWS
+# resources.
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application Model template describing your function.
+Resources:
+  team13emailnotifs:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Description: ''
+      MemorySize: 128
+      Timeout: 3
+      Handler: index.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      EphemeralStorage:
+        Size: 512
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 21600
+        MaximumRetryAttempts: 2
+      PackageType: Zip
+      Policies:
+        - Statement:
+            - Sid: VisualEditor0
+              Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:CreateLogGroup
+                - logs:PutLogEvents
+              Resource: >-
+                arn:aws:logs:us-east-1:274815321855:log-group:/aws/lambda/team13-admin-lambda-function:*
+            - Sid: VisualEditor0
+              Effect: Allow
+              Action:
+                - cognito-idp:AdminDeleteUser
+                - ses:SendEmail
+                - cognito-idp:AdminCreateUser
+                - cognito-idp:AdminSetUserPassword
+                - cognito-idp:AdminRemoveUserFromGroup
+                - cognito-idp:AdminAddUserToGroup
+                - cognito-idp:AdminListGroupsForUser
+                - cognito-idp:AdminUpdateUserAttributes
+                - cognito-idp:AdminGetUser
+                - cognito-idp:AdminResetUserPassword
+                - cognito-idp:ListUsers
+              Resource:
+                - >-
+                  arn:aws:cognito-idp:us-east-1:274815321855:userpool/us-east-1_uN566DiPO
+                - >-
+                  arn:aws:ses:us-east-1:274815321855:identity/cognito@cpsc4911.com
+            - Effect: Allow
+              Action:
+                - ses:*
+              Resource: '*'
+      RecursiveLoop: Terminate
+      SnapStart:
+        ApplyOn: None
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /send-email
+            Method: ANY
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto
