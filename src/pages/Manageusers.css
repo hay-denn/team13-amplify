@@ -29,3 +29,26 @@
     margin-top: 1rem;
 
   }
+  .btn-add-org {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease, transform 0.1s ease;
+  }
+  
+  .btn-add-org:hover {
+    background: linear-gradient(135deg, #3399ff, #0069d9);
+    transform: translateY(-2px);
+  }
+  
+  .btn-add-org:active {
+    transform: translateY(0);
+  }
+  

@@ -1,18 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent, useRef } from "react";
 import axios from "axios";
 import "./Manageusers.css";
 import { ListOfSponsorOrganizations } from "../components/ListOfSponsorOrgs";
 
 export const ManageSponsors = () => {
-  const [isOrgModalOpen, setIsOrgModalOpen] = useState<boolean>(false);
+  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
+  const [organizationList, setOrganizationList] = useState<any[]>([]);
 
-  const [newOrgName, setNewOrgName] = useState<string>("");
-
-  // Endpoints
   const url_organizations =
     "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
 
-  const [organizationList, setOrganizationList] = useState([]);
+  const [newOrgData, setNewOrgData] = useState({
+    OrganizationName: "",
+    OrganizationDescription: "",
+    SearchTerm: "",
+    PointDollarRatio: 1,
+    AmountOfProducts: 0,
+    ProductType: "",
+    MaxPrice: 0,
+    HideDescription: false,
+    LogoUrl: "",
+    WebsiteUrl: "",
+  });
+
+  const fieldRefs = {
+    OrganizationName: useRef<HTMLInputElement>(null),
+    OrganizationDescription: useRef<HTMLTextAreaElement>(null),
+    SearchTerm: useRef<HTMLInputElement>(null),
+    PointDollarRatio: useRef<HTMLInputElement>(null),
+    AmountOfProducts: useRef<HTMLInputElement>(null),
+    ProductType: useRef<HTMLInputElement>(null),
+    MaxPrice: useRef<HTMLInputElement>(null),
+    LogoUrl: useRef<HTMLInputElement>(null),
+    WebsiteUrl: useRef<HTMLInputElement>(null),
+  };
 
   useEffect(() => {
     getOrganizations();
@@ -20,33 +41,69 @@ export const ManageSponsors = () => {
 
   const getOrganizations = async () => {
     try {
-      const response = await axios.get(`${url_organizations}/organizations`);
-      setOrganizationList(response.data);
-    } catch (error) {
-      console.error("Error fetching organization info:", error);
+      const res = await axios.get(`${url_organizations}/organizations`);
+      setOrganizationList(res.data);
+    } catch (err) {
+      console.error("Error fetching organization info:", err);
     }
   };
 
-  const handleOpenOrgModal = () => {
-    setIsOrgModalOpen(true);
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewOrgData((p) => ({ ...p, [name]: value }));
+  };
+
+  const validate = () => {
+    const missing: string[] = [];
+
+    Object.entries(newOrgData).forEach(([key, value]) => {
+      if (typeof value === "boolean" ? false : value === "" || value === 0) {
+        missing.push(key);
+      }
+    });
+
+    if (missing.length) {
+      alert(
+        `⚠️  You must edit ALL fields before submitting.\nMissing: ${missing.join(
+          ", "
+        )}`
+      );
+
+      const first = missing[0] as keyof typeof fieldRefs;
+      fieldRefs[first].current?.focus();
+      return false;
+    }
+    return true;
   };
 
   const handleCreateOrganization = async () => {
+    if (!validate()) return;
+
     try {
-      //Post requets that creates a new organization
-      const response = await axios.post(`${url_organizations}/organization`, {
-        OrganizationName: newOrgName,
-      });
-
-      console.log("New organization created:", response.data);
+      await axios.post(`${url_organizations}/organization`, newOrgData);
       getOrganizations();
-
-      setNewOrgName("");
+      resetForm();
       setIsOrgModalOpen(false);
-    } catch (error) {
-      console.error("Error creating organization:", error);
+    } catch (err) {
+      console.error("Error creating organization:", err);
     }
   };
+
+  const resetForm = () =>
+    setNewOrgData({
+      OrganizationName: "",
+      OrganizationDescription: "",
+      SearchTerm: "",
+      PointDollarRatio: 1,
+      AmountOfProducts: 0,
+      ProductType: "",
+      MaxPrice: 0,
+      HideDescription: false,
+      LogoUrl: "",
+      WebsiteUrl: "",
+    });
 
   return (
     <div className="container manage-users-container py-3 m-5">
@@ -60,16 +117,8 @@ export const ManageSponsors = () => {
           <ListOfSponsorOrganizations orgTable={organizationList} />
 
           <button
-            onClick={handleOpenOrgModal}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#28a745",
-              color: "white",
-              borderRadius: "5px",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
+            onClick={() => setIsOrgModalOpen(true)}
+            className="btn-add-org"
           >
             Create New Organization
           </button>
@@ -78,38 +127,92 @@ export const ManageSponsors = () => {
             <div className="modal-overlay">
               <div className="modal-content">
                 <h2>Create New Organization</h2>
-                <label htmlFor="orgName">Organization Name:</label>
+
+                <label>Organization Name</label>
                 <input
-                  id="orgName"
-                  type="text"
-                  value={newOrgName}
-                  onChange={(e) => setNewOrgName(e.target.value)}
+                  ref={fieldRefs.OrganizationName}
+                  name="OrganizationName"
+                  value={newOrgData.OrganizationName}
+                  onChange={handleChange}
                 />
-                <div style={{ marginTop: "1rem" }}>
+
+                <label>Description</label>
+                <textarea
+                  ref={fieldRefs.OrganizationDescription}
+                  name="OrganizationDescription"
+                  value={newOrgData.OrganizationDescription}
+                  onChange={handleChange}
+                />
+
+                <label>Search Term(s)</label>
+                <input
+                  ref={fieldRefs.SearchTerm}
+                  name="SearchTerm"
+                  value={newOrgData.SearchTerm}
+                  onChange={handleChange}
+                />
+
+                <label>Product Type</label>
+                <input
+                  ref={fieldRefs.ProductType}
+                  name="ProductType"
+                  value={newOrgData.ProductType}
+                  onChange={handleChange}
+                />
+
+                <label>Logo URL</label>
+                <input
+                  ref={fieldRefs.LogoUrl}
+                  name="LogoUrl"
+                  value={newOrgData.LogoUrl}
+                  onChange={handleChange}
+                />
+
+                <label>Website URL</label>
+                <input
+                  ref={fieldRefs.WebsiteUrl}
+                  name="WebsiteUrl"
+                  value={newOrgData.WebsiteUrl}
+                  onChange={handleChange}
+                />
+
+                <label>Point‑Dollar Ratio</label>
+                <input
+                  ref={fieldRefs.PointDollarRatio}
+                  type="number"
+                  name="PointDollarRatio"
+                  value={newOrgData.PointDollarRatio}
+                  onChange={handleChange}
+                />
+
+                <label>Max Price</label>
+                <input
+                  ref={fieldRefs.MaxPrice}
+                  type="number"
+                  name="MaxPrice"
+                  value={newOrgData.MaxPrice}
+                  onChange={handleChange}
+                />
+
+                <label>Amount of Products</label>
+                <input
+                  ref={fieldRefs.AmountOfProducts}
+                  type="number"
+                  name="AmountOfProducts"
+                  value={newOrgData.AmountOfProducts}
+                  onChange={handleChange}
+                />
+
+                <div className="mt-3">
                   <button
                     onClick={handleCreateOrganization}
-                    style={{
-                      padding: "8px 16px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      borderRadius: "5px",
-                      border: "none",
-                      cursor: "pointer",
-                      marginRight: "10px",
-                    }}
+                    className="btn btn-success me-2"
                   >
                     Submit
                   </button>
                   <button
                     onClick={() => setIsOrgModalOpen(false)}
-                    style={{
-                      padding: "8px 16px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      borderRadius: "5px",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
+                    className="btn btn-danger"
                   >
                     Cancel
                   </button>
