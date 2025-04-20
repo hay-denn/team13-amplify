@@ -134,6 +134,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
   const [newUser, setNewUser] = useState(true);
   const [tempPassword, setTempPassword] = useState("");
 
+  const [oldUserType, setOldUserType] = useState("");
+
+  //Check if the user type or email has changed
+  useEffect(() => {
+    if (initialData) {
+      setOldUserType(initialData.userType);
+    }
+  }
+  , [initialData]);
+
   //Auth component to get access_token, verify authentication of user, etc.
   const auth = useAuth();
 
@@ -243,7 +253,66 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
         } else {
           alert("Invalid user type!");
         }
-    } else {
+    } else if (!newUser && userType !== oldUserType) {
+      // If the user type has changed, delete the user and create a new one
+      await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
+      await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, tempPassword, userType);
+      // delete the old user
+      if (userType == "Driver") {
+        const data = {
+            "DriverEmail": email,
+            "DriverFName": firstName,
+            "DriverLName": familyName,
+        };
+        callAPI(`${DRIVER_URL}/driver`, "DELETE", data);
+      }
+      else if (userType == "Admin") {
+        const data = {
+             "AdminEmail": email,
+             "AdminFName": firstName,
+             "AdminLName": familyName
+        };
+        callAPI(`${ADMIN_URL}/admin`, "DELETE", data);
+      } else if (userType == "Sponsor") {
+        const data = {
+          "UserEmail": email,
+          "UserFName": firstName,
+          "UserLName": familyName,
+          "UserOrganization": selectedOrg
+        };
+        callAPI(`${SPONSOR_URL}/sponsor`, "DELETE", data);
+      } else {
+        alert("Invalid user type!");
+      }
+
+      //create new user
+      if (userType == "Driver") {
+        const data = {
+            "DriverEmail": email,
+            "DriverFName": firstName,
+            "DriverLName": familyName,
+        };
+        callAPI(`${DRIVER_URL}/driver`, "POST", data);
+      } else if (userType == "Admin") {
+        const data = {
+             "AdminEmail": email,
+             "AdminFName": firstName,
+             "AdminLName": familyName
+        };
+        callAPI(`${ADMIN_URL}/admin`, "POST", data);
+      } else if (userType == "Sponsor") {
+        const data = {
+          "UserEmail": email,
+          "UserFName": firstName,
+          "UserLName": familyName,
+          "UserOrganization": selectedOrg
+        };
+        callAPI(`${SPONSOR_URL}/sponsor`, "POST", data);
+      } else {
+        alert("Invalid user type!");
+      }
+
+      } else {
       //update an exisitng user
       await manageCognitoUser("updateUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
       if (userType == "Driver") {
@@ -265,7 +334,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
           "UserEmail": email,
           "UserFName": firstName,
           "UserLName": familyName,
-          "UserOrganization": selectedOrg //this is temporary until sponsor organizations are implemented
+          "UserOrganization": selectedOrg
         };
         callAPI(`${SPONSOR_URL}/sponsor`, "PUT", data);
       } else {
