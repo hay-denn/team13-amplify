@@ -16,7 +16,7 @@ export const ManageSponsors = () => {
     SearchTerm: "",
     PointDollarRatio: 1,
     AmountOfProducts: 0,
-    ProductType: "",
+    ProductType: "" as ProductType | "",
     MaxPrice: 0,
     HideDescription: false,
     LogoUrl: "",
@@ -35,6 +35,9 @@ export const ManageSponsors = () => {
     WebsiteUrl: useRef<HTMLInputElement>(null),
   };
 
+  const PRODUCT_TYPES = ["music", "movie", "podcast", "audiobook"] as const;
+  type ProductType = (typeof PRODUCT_TYPES)[number];
+
   useEffect(() => {
     getOrganizations();
   }, []);
@@ -49,7 +52,7 @@ export const ManageSponsors = () => {
   };
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setNewOrgData((p) => ({ ...p, [name]: value }));
@@ -152,13 +155,23 @@ export const ManageSponsors = () => {
                   onChange={handleChange}
                 />
 
-                <label>Product Type</label>
-                <input
-                  ref={fieldRefs.ProductType}
+                <label>Product Type</label>
+                <select
+                  ref={
+                    fieldRefs.ProductType as unknown as React.RefObject<HTMLSelectElement>
+                  }
                   name="ProductType"
+                  className="form-select"
                   value={newOrgData.ProductType}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Choose one…</option>
+                  {PRODUCT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
 
                 <label>Logo URL</label>
                 <input

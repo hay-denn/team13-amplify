@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
+const PRODUCT_TYPES = ["music", "movie", "podcast", "audiobook"] as const;
+type ProductType = "" | "music" | "movie" | "podcast" | "audiobook";
 
 interface Organization {
   OrganizationID: string;
@@ -7,7 +9,7 @@ interface Organization {
   OrganizationDescription?: string;
   PointDollarRatio?: string;
   AmountOfProducts?: number;
-  ProductType?: string;
+  ProductType?: ProductType;
   MaxPrice?: string;
   SearchTerm?: string;
   HideDescription?: number;
@@ -78,7 +80,9 @@ export const ListOfSponsorOrganizations = ({ orgTable }: Props) => {
   });
 
   const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     setEditOrgData((prev) => ({
@@ -227,13 +231,19 @@ export const ListOfSponsorOrganizations = ({ orgTable }: Props) => {
 
               <div className="mb-2">
                 <label className="form-label">Product Type</label>
-                <input
-                  type="text"
+                <select
                   name="ProductType"
-                  className="form-control"
-                  value={editOrgData.ProductType}
+                  className="form-select"
+                  value={editOrgData.ProductType ?? ""}
                   onChange={handleEditChange}
-                />
+                >
+                  <option value="">Choose one…</option>
+                  {PRODUCT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mb-2">
