@@ -390,51 +390,90 @@ const Reports: React.FC = () => {
   const downloadPDF = async () => {
     const pdf = new jsPDF();
     const originalViewMode = viewMode;
-    let chartHeightFinal = 0;
     const margin = 10;
-    const pageHeight = pdf.internal.pageSize.height;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
   
-    // 1) Capture the chart
+    // --- 1) Capture & draw the chart on page 1 ---
     setViewMode("chart");
     await new Promise((r) => setTimeout(r, 500));
-    const chartElement = document.getElementById("report-content");
-    if (chartElement) {
-      const chartCanvas = await html2canvas(chartElement);
+    const chartEl = document.getElementById("report-content");
+    let chartBottomY = margin; // track where the chart ends
+    if (chartEl) {
+      const chartCanvas = await html2canvas(chartEl);
       const chartImgData = chartCanvas.toDataURL("image/png");
-      const chartHeight = (chartCanvas.height * 180) / chartCanvas.width;
-      chartHeightFinal = chartHeight;
-      pdf.addImage(chartImgData, "PNG", margin, margin, 180, chartHeight);
+      const drawW = pageWidth - 2 * margin;
+      const drawH = (chartCanvas.height / chartCanvas.width) * drawW;
+      pdf.addImage(chartImgData, "PNG", margin, margin, drawW, drawH);
+      chartBottomY += drawH;
     } else {
-      console.error("Element with ID 'report-content' not found.");
+      console.error("Chart element not found.");
     }
   
-    // 2) Capture the table
+    // --- 2) Capture & slice the table across pages ---
     setViewMode("table");
     await new Promise((r) => setTimeout(r, 500));
-    const tableElement = document.getElementById("report-content");
-    if (tableElement) {
-      const tableCanvas = await html2canvas(tableElement);
-      const tableImgData = tableCanvas.toDataURL("image/png");
-      const tableHeight = (tableCanvas.height * 180) / tableCanvas.width;
+    const tableEl = document.getElementById("report-content");
+    if (tableEl) {
+      const tableCanvas = await html2canvas(tableEl);
   
-      // calculate where the table would sit
-      const tableY = margin + chartHeightFinal;
-      if (tableY + tableHeight > pageHeight) {
-        // it would overflow, so start a fresh page
-        pdf.addPage();
-        pdf.addImage(tableImgData, "PNG", margin, margin, 180, tableHeight);
-      } else {
-        // fits on the same page
-        pdf.addImage(tableImgData, "PNG", margin, tableY, 180, tableHeight);
+      // scale so full‐width fits into PDF
+      const drawW = pageWidth - 2 * margin;
+      const scale = drawW / tableCanvas.width;
+  
+      // how many source‐px fit in leftover space on page 1
+      const leftoverPt = pageHeight - chartBottomY - margin;
+      const firstSlicePx = Math.floor(leftoverPt / scale);
+  
+      // how many source‐px fit in a full PDF page
+      const fullPagePx = Math.floor((pageHeight - 2 * margin) / scale);
+  
+      let sliceY = 0;
+      let pageIndex = 0;
+  
+      // helper to draw one canvas slice at a given PDF‐Y position
+      const drawSlice = (canvasSlice: HTMLCanvasElement, yPos: number) => {
+        const imgData = canvasSlice.toDataURL("image/png");
+        const imgH = canvasSlice.height * scale;
+        if (pageIndex > 0) pdf.addPage();
+        pdf.addImage(imgData, "PNG", margin, yPos, drawW, imgH);
+        pageIndex++;
+      };
+  
+      // 2a) Draw the first slice in the leftover space on page 1
+      if (firstSlicePx > 0) {
+        const h = Math.min(firstSlicePx, tableCanvas.height);
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = tableCanvas.width;
+        sliceCanvas.height = h;
+        sliceCanvas
+          .getContext("2d")!
+          .drawImage(tableCanvas, 0, 0, tableCanvas.width, h, 0, 0, tableCanvas.width, h);
+        drawSlice(sliceCanvas, chartBottomY + margin);
+        sliceY += h;
+      }
+  
+      // 2b) Draw remaining slices, one per new page
+      while (sliceY < tableCanvas.height) {
+        const h = Math.min(fullPagePx, tableCanvas.height - sliceY);
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = tableCanvas.width;
+        sliceCanvas.height = h;
+        sliceCanvas
+          .getContext("2d")!
+          .drawImage(tableCanvas, 0, sliceY, tableCanvas.width, h, 0, 0, tableCanvas.width, h);
+        drawSlice(sliceCanvas, margin);
+        sliceY += h;
       }
     } else {
-      console.error("Element with ID 'report-content' not found.");
+      console.error("Table element not found.");
     }
   
-    // 3) Save and restore view
+    // --- 3) Save and restore the original view ---
     pdf.save("Report.pdf");
     setViewMode(originalViewMode);
   };
+  
   
   const downloadCSV = () => {
     if (!reportData || !Array.isArray(reportData) || reportData.length === 0)
