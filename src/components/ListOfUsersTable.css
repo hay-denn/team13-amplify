@@ -5,3 +5,10 @@
 	  width: 100vw;
   }
   
+input,
+textarea,
+select,
+.form-control {
+  background-color: #000 !important;
+  color: #fff !important;
+}
