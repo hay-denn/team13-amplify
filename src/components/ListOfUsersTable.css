@@ -1,18 +1,7 @@
-.my-centered-dialog .modal-content {
-	border-radius: 1rem; 
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-	border: none;
+.my-centered-dialog {
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  width: 100vw;
   }
   
-  .cool-actions-modal .modal-header {
-	border-bottom: none;
-  }
-  
-  .cool-actions-modal .modal-footer button {
-	margin: 5px 0; 
-	width: 100%;
-  }
-  
-  .cool-actions-modal .modal-body {
-	padding: 2rem; 
-  }
