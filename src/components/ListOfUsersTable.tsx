@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Dropdown } from "react-bootstrap";
 import "./ListOfUsersTable.css"
 
 // IMPORTANT: rename the default export from "./Modal" so it doesn't clash
@@ -41,6 +41,9 @@ const SPONSOR_BASE_URL =
 const driversponsor_url =
   "https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1";
 
+const organizations_url =
+  "https://br9regxcob.execute-api.us-east-1.amazonaws.com/dev1";
+
 export const ListOfUsersTable = ({
   driverTable,
   sponsorTable = [],
@@ -48,6 +51,10 @@ export const ListOfUsersTable = ({
   isSponsor = false,
 }: Props) => {
   const auth = useAuth();
+  const cognitoGroups: string[] =
+  (auth.user?.profile?.["cognito:groups"] as string[]) || [];
+  const userGroup = cognitoGroups[0];
+
 
   // Track organization for sponsor
   const [sponsorOrgID, setSponsorOrgID] = useState<string | null>(null);
@@ -79,6 +86,11 @@ export const ListOfUsersTable = ({
     ...sponsorTable.map((s) => s.UserEmail),
     ...adminTable.map((a) => a.AdminEmail),
   ];
+
+  const [driverOrganizations, setDriverOrganizations] = useState<
+  { id: string; name: string }[]
+>([]);
+
 
   const handleRemoveDriver = async (driverEmail: string) => {
     try {
@@ -148,17 +160,31 @@ export const ListOfUsersTable = ({
     setIsViewOrgModalOpen(true);
   };
 
-  const handleShowActionsModal = (user: any) => {
+  const handleShowActionsModal = async (user: any) => {
     setSelectedUser(user);
     setShowActionsModal(true);
+  
+    const email = user.DriverEmail || user.UserEmail;
+    if (email) {
+      const orgs = await fetchDriverOrganizations(email);
+      setDriverOrganizations(orgs);
+    }
   };
+  
 
   const handleCloseActionsModal = () => {
     setShowActionsModal(false);
     setSelectedUser(null);
     setCurrentPoints(null);
     setPointsChange(0);
+    setRecurringPointsEdit(0);
+    setReason("");
+    setDriverOrganizations([]);
+    setRecurringPoints(-1);
+    setCurrentPoints(-1);
+    setSponsorOrgID(null);
   };
+  
 
   const handleViewAsDriver = (targetRoute: string) => {
     if (!selectedUser) return;
@@ -226,6 +252,57 @@ export const ListOfUsersTable = ({
       setRecurringPointsEdit(0);
     }
   };
+
+  const fetchSponsorOrgName = async (sponsorOrgID: string) => {
+    try {
+      const response = await fetch(
+        `${organizations_url}/organization?OrganizationID=${encodeURIComponent(sponsorOrgID)}`
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      const orgName = data?.OrganizationName || "Unknown Organization";
+      return orgName;
+    } catch (error) {
+      console.error("Error fetching sponsor organization name:", error);
+      return "N/A";
+    }
+  };
+
+  const fetchDriverOrganizations = async (driverEmail: string) => {
+    try {
+      const response = await fetch(
+        `https://obf2ta0gw9.execute-api.us-east-1.amazonaws.com/dev1/driverssponsors?DriversEmail=${encodeURIComponent(driverEmail)}`
+      );
+      if (response.status === 400 && (await response.json()).error === "Driver has no sponsors") {
+        console.warn("Driver has no sponsors.");
+        return [];
+      }
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+
+      const organizations = data.map((item: any) => item.DriversSponsorID);
+
+      // Fetch the organization names for each ID
+      const orgNamePromises = organizations.map((orgID: string) =>
+        fetchSponsorOrgName(orgID)
+      );
+      const orgNames = await Promise.all(orgNamePromises);
+      const organizationsWithNames = organizations.map((orgID: string, index: number) => ({
+        id: orgID,
+        name: orgNames[index],
+      }));
+
+      return organizationsWithNames;
+    } catch (error) {
+      console.error("Error fetching driver organizations:", error);
+      return [];
+    }
+  };
+
 
   useEffect(() => {
     if (selectedUser && sponsorOrgID) {
@@ -444,12 +521,6 @@ return (
                 </td>
               )}
               <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleShowActionsModal(sponsor)}
-                >
-                  Actions
-                </button>
               </td>
               {isSponsor && <td></td>}
             </tr>
@@ -476,12 +547,6 @@ return (
                 </td>
               )}
               <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleShowActionsModal(admin)}
-                >
-                  Actions
-                </button>
               </td>
               {isSponsor && <td></td>}
             </tr>
@@ -518,6 +583,23 @@ return (
                 selectedUser.UserEmail ||
                 "N / A"}
             </p>
+            {userGroup === "Admin" && (
+              <p>
+              <strong>User Organization:</strong>
+              <Dropdown>
+              <Dropdown.Toggle className="btn btn-secondary dropdown-toggle">
+                {driverOrganizations.find((org) => org.id === sponsorOrgID)?.name || "Select Organization"}
+              </Dropdown.Toggle>
+                <Dropdown.Menu>
+                {driverOrganizations.map((org, index) => (
+                  <Dropdown.Item key={index} onClick={() => setSponsorOrgID(org.id)}>
+                    {org.name}
+                  </Dropdown.Item>
+                ))}
+                </Dropdown.Menu>
+              </Dropdown>
+              </p>
+            )}
             <p>
               <strong>User Points: </strong>
               {currentPoints !== null ? currentPoints : "Loading..."}
