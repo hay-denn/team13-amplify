@@ -94,7 +94,11 @@ async function callAPI(url: string, methodType: string, data: object): Promise<v
         alert('User edit successful!'); // Display success alert with response data
       } else {
         // Handle error if response status is not OK
-        data = await response.json();
+        const responseData: Record<string, any> = await response.json();
+        let string = "";
+        for (const key in responseData) {
+          string += `${key}: ${responseData[key]}\n`;
+        }
         alert('Unable to make user edit - Error: ' + response.status + ' - ' + data); // Display error alert with status and message
       }
     } catch (error) {
