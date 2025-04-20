@@ -123,6 +123,7 @@ export const SponsorCatalogs: React.FC = () => {
         (item: CatalogItem) => item.trackPrice <= maxPrice && item.trackExplicitness !== "explicit"
       );
 
+      console.log("API URL:", apiUrl)
       setCatalog(filteredResults);
     } catch (error) {
       console.error("Error fetching catalog:", error);
@@ -235,13 +236,6 @@ export const SponsorCatalogs: React.FC = () => {
               Search
             </button>
           </form>
-          <br />
-          {apiUrl && (
-            <div className="mt-3">
-              <h6>API Call:</h6>
-              <p>{apiUrl}</p>
-            </div>
-          )}
         </div>
       </div>
 
