@@ -8,9 +8,9 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 const db = mysql.createPool({
-  host: process.env.DB_URL,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
+  host: "cpsc4911.cobd8enwsupz.us-east-1.rds.amazonaws.com",
+  user: "admin",
+  password: "4911Admin2025",
   database: "DRS",
   waitForConnections: true,
   connectionLimit: 10,
@@ -51,10 +51,16 @@ app.post("/productpurchased", (request, response) => {
       [ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity],
       (err, insertResults) => {
         if (err) {
-          console.error("Database insert error:", err);
-          return response.status(500).json({ error: 'Database insert error' });
+          switch (err.code) {
+            case "ER_DUP_ENTRY":
+              return response.status(400).json({ error: "Relationship already exists (duplicate entry)." });
+            case "ER_NO_REFERENCED_ROW_2":
+              return response.status(400).json({ error: "Foreign key constraint fails: ProductPurchasedID or PurchaseAssociatedID does not exist." });
+            default:
+              console.error("Database insert error:", err);
+              return response.status(500).json({ error: "Database insert error", code: err.code });
+          }
         }
-
         response.status(201).json({
           message: 'Product purchased added',
           user: { ProductPurchasedID, PurchaseAssociatedID, ProductPurchaseQuantity }

@@ -1,13 +1,13 @@
 import express from "express";
 import serverlessExpress from "@vendia/serverless-express";
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 import cors from "cors";
+import axios from "axios";
 
 const app = express();  
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// not sure why but env vars arent working
 const db = mysql.createPool({
   host: process.env.DB_URL,
   user: process.env.DB_USER,
@@ -18,63 +18,49 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-app.get("/status", (request, response) => {
-	const status = {
-		"Status": "Running"
-	};
-	response.send(status);
+app.get("/status", (req, res) => {
+  res.send({ Status: "Running" });
 });
 
-/*
- *  Add purchase
- */
-app.post("/purchase", (request, response) => {
-  const { PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID } = request.body;
+app.post("/purchase", async (req, res) => {
+  const { PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID, PurchasePrice } = req.body;
 
-  if (!PurchaseDriver || !PurchaseDate || !PurchaseStatus || !PurchaseSponsorID) {
-    return response.status(400).json({
-      error: 'PurchaseDriver, PurchaseDate, PurchaseStatus, and PurchaseSponsorID are required',
+  if (!PurchaseDriver || !PurchaseDate || !PurchaseStatus || !PurchaseSponsorID || !PurchasePrice) {
+    return res.status(400).json({
+      error: 'PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID, and PurchasePrice are required',
     });
   }
 
-  db.query(
-    `INSERT INTO DRS.purchases (PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID)
-    VALUES (?, ?, ?, ?)`,
-    [PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID],
-    (err, insertResults) => {
-      if (err) {
-        console.error("Database insert error on purchases:", err);
+  try {
+    const [insertResults] = await db.query(
+      `INSERT INTO DRS.purchases (PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID, PurchasePrice)
+       VALUES (?, ?, ?, ?, ?)`,
+      [PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID, PurchasePrice]
+    );
 
-        if (err.code === 'ER_NO_REFERENCED_ROW_2') {
-          return response.status(400).json({ error: 'Driver or Sponsor does not exist' });
-        }
-
-        return response.status(500).json({ error: 'Database insert error' });
-      }
-
-      const newPurchaseID = insertResults.insertId;
-
-      response.status(201).json({
-        message: 'Purchase created',
-        PurchaseID: newPurchaseID,
-        details: { PurchaseDriver, PurchaseDate, PurchaseStatus }
-      });
+    res.status(201).json({
+      message: 'Purchase created',
+      PurchaseID: insertResults.insertId,
+      details: { PurchaseDriver, PurchaseDate, PurchaseStatus, PurchasePrice }
+    });
+  } catch (err) {
+    console.error("Database insert error on purchases:", err);
+    if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+      return res.status(400).json({ error: 'Driver or Sponsor does not exist' });
     }
-  );
+    res.status(500).json({ error: 'Database insert error' });
+  }
 });
 
-
-/*
- * get specific purchase
- */
-app.get("/purchase", (request, response) => {
-  const { PurchaseID } = request.query;
+app.get("/purchase", async (req, res) => {
+  const { PurchaseID } = req.query;
 
   if (!PurchaseID) {
-    return response.status(400).json({ error: 'PurchaseID required' });
+    return res.status(400).json({ error: 'PurchaseID required' });
   }
 
-  db.query(`SELECT 
+  try {
+    const [results] = await db.query(`SELECT 
       p.PurchaseID,
       p.PurchaseDriver,
       p.PurchaseDate,
@@ -85,100 +71,77 @@ app.get("/purchase", (request, response) => {
     FROM DRS.purchases p 
     LEFT JOIN DRS.productspurchased pp ON p.PurchaseID = pp.PurchaseAssociatedID
     WHERE p.PurchaseID = ?
-    GROUP BY p.PurchaseID;
-    `, [PurchaseID], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
+    GROUP BY p.PurchaseID;`, [PurchaseID]);
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'Purchase not found' });
+      return res.status(400).json({ error: 'Purchase not found' });
     }
 
-    return response.send(results[0]);
-  });
+    res.send(results[0]);
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-/*
- * get specific purchase price
- */
-app.get("/purchasePrice", (request, response) => {
-  const { PurchaseID } = request.query;
+app.get("/purchasePrice", async (req, res) => {
+  const { PurchaseID } = req.query;
 
   if (!PurchaseID) {
-    return response.status(400).json({ error: 'PurchaseID required' });
+    return res.status(400).json({ error: 'PurchaseID required' });
   }
 
-  let productsPurchased = [];
-
-  db.query(`select ProductPurchasedID from DRS.productspurchased where PurchaseAssociatedID = ?;`,
-  [PurchaseID], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
+  try {
+    const [results] = await db.query(
+      `SELECT ProductPurchasedID FROM DRS.productspurchased WHERE PurchaseAssociatedID = ?`,
+      [PurchaseID]
+    );
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'Purchase not found or no products associated with purchase' });
+      return res.status(400).json({ error: 'No products found for this PurchaseID' });
     }
 
-    let productsPurchased = [];
+    const productsPurchased = results.map(row => row.ProductPurchasedID);
 
-    for(let i = 0; i < results.length; i++)
-    {
-      productsPurchased.push(results[i].ProductPurchasedID)
-    }
-
-    let price = 0.0
-
-    for(let i = 0; i < productsPurchased.length; i++){
-      let path = 'https://itunes.apple.com/lookup?id=';
-
-      path = path + productsPurchased[i];
-      
-      const axios = require('axios');
-
-      exports.handler = async (event) => {
-        const id = productsPurchased[i];
+    const itunesResponses = await Promise.all(
+      productsPurchased.map(async (id) => {
         const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(id)}`;
-
         try {
-          const response = await axios.get(url);
-          const data = response.data;
-
-          return {
-            statusCode: 200,
-            body: JSON.stringify(data),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          };
+          const res = await axios.get(url);
+          return res.data;
         } catch (error) {
-          console.error('Error fetching data from iTunes API:', error);
-
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Internal Server Error' }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          };
+          console.error(`Error fetching iTunes data for ID ${id}:`, error.message);
+          return null;
         }
-      };
+      })
+    );
 
+    const validResponses = itunesResponses
+      .filter(res => res && res.resultCount > 0)
+      .map(res => res.results[0]);
+
+    let totalPrice = 0.0;
+
+    for (const item of validResponses) {
+      if (item.trackPrice != null) {
+        totalPrice += item.trackPrice;
+      } else if (item.collectionPrice != null) {
+        totalPrice += item.collectionPrice;
+      }
     }
 
-    return response.status(200).json({ message: 'Done' });
-  });
+    res.status(200).json({
+      totalPrice,
+      productsPurchased
+    });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
 });
 
-/*
- * get all purchases
- */
-app.get("/purchases", (request, response) => {
-  let { PurchaseDriver, PurchaseSponsorID } = request.query;
-
+app.get("/purchases", async (req, res) => {
+  const { PurchaseDriver, PurchaseSponsorID } = req.query;
   let query = "SELECT * FROM DRS.purchases";
   const params = [];
   const conditions = [];
@@ -197,60 +160,39 @@ app.get("/purchases", (request, response) => {
     query += " WHERE " + conditions.join(" AND ");
   }
 
-  db.query(query, params, (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
-    return response.send(results);
-  });
+  try {
+    const [results] = await db.query(query, params);
+    res.send(results);
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-
-
-/*
- * update purchase
- */
-app.put("/purchase", async (request, response) => {
-  const { PurchaseID, PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID } = request.body;
+app.put("/purchase", async (req, res) => {
+  const { PurchaseID, PurchaseDriver, PurchaseDate, PurchaseStatus, PurchaseSponsorID } = req.body;
 
   if (!PurchaseID) {
-    return response.status(400).json({ error: 'PurchaseID required' });
+    return res.status(400).json({ error: 'PurchaseID required' });
   }
 
-  db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], async (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
+  try {
+    const [existing] = await db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID]);
 
-    if (results.length === 0) {
-      return response.status(400).json({ error: 'Purchase not found' });
+    if (existing.length === 0) {
+      return res.status(400).json({ error: 'Purchase not found' });
     }
 
     const updates = [];
     const values = [];
 
-    // Corrected typo: PurchaseDriver
     if (PurchaseDriver) {
-      try {
-        const driverResults = await new Promise((resolve, reject) => {
-          db.query("SELECT * FROM DRS.drivers WHERE DriverEmail = ?", [PurchaseDriver], (err, driverResults) => {
-            if (err) reject(err);
-            else resolve(driverResults);
-          });
-        });
-
-        if (driverResults.length === 0) {
-          return response.status(400).json({ error: 'Driver does not exist' });
-        }
-
-        updates.push("PurchaseDriver = ?");
-        values.push(PurchaseDriver);
-      } catch (error) {
-        console.error("Database select error on drivers:", error);
-        return response.status(500).json({ error: 'Database error' });
+      const [driverResults] = await db.query("SELECT * FROM DRS.drivers WHERE DriverEmail = ?", [PurchaseDriver]);
+      if (driverResults.length === 0) {
+        return res.status(400).json({ error: 'Driver does not exist' });
       }
+      updates.push("PurchaseDriver = ?");
+      values.push(PurchaseDriver);
     }
 
     if (PurchaseDate) {
@@ -269,84 +211,58 @@ app.put("/purchase", async (request, response) => {
     }
 
     if (updates.length === 0) {
-      return response.json({ message: 'No changes provided' });
+      return res.json({ message: 'No changes provided' });
     }
 
     const updateQuery = `UPDATE DRS.purchases SET ${updates.join(", ")} WHERE PurchaseID = ?`;
     values.push(PurchaseID);
 
-    db.query(updateQuery, values, (updateErr, updateResults) => {
-      if (updateErr) {
-        console.error("Database update error:", updateErr);
-        return response.status(500).json({ error: 'Database update error' });
-      }
+    await db.query(updateQuery, values);
 
-      db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (selErr, selResults) => {
-        if (selErr) {
-          console.error("Database select error:", selErr);
-          return response.status(500).json({ error: 'Database select error after update' });
-        }
+    const [selResults] = await db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID]);
 
-        return response.status(200).json({
-          message: 'Purchase updated',
-          PurchaseID: PurchaseID,
-          details: selResults[0]
-        });
-      });
+    res.status(200).json({
+      message: 'Purchase updated',
+      PurchaseID,
+      details: selResults[0]
     });
-  });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ error: 'Database update error' });
+  }
 });
 
-/*
- * delete a purchase
- */
-app.delete("/purchase", (request, response) => {
-  const { PurchaseID } = request.query;
+app.delete("/purchase", async (req, res) => {
+  const { PurchaseID } = req.query;
+
   if (!PurchaseID) {
-    return response.status(400).json({ error: 'PurchaseID required' });
+    return res.status(400).json({ error: 'PurchaseID required' });
   }
-  db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (err, results) => {
-    if (err) {
-      console.error("Database select error:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
+
+  try {
+    const [results] = await db.query("SELECT * FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID]);
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'Purchase not found' });
+      return res.status(400).json({ error: 'Purchase not found' });
     }
 
-    const userToDelete = results[0];
+    await db.query("DELETE FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID]);
 
-    db.query("DELETE FROM DRS.purchases WHERE PurchaseID = ?", [PurchaseID], (deleteErr, deleteResults) => {
-      if (deleteErr) {
-        console.error("Database delete error:", deleteErr);
-        return response.status(500).json({ error: 'Database delete error' });
-      }
-
-      return response.send({
-        message: 'Purchase deleted',
-        user: userToDelete
-      });
-    });
-  });
+    res.send({ message: 'Purchase deleted', user: results[0] });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: 'Database delete error' });
+  }
 });
 
-/*
- * get purchase count
- */
-app.get("/purchase_count", (request, response) => {
-
-    db.query(
-      "SELECT COUNT(*) AS count FROM DRS.purchases",
-      (err, results) => {
-        if (err) {
-          console.error("Database error:", err);
-          return response.status(500).json({ error: 'Database error' });
-        }
-        return response.send({ count: results[0].count });
-      }
-	)
-	
+app.get("/purchase_count", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT COUNT(*) AS count FROM DRS.purchases");
+    res.send({ count: results[0].count });
+  } catch (err) {
+    console.error("Count error:", err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 export const handler = serverlessExpress({ app });

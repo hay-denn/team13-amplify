@@ -7,6 +7,13 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200);
+});
+
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -85,40 +92,91 @@ app.post("/sponsor", (request, response) => {
  * get specific user
  */
 app.get("/sponsor", (request, response) => {
-  const { UserEmail } = request.query;
+  let { UserEmail } = request.query;
 
   if (!UserEmail) {
-    return response.status(400).json({ error: 'UserEmail required' });
+    return response.status(400).json({ error: "UserEmail is required" });
   }
 
-  db.query("SELECT * FROM sponsorusers WHERE UserEmail = ?", [UserEmail], (err, results) => {
+  // Make sure any "+" in the query param remains a "+"
+  UserEmail = decodeURIComponent(UserEmail).replace(/ /g, "+");
+  console.log("Final Corrected Email:", UserEmail);
+
+  // Pull user and their org settings with a JOIN
+  const query = `
+    SELECT
+      su.UserEmail,
+      su.UserFName,
+      su.UserLName,
+      su.UserOrganization,
+      so.OrganizationName,
+      so.SearchTerm,
+      so.PointDollarRatio,
+      so.AmountOfProducts,
+      so.ProductType,
+      so.MaxPrice
+    FROM sponsorusers AS su
+    JOIN sponsororganizations AS so 
+      ON su.UserOrganization = so.OrganizationID
+    WHERE su.UserEmail = ?
+    LIMIT 1
+  `;
+
+  db.query(query, [UserEmail], (err, results) => {
     if (err) {
       console.error("Database error:", err);
-      return response.status(500).json({ error: 'Database error' });
+      return response.status(500).json({ error: "Database error" });
     }
 
     if (results.length === 0) {
-      return response.status(400).json({ error: 'user not found' });
+      return response.status(404).json({ error: "User not found" });
     }
 
-    return response.send(results[0]);
+    // Return user + organization fields in one object
+    return response.json(results[0]);
   });
 });
+
+
+
+
 
 /*
  * get all users
  */
 app.get("/sponsors", (request, response) => {
 
-  db.query(
-    "SELECT * FROM sponsorusers",
-    (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return response.status(500).json({ error: "Database error" });
+  response.setHeader("Access-Control-Allow-Origin", "*");  // ✅ CORS header
+
+  // add query parameter to get all users in an organization
+  const { UserOrganization } = request.query;
+
+  if (UserOrganization) {
+
+    db.query(
+      "SELECT * FROM sponsorusers WHERE UserOrganization = ?",
+      [UserOrganization],
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: 'Database error' });
+        }
+        return response.send(results);
       }
-      return response.send(results);
-    })
+    );
+  }
+  else {
+    db.query(
+      "SELECT * FROM sponsorusers",
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: "Database error" });
+        }
+        return response.send(results);
+      }
+    );
+  }
 
 });
 
@@ -243,5 +301,3 @@ app.get("/sponsor_count", (request, response) => {
 });
 
 export const handler = serverlessExpress({ app });
-
-

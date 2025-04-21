@@ -9,9 +9,9 @@ app.use(express.json());
 
 // not sure why but env vars arent working
 const db = mysql.createPool({
-  host: "team13-database.cobd8enwsupz.us-east-1.rds.amazonaws.com",
-  user: "admin",
-  password: "pw4Team13RDSDatabase",
+  host: process.env.DB_URL,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: "DRS",
   waitForConnections: true,
   connectionLimit: 10,

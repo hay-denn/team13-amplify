@@ -9,6 +9,7 @@ app.use(express.json());
 
 const validPointChangeActions = ["Add", "Subtract", "Set"];
 
+// not sure why but env vars arent working
 const db = mysql.createPool({
   host: process.env.DB_URL,
   user: process.env.DB_USER,
@@ -26,75 +27,75 @@ app.get("/status", (request, response) => {
 	response.send(status);
 });
 
-/*
- *  Add amin
- */
-app.post("/pointchange", (request, response) => {
-  const { PointChangeDriver, PointChangeSponsor, PointChangeNumber, 
-    PointChangeAction} = request.body;
-
-  const PointChangeDate = new Date().toISOString().split('T')[0];
+app.post("/pointchange", async (request, response) => {
+  const {
+    PointChangeDriver,
+    PointChangeSponsor,
+    PointChangeNumber,
+    PointChangeAction,
+    PointChangeReason, // <-- new field
+  } = request.body;
+  const PointChangeDate = new Date().toISOString().split("T")[0];
 
   if (PointChangeAction && !validPointChangeActions.includes(PointChangeAction)) {
-    return response.status(400).json({
-      error: 'PointChangeAction must be one of Add, Subtract, or Set'
-    });
+    return response
+      .status(400)
+      .json({ error: "PointChangeAction must be one of Add, Subtract, or Set" });
   }
-  
+
   if (!PointChangeDriver || !PointChangeSponsor || !PointChangeNumber || !PointChangeAction) {
     return response.status(400).json({
-      error: 'PointChangeDriver, PointChangeSponsor, PointChangeNumb, and PointChangeAction are required'
+      error:
+        "PointChangeDriver, PointChangeSponsor, PointChangeNumber, and PointChangeAction are required",
     });
   }
 
-  // check driver exists
-  db.query("SELECT * FROM DRS.drivers WHERE DriverEmail = ?", [PointChangeDriver], (err, results) => {
-    if (err) {
-      console.error("Database select error on drivers:", err);
-      return response.status(500).json({ error: 'Database error' });
+  try {
+    const [driverResults] = await db.promise().query(
+      "SELECT * FROM DRS.drivers WHERE DriverEmail = ?",
+      [PointChangeDriver]
+    );
+    if (driverResults.length === 0) {
+      return response.status(400).json({ error: "Driver does not exist" });
     }
-    if (results.length === 0) {
-      return response.status(400).json({ error: 'Driver does not exist' });
+
+    const [sponsorResults] = await db.promise().query(
+      "SELECT * FROM DRS.sponsorusers WHERE UserEmail = ?",
+      [PointChangeSponsor]
+    );
+    if (sponsorResults.length === 0) {
+      return response.status(400).json({ error: "Sponsor does not exist" });
     }
+
+    await db.promise().query(
+      "INSERT INTO DRS.pointchanges (PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction, PointChangeDate, PointChangeReason) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        PointChangeDriver,
+        PointChangeSponsor,
+        PointChangeNumber,
+        PointChangeAction,
+        PointChangeDate,
+        PointChangeReason,
+      ]
+    );
+
+    return response.status(201).json({
+      message: "Point change created",
+      user: {
+        PointChangeDriver,
+        PointChangeSponsor,
+        PointChangeNumber,
+        PointChangeAction,
+        PointChangeDate,
+        PointChangeReason, 
+      },
+    });
+  } catch (err) {
+    console.error("Database error:", err);
+    return response.status(500).json({ error: "Database error", message: err.message });
   }
-  );
-
-  // check sponsor exists
-  db.query("SELECT * FROM DRS.sponsororganizations WHERE OrganizationName = ?", [PointChangeSponsor], (err, results) => {
-    if (err) {
-      console.error("Database select error on sponsors:", err);
-      return response.status(500).json({ error: 'Database error' });
-    }
-    if (results.length === 0) {
-      return response.status(400).json({ error: 'Sponsor does not exist' });
-    }
-  }
-  );
-
-  db.query(
-    "INSERT INTO DRS.pointchanges (PointChangeDriver, PointChangeSponsor, \
-    PointChangeNumber, PointChangeAction, PointChangeDate \
-    ) VALUES (?, ?, ?, ?, ?)",
-    [PointChangeDriver, PointChangeSponsor, PointChangeNumber, PointChangeAction,
-      PointChangeDate
-    ],
-    (err) => {
-      if (err) {
-        console.error("Database insert error:", err);
-        return response.status(500).json({ error: 'Database insert error',
-          message: err.message
-        });
-      }
-
-      response.status(201).json({
-        message: 'Point change created',
-        user: { PointChangeDriver, PointChangeSponsor, PointChangeNumber,
-          PointChangeAction, PointChangeDate
-        }
-      });
-    }
-  );
 });
+
 
 /*
  * get specific organization
@@ -125,18 +126,39 @@ app.get("/pointchange", (request, response) => {
  * get all organizations
  */
 app.get("/pointchanges", (request, response) => {
+  const { PointChangeDriver } = request.query;
 
-  db.query(
-    "SELECT * FROM DRS.pointchanges",
-    (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return response.status(500).json({ error: "Database error" });
-      }
-      return response.send(results);
-    })
+  let sql = `
+    SELECT
+      pc.*,
+      su.UserOrganization      AS organizationID,
+      org.OrganizationName     AS organizationName
+    FROM DRS.pointchanges pc
 
+    LEFT JOIN DRS.sponsorusers su
+      ON pc.PointChangeSponsor = su.UserEmail
+
+    LEFT JOIN DRS.sponsororganizations org
+      ON su.UserOrganization = org.OrganizationID
+  `;
+  const params = [];
+
+  if (PointChangeDriver) {
+    sql += " WHERE pc.PointChangeDriver = ?";
+    params.push(PointChangeDriver);
+  }
+
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return response.status(500).json({ error: "Database error",
+    err: err });
+    }
+    response.json(results);
+  });
 });
+
+
 
 /*
  * delete an organization

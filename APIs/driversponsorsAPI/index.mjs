@@ -17,7 +17,6 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-
 app.get("/status", (request, response) => {
 	const status = {
 		"Status": "Running"
@@ -105,53 +104,71 @@ app.get("/driverssponsor", (request, response) => {
 });
 
 /*
- * get all relationships
+ * Get all relationships, with optional filtering by DriversEmail and/or DriversSponsorID
  */
 app.get("/driverssponsors", (request, response) => {
   const { DriversEmail, DriversSponsorID } = request.query;
-  
-  if(DriversEmail){
-    db.query("SELECT * FROM DRS.driverssponsors WHERE DriversEmail = ?", [DriversEmail], (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return response.status(500).json({ error: 'Database error' });
-      }
-  
-      if (results.length === 0) {
-        return response.status(400).json({ error: 'Driver has no sponsors' });
-      }
-  
-      return response.send(results);
-    });
-  }
 
-  else if(DriversSponsorID){
-    db.query("SELECT * FROM DRS.driverssponsors WHERE DriversSponsorID = ?", [DriversSponsorID], (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return response.status(500).json({ error: 'Database error' });
-      }
-  
-      if (results.length === 0) {
-        return response.status(400).json({ error: 'Sponsor has no drivers' });
-      }
-  
-      return response.send(results);
-    });
-  }
-
-  else{
+  if (DriversEmail && DriversSponsorID) {
+    // Both parameters provided: filter on both
     db.query(
-      "SELECT * FROM DRS.driverssponsors",
+      "SELECT * FROM DRS.driverssponsors WHERE DriversEmail = ? AND DriversSponsorID = ?",
+      [DriversEmail, DriversSponsorID],
       (err, results) => {
         if (err) {
           console.error("Database error:", err);
           return response.status(500).json({ error: "Database error" });
         }
+        if (results.length === 0) {
+          return response.status(400).json({ error: "No matching sponsorship relationships found" });
+        }
+        return response.send(results);
+      }
+    );
+  } else if (DriversEmail) {
+    // Only DriversEmail provided
+    db.query(
+      "SELECT * FROM DRS.driverssponsors WHERE DriversEmail = ?",
+      [DriversEmail],
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: "Database error" });
+        }
+        if (results.length === 0) {
+          return response.status(400).json({ error: "Driver has no sponsors" });
+        }
+        return response.send(results);
+      }
+    );
+  } else if (DriversSponsorID) {
+    // Only DriversSponsorID provided
+    db.query(
+      "SELECT * FROM DRS.driverssponsors WHERE DriversSponsorID = ?",
+      [DriversSponsorID],
+      (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          return response.status(500).json({ error: "Database error" });
+        }
+        if (results.length === 0) {
+          return response.status(400).json({ error: "Sponsor has no drivers" });
+        }
+        return response.send(results);
+      }
+    );
+  } else {
+    // No query parameters provided: return all records.
+    db.query("SELECT * FROM DRS.driverssponsors", (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return response.status(500).json({ error: "Database error" });
+      }
       return response.send(results);
-    })
+    });
   }
 });
+
 
 /*
  * delete a relationship

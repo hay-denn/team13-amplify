@@ -84,7 +84,7 @@ app.post("/driversponsorapplication", (req, res) => {
   db.query(insertQuery, values, (err, results) => {
     if (err) {
       console.error("Database insert error:", err);
-      return res.status(500).json({ error: "Database insert error" });
+      return res.status(500).json({ error: "Database insert error", err });
     }
 
     res.status(201).json({
@@ -191,7 +191,7 @@ app.put("/driversponsorapplication", (req, res) => {
     db.query(updateQuery, values, async (updateErr) => {
       if (updateErr) {
         console.error("Database update error:", updateErr);
-        return res.status(500).json({ error: "Database update error" });
+        return res.status(500).json({ error: "Database update error"});
       }
 
       // Retrieve the updated record AFTER the update
