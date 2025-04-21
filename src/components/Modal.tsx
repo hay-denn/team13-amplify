@@ -144,6 +144,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
   }
   , [initialData]);
 
+
   //Auth component to get access_token, verify authentication of user, etc.
   const auth = useAuth();
 
@@ -258,7 +259,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
       await manageCognitoUser("deleteUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email}, "", userType);
       await manageCognitoUser("createUser", USER_POOL_ID, email, auth.user.access_token, {given_name: firstName, family_name: familyName, email: email, email_verified: "true"}, tempPassword, userType);
       // delete the old user
-      if (userType == "Driver") {
+      if (oldUserType == "Driver") {
         const data = {
             "DriverEmail": email,
             "DriverFName": firstName,
@@ -266,14 +267,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, initialData, emailList }
         };
         callAPI(`${DRIVER_URL}/driver`, "DELETE", data);
       }
-      else if (userType == "Admin") {
+      else if (oldUserType == "Admin") {
         const data = {
              "AdminEmail": email,
              "AdminFName": firstName,
              "AdminLName": familyName
         };
         callAPI(`${ADMIN_URL}/admin`, "DELETE", data);
-      } else if (userType == "Sponsor") {
+      } else if (oldUserType == "Sponsor") {
         const data = {
           "UserEmail": email,
           "UserFName": firstName,
