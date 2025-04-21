@@ -801,13 +801,15 @@ return (
         >
           Driver Catalog
         </Button>
-        <Button
-          variant="primary"
-          onClick={() => handleEditOrders("/edit-orders")}
-          style={{ width: "100%", margin: "5px 0" }}
-        >
-          Edit Orders
-        </Button>
+        {userGroup !== "Admin" && (
+          <Button
+            variant="primary"
+            onClick={() => handleEditOrders("/edit-orders")}
+            style={{ width: "100%", margin: "5px 0" }}
+          >
+            Edit Orders
+          </Button>
+        )}
         <Button
           variant="secondary"
           onClick={handleCloseActionsModal}
