@@ -301,7 +301,6 @@ const PurchaseTable: React.FC<PurchaseTableProps> = ({ userEmail: initialUserEma
   
   return (
     <div className="purchase-table-container">
-      <p>today is : {today}</p>
       <table className="purchase-table">
         <thead>
           <tr>
