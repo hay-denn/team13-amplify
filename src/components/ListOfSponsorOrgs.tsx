@@ -204,7 +204,16 @@ export const ListOfSponsorOrganizations = ({ orgTable }: Props) => {
                   onChange={handleEditChange}
                 />
               </div>
-
+              <div className="mb-2">
+                <label className="form-label">Search Term</label>
+                <input
+                  type="text"
+                  name="SearchTerm"
+                  className="form-control"
+                  value={editOrgData.SearchTerm}
+                  onChange={handleEditChange}
+                />
+              </div>
               <div className="row mb-2">
                 <div className="col">
                   <label className="form-label">Point‑Dollar Ratio</label>
