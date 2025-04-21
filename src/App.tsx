@@ -107,6 +107,10 @@ function App() {
                       element={<ManageSponsors />}
                     />
                     <Route path="/reports" element={<Reports />} />
+                    <Route
+                      path="/edit-orders"
+                      element={<SponsorEditOrders />}
+                    />
                   </>
                 )}
 
