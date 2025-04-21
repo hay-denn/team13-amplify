@@ -14,7 +14,7 @@ export const ManageSponsors = () => {
     OrganizationName: "",
     OrganizationDescription: "",
     SearchTerm: "",
-    PointDollarRatio: 1,
+    PointDollarRatio: 100,
     AmountOfProducts: 0,
     ProductType: "" as ProductType | "",
     MaxPrice: 0,
